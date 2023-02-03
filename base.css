@@ -1,0 +1,456 @@
+/*Propriété de l'entête*/
+
+header{
+    
+    margin: 0px 0px;
+    padding: 0px 0px;
+    height: 160px;
+    width: 100%;
+            
+}
+
+header a{
+    padding: 0px;
+    margin: 0px;
+}
+
+header img{
+    float: left;
+    padding: 0px;
+    margin: 0px;
+
+}
+
+header h1{
+    width: 50%;
+    padding: 0px;
+    margin: 0px auto;
+
+}
+
+.logo{
+    width: 150px;
+    height: 150px;
+    
+}
+
+.titre{
+    width: 50%;
+    font-size: 35px;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 50px;
+}
+
+/* FIN Propriété de l'entête*/
+
+body{
+    font-family: 'Didact Gothic', sans-serif;
+    margin: 0px;
+    padding: 0px;
+    background-color: #FBF3E4;
+}
+
+strong{
+    font-weight: normal;
+}
+
+
+
+
+h1{
+    width: 100%;
+    font-size: 35px;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 50px;
+}
+
+/* Propriété des différents tableaux*/
+
+table{
+    margin: 20px auto;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th{
+    border: 1px solid black;
+    background-color: #23A3D9;
+    color: white;
+}
+
+tr{
+    border: 1px solid black;
+    
+}
+
+td{
+    border: 1px solid black;
+    padding: 10px 10px;
+}
+
+.legend{
+    caption-side: bottom;
+    background-color: #26A648;
+    color: white;
+    width: 250%;
+    font-weight: bold;
+    position: relative;
+    right: 75%;
+    margin-top: 20px;
+}
+
+/* FIN Propriété des différents tableaux*/
+
+.doc p{
+    text-align: center;
+}
+
+/* Propriété des différents formulaires*/
+
+fieldset{
+    background-color: #23A3D9;
+    width: 320px;
+    padding: 10px;
+    margin: 0px auto;
+    border-radius: 5px;
+}
+
+legend{
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 18px;
+}
+
+input{
+    width: 300px;
+    height: 20px
+}
+
+textarea{
+    width: 300px;
+    height: 100px;
+}
+
+label{
+    display: block;
+    width: 200px;
+}
+
+
+
+input[type="submit"]{
+    display: block;
+    position: relative;
+    margin: 30px auto;
+    width: 100px;
+    height: 35px;
+    border : outset;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #26A648;
+}
+
+/* FIN Propriété des différents formulaires*/
+
+/*Bouton pour ajout de sous-catégorie*/
+
+.petitboutonform{
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 1px solid black;
+    border-radius: 3px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #26A648;
+}   
+
+/*FIN Bouton pour ajout de sous-catégorie*/
+
+/*Bouton pour Retour, valider ou Annuler*/
+
+.stdbouton{
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    position: relative;
+    margin: 30px auto;
+    width: 100px;
+    height: 35px;
+    border : outset;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #26A648;
+}
+
+/*FIN Bouton pour Retour, valider ou Annuler*/
+
+input[type="submit"]:hover{
+    background-color: #23A3D9;
+}
+
+/* Propriété pour la mise en forme du ticket de caisse sur l'iframe*/
+#ticket{
+    display: block;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.doc ul{
+    padding: 0px;
+    width: 300px;
+    margin: 0px auto 75px auto;
+}
+.doc li{
+    display: block;
+    padding: 0px;
+    list-style-type: none;
+    width: 160px;
+    height: 50px;
+    box-shadow: 0px 0px 5px black;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px auto;
+}
+.doc a{
+    text-decoration: none;
+    color: white;
+}
+#vert{
+    width: 100%;
+    line-height: 50px;
+    background-color: #26A648;
+}
+#bleu{
+    width: 100%;
+    line-height: 50px;
+    background-color: #23A3D9;
+}
+
+#bleu:hover{
+    background-color: #26A648;
+}
+
+.gramme{
+    display: inline;
+    font-weight: bold;
+    color: yellow;
+}
+
+/*Propriété du footer*/
+
+footer{
+    height: 75px;
+    background-color: #23A3D9;
+}
+
+footer p{
+    text-align: center;
+    color: white;
+}
+
+/*FIN Propriété du footer*/
+
+
+
+
+
+
+/*Pour adapter la visualisation à une plus petite fenêtre, 3 niveaux plus petits 930px et 700px et 450px pour les mobiles*/
+
+/*@media screen and (max-width: 930px){
+    h1{
+        font-size: 28px;
+        height: 75px;
+    }
+    header{
+        height: 135px;
+    }
+    .logo{
+        width: 125px;
+        height: 125px;
+    }
+    .imagetype{
+    width: 115px;
+    height: 120px;
+    }
+    nav li{
+        width: 115px;
+        height: 40px;
+        font-weight: normal;
+        font-size: 11px;
+    }
+    nav{
+    height: 60px;
+    }
+    #sommes{
+        line-height: 40px;
+    }
+    #ressourcerie{
+        line-height: 20px;
+    }
+    #projet{
+        line-height: 20px;
+    }
+    #evenement{
+        line-height: 40px;
+    }
+    #contact{
+        line-height: 40px;
+    }
+    footer p{
+        line-height: 20px;
+        font-size: 14px;
+    }
+    footer{
+    height: 75px;
+    }
+    .facebook{
+    height: 30px;
+    width: 30px;
+    }
+    
+}
+@media screen and (max-width: 700px){
+    h1{
+        font-size: 20px;
+        height: 50px;
+    }
+    header{
+        height: 110px;
+    }
+    .logo{
+        width: 100px;
+        height: 100px;
+    }
+    .imagetype{
+    width: 90px;
+    height: 90px;
+    }
+    nav li{
+        width: 75px;
+        height: 25px;
+        font-weight: normal;
+        font-size: 8px;
+    }
+    nav{
+    height: 40px;
+    }
+    #sommes{
+        line-height: 25px;
+    }
+    #ressourcerie{
+        line-height: 12px;
+    }
+    #projet{
+        line-height: 12px;
+    }
+    #evenement{
+        line-height: 25px;
+    }
+    #contact{
+        line-height: 25px;
+    }
+    footer p{
+        line-height: 50px;
+        font-size: 11px;
+    }
+    footer p{
+        line-height: 10px;
+        font-size: 11px;
+    }
+    footer{
+    height: 50px;
+    }
+    .facebook{
+    height: 20px;
+    width: 20px;
+    }
+}
+
+@media screen and (max-width: 480px){
+    h1{
+        font-size: 20px;
+        height: 30px;
+        padding-top: 0px;
+    }
+    header{
+        height: 60px;
+       
+    }
+    .uneligne{
+        line-height: 60px;
+    }
+    .deuxlignes{
+        line-height: 30px;
+    }
+    .logo{
+        width: 55px;
+        height: 55px;
+    }
+    .imagetype{
+        width: 55px;
+        height: 55px;
+    }
+    nav li{
+        width: 54px;
+        height: 18px;
+        font-weight: normal;
+        font-size: 7px;
+        margin: 10px 2px;
+    }
+    nav{
+        height: 40px;
+    }
+     #dateevenement>div{
+    display: block;
+    }
+    #sommes{
+        line-height: 9px;
+    }
+    #ressourcerie{
+        line-height: 9px;
+    }
+    #projet{
+        line-height: 9px;
+    }
+    #evenement{
+        line-height: 18px;
+    }
+    #contact{
+        line-height: 18px;
+    }
+    footer p{
+        line-height: 50px;
+        font-size: 11px;
+    }
+    footer p{
+        line-height: 10px;
+        font-size: 11px;
+    }
+    footer{
+        height: 50px;
+    }
+    .facebook{
+        height: 20px;
+        width: 20px;
+    }
+    .logozd{
+        width: 80px;
+    }
+    #frame{
+    width: 300px;
+    height: 187px;
+    }
+    .espacementtop{
+        margin-top: 50px;
+    }
+}
+
