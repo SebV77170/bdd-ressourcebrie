@@ -14,8 +14,6 @@ require('actions/objets/currencyToDecimalFct.php');
         
         if($_POST['paiement']=='espece'){
             
-             if(!empty($_POST['client'])){
-            
             $getAllObjetOfTicket = $db -> prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?');
             $getAllObjetOfTicket -> execute(array($_GET['id_temp_vente']));
             
@@ -30,40 +28,40 @@ require('actions/objets/currencyToDecimalFct.php');
             
              //On remplit la bdd ticketdecaisse
                 
-                $moyenDePaiement = $_POST['paiement'];
-                $nbrObjet = $_GET['nbrObjet'];
-                $nomVendeur = $_SESSION['nom'];
-                $idVendeur = $_SESSION['id'];
-                $prenomVendeur = $_SESSION['prenom'];
-                $numcheque = 0;
-                $banque = 0;
+            $moyenDePaiement = $_POST['paiement'];
+            $nbrObjet = $_GET['nbrObjet'];
+            $nomVendeur = $_SESSION['nom'];
+            $idVendeur = $_SESSION['id'];
+            $prenomVendeur = $_SESSION['prenom'];
+            $numcheque = 0;
+            $banque = 0;
                 
                 
-                    //pour cela on récupère le prix total
-                    $getPrixTotal = $db->prepare('SELECT SUM(prix) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
-                    $getPrixTotal -> execute(array($_GET['id_temp_vente']));
+            //pour cela on récupère le prix total
+            $getPrixTotal = $db->prepare('SELECT SUM(prix) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
+            $getPrixTotal -> execute(array($_GET['id_temp_vente']));
 
-                    $getTotal = $getPrixTotal->fetch();
-                    $getTotalEnEuros = $getTotal['prix_total'];
-                    $lien = '...';
-                    
-                    //On insère.
-                    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?)');
-                    $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $getTotalEnEuros, $lien));
-                
-                    //On récupère l'id du dernier ticket de caisse du vendeur en question.
-                    
-                    $recupInfoTc = $db-> prepare('SELECT id_ticket, prix_total FROM ticketdecaisse WHERE id_vendeur = ? ORDER BY id_ticket DESC');
-                    $recupInfoTc -> execute(array($idVendeur));
-                    
-                    $infoOfTicket = $recupInfoTc->fetch();
-                    
-                    $idOfThisTicket = $infoOfTicket[0];
-                    $prixOfThisTicket = $infoOfTicket[1]/100;
-                    
-                    //On update le lien de la db ticketdecaisse.
-                    $updatelien = $db->prepare('UPDATE ticketdecaisse SET lien = "tickets/Ticket'.$idOfThisTicket.'.txt" WHERE id_ticket = ?');
-                    $updatelien -> execute(array($idOfThisTicket));
+            $getTotal = $getPrixTotal->fetch();
+            $getTotalEnEuros = $getTotal['prix_total'];
+            $lien = '...';
+            
+            //On insère.
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $getTotalEnEuros, $lien));
+        
+            //On récupère l'id du dernier ticket de caisse du vendeur en question.
+            
+            $recupInfoTc = $db-> prepare('SELECT id_ticket, prix_total FROM ticketdecaisse WHERE id_vendeur = ? ORDER BY id_ticket DESC');
+            $recupInfoTc -> execute(array($idVendeur));
+            
+            $infoOfTicket = $recupInfoTc->fetch();
+            
+            $idOfThisTicket = $infoOfTicket[0];
+            $prixOfThisTicket = $infoOfTicket[1]/100;
+            
+            //On update le lien de la db ticketdecaisse.
+            $updatelien = $db->prepare('UPDATE ticketdecaisse SET lien = "tickets/Ticket'.$idOfThisTicket.'.txt" WHERE id_ticket = ?');
+            $updatelien -> execute(array($idOfThisTicket));
                     
             //On ouvre un fichier texte
             
@@ -109,22 +107,30 @@ require('actions/objets/currencyToDecimalFct.php');
                 
             }
                 
+            
+            
+            require('actions/objets/update_db_bilan.php');
+            
+            
+            //On redirige vers la page somme à rendre.
+            
+            if(!empty($_POST['client'])){
+
                 $montant_client = currencyToDecimal($_POST['client']);
                 $somme_a_rendre = $montant_client - $prix;
                 
                 $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r Somme donnée = $montant_client € \r Somme rendue = $somme_a_rendre € \r\r TVA non applicable, article 293B du Code général des impôts.\r\rMerci de votre visite et à bientôt :-)";
                 fwrite($fichier, $fin);
                 fclose($fichier);
-                
-                require('actions/objets/update_db_bilan.php');
-                
-                
-                //On redirige vers la page somme à rendre.
             
-               header('location: sommearendre.php?prix='.$somme_a_rendre.'&id_ticket='.$idOfThisTicket.'');
+                header('location: sommearendre.php?prix='.$somme_a_rendre.'&id_ticket='.$idOfThisTicket.'');
                
              }else{
-                $message = 'Veuillez remplir le montant donné par le client svp.';
+                $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r\r TVA non applicable, article 293B du Code général des impôts.\r\rMerci de votre visite et à bientôt :-)";
+                fwrite($fichier, $fin);
+                fclose($fichier);
+            
+                header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
              }
              
         }elseif($_POST['paiement']=='cheque'){

@@ -41,6 +41,8 @@ require('actions/objets/moyenDePaiementAction.php');
                 
                 </fieldset>
                 
+                <h2 style='text-align: center;'>Le champ ci-dessous n'est plus obligatoire, il vous aide à rendre la monnaie si besoin.</h2>
+
                 <fieldset>
             
                     <label for="client">Montant donné par le client : (remplir seulement si paiement espèce) </label>
