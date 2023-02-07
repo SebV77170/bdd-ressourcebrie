@@ -9,7 +9,6 @@
             include("includes/header.php");
         ?>
         
-        
         <article class="doc">
             <h1>Formulaire de connexion</h1>
             
