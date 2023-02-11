@@ -18,21 +18,37 @@ $id_vente = $recupDBvente->fetchAll(PDO::FETCH_ASSOC);
                 
                 //On fait une boucle pour afficher les nouveaux onglets des nouvelles ventes.
                 
-                foreach($id_vente as $v){
-                        if(isset($_GET['id_temp_vente'])){
+                foreach($id_vente as $v):
+                        if(isset($_GET['id_temp_vente'])):
                 ?>
-                <li <?php if($_GET['id_temp_vente'] == $v['id_temp_vente']){echo 'class="vert"';}else{echo 'class="bleu"';} ?>><a href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?>'><?=$v['dateheure']?></a></li>
+                        <li <?php if($_GET['id_temp_vente'] == $v['id_temp_vente']){echo 'class="vert"';}else{echo 'class="bleu"';} ?>>
+                                <a href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?><?php if($v['id_modif']>0): echo'&id_modif='.$v['id_modif'].'';endif;?>&modif=<?=$v['modif']?>'>
+                                        <?php echo $v['dateheure'];
+                                        if($v['modif']==1):
+                                                echo ' Mod';
+                                        endif;
+                                        ?>
+                                </a>
+                        </li>
                 <?php
-                        }else{
+                        else:
                         ?>
                         
                         <!--si l'id temp vente n'existe pas dans l'URL, on affichage avec la classe bleue-->
                         
-                         <li class="bleu"><a href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?>'><?=$v['dateheure']?></a></li>
+                                <li class="bleu">
+                                        <a href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?><?php if($v['id_modif']>0): echo '&id_modif='.$v['id_modif'].'';endif;?>&modif=<?=$v['modif']?>'>
+                                                <?php echo $v['dateheure'];
+                                                if($v['modif']==1):
+                                                        echo ' Mod';
+                                                endif;
+                                                ?>
+                                        </a>
+                                </li>
                         
                         <?php
-                        }
-                }
+                        endif;
+                endforeach;
                 ?>
                 
                 <!--Le formulaire du bouton ajoutvente est traité dans le fichier getDBVenteTemp.php-->

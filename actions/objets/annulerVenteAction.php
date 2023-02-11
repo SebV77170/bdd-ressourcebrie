@@ -13,7 +13,7 @@ $getDBvente -> execute(array($_SESSION['id']));
 $DBvente = $getDBvente -> fetch(PDO::FETCH_ASSOC);
 
 if(!empty($DBvente)){
-header('location:../../objetsVendus.php?id_temp_vente='.$DBvente['id_temp_vente'].'');
+header('location:../../objetsVendus.php?id_temp_vente='.$DBvente['id_temp_vente'].'&modif='.$DBvente['modif'].'');
 }else{
 header('location:../../accueil_vente.php');
 

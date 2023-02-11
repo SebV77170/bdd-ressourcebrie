@@ -43,8 +43,12 @@ require('actions/objets/currencyToDecimalFct.php');
                 
                 
                 //On redirige vers la page objets collectés.
- 
-                header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'');
+
+                if(isset($_POST['id_modif'])):
+                    header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&id_modif='.$_POST['id_modif'].'&modif='.$_POST['modif'].'');
+                else:
+                    header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&modif='.$_POST['modif'].'');
+                endif;
             }
             else{
                 $message = 'Un problème est survenu concernant l\'id de la vente';

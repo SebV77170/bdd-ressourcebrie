@@ -38,6 +38,15 @@ require('actions/objets/getDBVenteTemp.php');
             
                     <label for="nom">Nom ou description sommaire de l'objet : </label>
                     <input type="text" name="nom">
+
+                    <input type="hidden" name="modif" value=<?=$_GET['modif']?>>
+                    <?php
+                        if(isset($_GET['id_modif'])):
+                        ?>
+                        <input type="hidden" name="id_modif" value=<?=$_GET['id_modif']?>>
+                        <?php
+                        endif;
+                    ?>
             
                     <label for="type">Catégorie : </label>
                     <select id="type" name="type">
@@ -99,19 +108,32 @@ require('actions/objets/getDBVenteTemp.php');
         
         <?php foreach($getObjets as list($id, $nom, $categorie, $souscat, $prix)){
             
-                        $prixeuro = $prix/100;
-        
-                        echo '<tr>
-                        
-                            
-                            <td>'.$nom.'</td>
-                            <td>'.$categorie.'</td>
-                            <td>'.$souscat.'</td>
-                            <td>'.$prixeuro.'€</td>
-                            <td><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'">Supprimer</a></td>
-                            
-                            
-                          </tr>'  ;
+            $prixeuro = $prix/100;
+            if(isset($_GET['id_modif'])):
+                echo '<tr>
+                
+                    
+                    <td>'.$nom.'</td>
+                    <td>'.$categorie.'</td>
+                    <td>'.$souscat.'</td>
+                    <td>'.$prixeuro.'€</td>
+                    <td><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'">Supprimer</a></td>
+                    
+                    
+                    </tr>'  ;
+            else:
+                echo '<tr>
+                
+                    
+                    <td>'.$nom.'</td>
+                    <td>'.$categorie.'</td>
+                    <td>'.$souscat.'</td>
+                    <td>'.$prixeuro.'€</td>
+                    <td><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'">Supprimer</a></td>
+                    
+                    
+                    </tr>'  ;
+            endif;
         }
         ?>
         </table>
@@ -121,17 +143,31 @@ require('actions/objets/getDBVenteTemp.php');
         echo $getTotalEnEuros.'€';
         ?> </p>
         
-        <?php if($NbrObjetDeTC > 0){
+        <?php 
+        if($NbrObjetDeTC > 0):
+            if(isset($_GET['id_modif'])):
             ?>
-        
-        <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Valider</a>
-        
+                <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
             <?php
-            }
+            else:
             ?>
+                <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
+            <?php
+            endif;
+        endif;
+        ?>
         
-        <a href="actions/objets/annulerVenteAction.php?id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Annuler </a>
-        
+        <?php
+        if($_GET['modif']==1):
+        ?>
+            <a href="actions/objets/annulemodif.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>" class="stdbouton">Annuler Modification </a>
+        <?php
+        else:
+        ?>
+            <a href="actions/objets/annulerVenteAction.php?id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Annuler </a>
+        <?php
+        endif;
+        ?>
         <!-- Script Jquery pour dérouler des sous catégories à partir des catégories-->
         
         <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>

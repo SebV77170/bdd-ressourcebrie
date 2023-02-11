@@ -15,7 +15,7 @@ if(isset($_GET['id']) AND !empty($_GET['id'])){
         $deleteThisObjet->execute(array($idOfTheObjet));
             
         //Rediriger l'utilisateur vers ses questions
-        header('location: ../../objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'');
+        header('location: ../../objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'');
         
     }else{
         echo 'Aucun objet n\'a été trouvé';

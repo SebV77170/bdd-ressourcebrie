@@ -58,8 +58,17 @@ require('actions/objets/moyenDePaiementAction.php');
                 ?>
             
                 <input type="submit" name="validate" value="Valider">
-                <a href="objetsVendus.php?id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Retour</a>
-                
+                <?php
+                if(isset($_GET['id_modif'])):
+                ?>
+                    <a href="objetsVendus.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
+                <?php
+                else:
+                ?>
+                    <a href="objetsVendus.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
+                <?php
+                endif;
+                ?>
         </form>
         
        

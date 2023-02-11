@@ -25,17 +25,18 @@ $idvendeur = $_SESSION['id'];
 
 //On insère la nouvelle vente dans la db vente.
 
-$insertDate = $db -> prepare('INSERT INTO vente(date, dateheure, id_vendeur) VALUE (?,?,?)');
+$insertDate = $db -> prepare('INSERT INTO vente(date, dateheure, id_vendeur,modif) VALUE (?,?,?,0)');
 $insertDate->execute(array($date_heure_debutvente_TS,$date_heure_debutvente_Date, $idvendeur));
 
 // Pour rediriger vers la nouvelle vente en cours dès qu'on clique sur +
 
-$idvente = $db -> prepare('SELECT id_temp_vente FROM vente WHERE date = ?');
-$idvente -> execute(array($date_heure_debutvente_TS));
-$id = $idvente -> fetch(PDO::FETCH_ASSOC);
-$id = $id['id_temp_vente'];
+$sth = $db -> prepare('SELECT * FROM vente WHERE date = ?');
+$sth -> execute(array($date_heure_debutvente_TS));
+$result = $sth -> fetch(PDO::FETCH_ASSOC);
+$id = $result['id_temp_vente'];
+$modif = $result['modif'];
 
-header('location:objetsVendus.php?id_temp_vente='.$id.'');
+header('location:objetsVendus.php?id_temp_vente='.$id.'&modif='.$modif.'');
 
 }
 
