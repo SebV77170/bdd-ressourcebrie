@@ -42,7 +42,7 @@ require('actions/objets/currencyToDecimalFct.php');
                 $insertObjetInTicket -> execute(array($id_temp_vente, $nomVendeur, $idVendeur, $nom_objet, $categorie_objet, $souscat, $prixOfObjet));
                 
                 
-                //On redirige vers la page objets collectés.
+                //On redirige vers la page objets vendus.
 
                 if(isset($_POST['id_modif'])):
                     header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&id_modif='.$_POST['id_modif'].'&modif='.$_POST['modif'].'');

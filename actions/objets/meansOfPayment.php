@@ -6,9 +6,16 @@ $getAllObjetOfTicket -> execute(array($_GET['id_temp_vente']));
 //FETCH_ASSOC retourne un tableau multidimensionnel avec des clefs associatives
 $getObjets = $getAllObjetOfTicket -> fetchAll(PDO::FETCH_ASSOC);
 
-date_default_timezone_set('Europe/Paris');
-$date_achat = new DateTime('now', new DateTimeZone('Europe/paris'));
-$date_achat = $date_achat->format('Y/m/d G:i');
+if($_GET['modif']==0):
+
+    date_default_timezone_set('Europe/Paris');
+    $date_achat = new DateTime('now', new DateTimeZone('Europe/paris'));
+    $date_achat = $date_achat->format('Y/m/d G:i');
+
+elseif($_GET['modif']==1):
+    $date_achat = $ticketmodif['date_achat_dt'];
+
+endif;
 
 //On remplit la bdd ticketdecaisse
 
@@ -31,8 +38,13 @@ $getTotalEnEuros = $getTotal['prix_total'];
 $lien = '...';
 
 //On insère.
-$insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?)');
-$insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $transac, $getTotalEnEuros, $lien));
+if($_GET['modif']==0):
+    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?)');
+    $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $transac, $getTotalEnEuros, $lien));
+elseif($_GET['modif']==1):
+    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+    $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $transac, $getTotalEnEuros, $lien));
+endif;
 
 //On récupère l'id du ticket de caisse
 
@@ -41,7 +53,12 @@ $recupInfoTc -> execute(array($idVendeur));
 
 $infoOfTicket = $recupInfoTc->fetch();
 
-$idOfThisTicket = $infoOfTicket[0];
+if($_GET['modif']==0):
+    $idOfThisTicket = $infoOfTicket[0];
+elseif($_GET['modif']==1):
+    $idOfThisTicket = $ticketmodif['id_ticket'];
+endif;
+
 $prixOfThisTicket = $infoOfTicket[1]/100;
 
 //On insère dans la db paiement_mixte

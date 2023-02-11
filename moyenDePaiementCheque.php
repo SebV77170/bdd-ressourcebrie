@@ -40,6 +40,8 @@ require('actions/objets/moyenDePaiementChequeAction.php');
                     
                     <label for="banque">Banque : </label>
                     <input type="text" name="banque">
+
+                  
                 
                 </fieldset>
                 
@@ -51,8 +53,17 @@ require('actions/objets/moyenDePaiementChequeAction.php');
                 ?>
             
                 <input type="submit" name="validate" value="Valider">
-                <a href="moyenDePaiement.php?prix=<?=$_GET['prix']?>&nbrObjet=<?=$_GET['nbrObjet']?>&id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Retour</a>
-                
+                <?php
+                if(isset($_GET['id_modif'])):
+                ?>
+                    <a href="moyenDePaiement.php?prix=<?=$_GET['prix']?>&nbrObjet=<?=$_GET['nbrObjet']?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
+                <?php
+                else:
+                ?>
+                    <a href="moyenDePaiement.php?prix=<?=$_GET['prix']?>&nbrObjet=<?=$_GET['nbrObjet']?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
+                <?php
+                endif;
+                ?>                
         </form>
         
         

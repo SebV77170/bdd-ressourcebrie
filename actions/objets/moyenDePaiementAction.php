@@ -159,13 +159,25 @@ if(isset($_POST['validate'])){
             
     }elseif($_POST['paiement']=='cheque'){
         $nbrObjet = $_GET['nbrObjet'];
-        header('location: moyenDePaiementCheque.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'');   
+        if(isset($_GET['id_modif'])):
+            header('location: moyenDePaiementCheque.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');
+        else:
+            header('location: moyenDePaiementCheque.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');
+        endif;
     }elseif($_POST['paiement']=='carte'){
         $nbrObjet = $_GET['nbrObjet'];
-        header('location: moyenDePaiementCarte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'');   
+        if(isset($_GET['id_modif'])):
+        header('location: moyenDePaiementCarte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');   
+        else:
+        header('location: moyenDePaiementCarte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');   
+        endif;
     }else{
         $nbrObjet = $_GET['nbrObjet'];
-        header('location: moyenDePaiementMixte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'');
+        if(isset($_GET['id_modif'])):
+        header('location: moyenDePaiementMixte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');
+        else:
+        header('location: moyenDePaiementMixte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');
+        endif;
     }
 }
         
