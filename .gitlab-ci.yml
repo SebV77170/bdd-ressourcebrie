@@ -1,5 +1,5 @@
-demo_job_1:
-  tags:
-    - ci
-  script:
-    - echo Hello World
+upload file:
+  image: alpine
+  script: 
+    - apk add lftp
+    - lftp --version
