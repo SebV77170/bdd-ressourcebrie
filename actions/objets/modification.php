@@ -12,7 +12,7 @@ if(isset($_GET['id_ticket'])):
     
     if($count>0):
         //Insertion des données du ticket de caisse dans une table temporaire modifticketdecaisse
-        $sql5='INSERT INTO modifticketdecaisse (id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, num_cheque, banque, num_transac, prix_total, lien) VALUE (?,?,?,?,?,?,?,?,?,?)';
+        $sql5='INSERT INTO modifticketdecaisse (id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUE (?,?,?,?,?,?,?,?,?,?,?)';
         $sth5=$db->prepare($sql5);
         $sth5->execute(array(
             $results['id_ticket'],
@@ -20,12 +20,34 @@ if(isset($_GET['id_ticket'])):
             $results['id_vendeur'],
             $results['date_achat_dt'],
             $results['nbr_objet'],
+            $results['moyen_paiement'],
             $results['num_cheque'],
             $results['banque'],
             $results['num_transac'],
             $results['prix_total'],
             $results['lien']
         ));
+
+        //Il faut s'occuper du paiement mixte pour stocker temporairement les données de la table paiement_mixte s'il s'agissait d'un paiement mixte
+
+        if($results['moyen_paiement']=='mixte'):
+            $sql8='SELECT * FROM paiement_mixte WHERE id_ticket ='.$idTicket.'';
+            $sth8=$db->query($sql8);
+            $vente=$sth8->fetch();
+
+            $sql9='INSERT INTO paiement_mixte_modif (id_paiement_mixte, id_ticket, espece, carte, cheque) VALUES (?,?,?,?,?)';
+            $sth9=$db->prepare($sql9);
+            $sth9->execute(array(
+                $vente['id_paiement_mixte'],
+                $vente['id_ticket'],
+                $vente['espece'],
+                $vente['carte'],
+                $vente['cheque'],
+            ));
+
+            $sql10='DELETE FROM paiement_mixte WHERE id_ticket ='.$idTicket.'';
+            $sth10=$db->query($sql10);
+        endif;
 
         //on récupère l'id de la modification
 

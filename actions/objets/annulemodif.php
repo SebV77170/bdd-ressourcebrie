@@ -42,8 +42,8 @@ if(isset($_GET['id_modif'])):
     ));
 
     //On déplace le ticket dans le bon répertoire.
-    $lien='../../'.$results['lien'].'';
-    $nouveaulien='../../tickets/archives_tickets/Ticket'.$ticket['idTicket'].'.txt';
+    $lien='../../'.$ticket['lien'].'';
+    $nouveaulien='../../tickets/archives_tickets/Ticket'.$ticket['id_ticket'].'.txt';
     rename($nouveaulien,$lien);
 
     //On supprime les données de la table modifticketdecaisse
@@ -65,6 +65,28 @@ if(isset($_GET['id_modif'])):
     else:
         $message="Un problème est survenu avec le numéro de vente.";
     endif;
+
+    //Il faut s'occuper de remettre les données dans la table paiement_mixte s'il s'agissait d'un paiement mixte
+
+    if($ticket['moyen_paiement']=='mixte'):
+        $sql8='SELECT * FROM paiement_mixte_modif WHERE id_ticket ='.$ticket['id_ticket'].'';
+        $sth8=$db->query($sql8);
+        $vente=$sth8->fetch();
+
+        $sql9='INSERT INTO paiement_mixte (id_paiement_mixte, id_ticket, espece, carte, cheque) VALUES (?,?,?,?,?)';
+        $sth9=$db->prepare($sql9);
+        $sth9->execute(array(
+            $vente['id_paiement_mixte'],
+            $vente['id_ticket'],
+            $vente['espece'],
+            $vente['carte'],
+            $vente['cheque'],
+        ));
+
+        $sql10='DELETE FROM paiement_mixte_modif WHERE id_ticket ='.$ticket['id_ticket'].'';
+        $sth10=$db->query($sql10);
+    endif;
+
 
     header('location:../../bilanticketDeCaisse.php');
     

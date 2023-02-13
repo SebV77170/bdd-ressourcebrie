@@ -113,6 +113,15 @@ foreach($getObjets as $v):
     
 endforeach;
 
+//On vide les objets de la table objets_vendus_modif s'il s'agissait d'une modification de vente
+
+if(isset($_GET['id_modif'])):
+    $sql2='DELETE FROM objets_vendus_modif WHERE id_modif='.$_GET['id_modif'].'';
+    $sth2=$db->query($sql2);
+endif;
+
+//ON écrit la fin du ticket.
+
 $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r numéro de chèque = $numcheque \r numéro de transaction = $transac \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";
 fwrite($fichier, $fin);
 fclose($fichier);

@@ -121,6 +121,15 @@ if(isset($_POST['validate'])){
         $supprFromDbVente -> execute(array($_GET['id_temp_vente']));
         
     }
+
+    //On vide les objets de la table objets_vendus_modif s'il s'agissait d'une modification de vente
+
+    if(isset($_GET['id_modif'])):
+        $sql2='DELETE FROM objets_vendus_modif WHERE id_modif='.$_GET['id_modif'].'';
+        $sth2=$db->query($sql2);
+    endif;
+
+    //On écrit la fin du ticket.
     
     $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r numéro de chèque = $numcheque \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";
     fwrite($fichier, $fin);
