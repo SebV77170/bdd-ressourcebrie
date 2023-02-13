@@ -1,5 +1,5 @@
 upload file:
   image: alpine
   script: 
-    - apk add lftp
-    - lftp --version
+    - echo 'coucou';
+  tags: 'my-runner'
