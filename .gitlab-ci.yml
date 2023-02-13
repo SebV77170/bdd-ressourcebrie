@@ -2,4 +2,4 @@ upload file:
   image: alpine
   script: 
     - echo 'coucou';
-  tags: 'my-runner'
+  tags: my-runner
