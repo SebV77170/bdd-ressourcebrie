@@ -13,12 +13,21 @@ require('actions/users/securityAction.php');
         $insertObjet = $db->prepare('INSERT INTO categories(parent_id, category)VALUES(?,?)');
         $insertObjet->execute(array($objet_type, $objet_nom ));
         
+        if(isset($_GET['id_modif'])):
         
-        if($_GET['from']=='depot'){
-            header('location: depot.php');
-        }else{
-            header('location: objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'');
-        }
+            if($_GET['from']=='depot'){
+                header('location: depot.php');
+            }else{
+                header('location: objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'$id_modif='.$_GET['id_modif'].'');
+            }
+        else:
+            if($_GET['from']=='depot'){
+                header('location: depot.php');
+            }else{
+                header('location: objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');
+            }
+        endif;
+
         
     }else{
         
@@ -27,6 +36,27 @@ require('actions/users/securityAction.php');
     }
     
 }
+
+if(isset($_POST['cancel'])){
+    
+    if(isset($_GET['id_modif'])):
+        
+        if($_GET['from']=='depot'){
+            header('location: depot.php');
+        }else{
+            header('location: objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');
+        }
+    else:
+        if($_GET['from']=='depot'){
+            header('location: depot.php');
+        }else{
+            header('location: objetsVendus.php?id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');
+        }
+    endif;
+        
+}
+    
+
 
 ?>
 
@@ -78,6 +108,7 @@ require('actions/users/securityAction.php');
                 </fieldset>
             
                 <input type="submit" name="validate" value="Créer">
+                <input type="submit" name="cancel" value="Annuler">
                 
         </form>
     <?php

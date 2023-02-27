@@ -195,7 +195,7 @@ require('actions/objets/getDBVenteTemp.php');
             // Sélectionner l'élément input et récupérer sa valeur
             var input = document.getElementById("type").value;
             // Afficher la valeur
-            document.location.href='ajoutsouscat.php?from=vente&id_temp_vente=<?=$_GET['id_temp_vente']?>&cat='+input;
+            document.location.href='ajoutsouscat.php?from=vente&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?><?php if(isset($_GET['id_modif'])): echo '&id_modif='.$_GET['id_modif'].''; endif;?>&cat='+input;
             }    
         </script>
         
