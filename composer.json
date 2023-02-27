@@ -1,0 +1,8 @@
+{
+    "autoload": {
+        "classmap": ["app/models"]
+    },
+    "require": {
+        "fpdf/fpdf": "^1.85"
+    }
+}

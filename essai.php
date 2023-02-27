@@ -1,28 +1,16 @@
 <?php
 
-require('actions/db.php');
 
-$format_us = '2023-01-11';
+$fichier=nl2br(file_get_contents('tickets/Ticket162.txt'));
 
-$sql4='SELECT ticketdecaisse.id_ticket, paiement_mixte.carte, paiement_mixte.espece, paiement_mixte.cheque FROM ticketdecaisse
-       INNER JOIN paiement_mixte ON paiement_mixte.id_ticket=ticketdecaisse.id_ticket 
-       WHERE date_achat_dt LIKE "'.$format_us.'%"';
-$sth4 = $db->query($sql4);
-$results = $sth4->fetchAll();
+function br2nl($string)
+{
+    return preg_replace('/\<br(\s*)?\/?\>/i', "\n", $string);
+}
 
-$carte = 0;
-$cheque = 0;
-$espece = 0;
+$fichier=br2nl($fichier);
 
-foreach($results as $v):
 
-    $carte=$carte+$v['carte'];
-    $cheque=$cheque+$v['cheque'];
-    $espece=$espece+$v['espece'];
-
-endforeach;
-
-var_dump($results,$carte,$espece,$cheque);
-
+echo($fichier);
 
 ?>

@@ -74,6 +74,8 @@ if(isset($_POST['validate'])){
         elseif($_GET['modif']==1):
             $idOfThisTicket = $ticketmodif['id_ticket'];
         endif;
+
+        $prixOfThisTicket = $infoOfTicket[1]/100;
         
             //On update le lien de la db ticketdecaisse.
         $updatelien = $db->prepare('UPDATE ticketdecaisse SET lien = "tickets/Ticket'.$idOfThisTicket.'.txt" WHERE id_ticket = ?');

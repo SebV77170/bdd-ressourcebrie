@@ -51,6 +51,7 @@ $results=$sth->fetchAll();
                         $espece = $espece/100;
                         $cheque = $cheque/100;
                         $carte = $carte/100;
+                        $format_us = implode('-',array_reverse  (explode('/',$date)));
         
                         echo '<tr>
                         
@@ -63,6 +64,8 @@ $results=$sth->fetchAll();
                             <td>'.$cheque.' €</td>
                             <td>'.$carte.' €</td>
                             <td><a href="actions/objets/update_db_bilan_manuel.php?date='.$date.'">Mise à jour</a></td>
+                            
+                            <td><a href="actions/objets/compiltxt.php?date='.$format_us.'">Compiler les tickets du jour</a></td>
                             
                             </tr>';
         }
