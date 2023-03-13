@@ -1,16 +1,19 @@
 <?php
 
+$res = file_get_contents('tickets/Ticket171.txt', 'c+b');
 
-$fichier=nl2br(file_get_contents('tickets/Ticket162.txt'));
+$tab = explode("\r",$res);
 
-function br2nl($string)
-{
-    return preg_replace('/\<br(\s*)?\/?\>/i', "\n", $string);
-}
+$tab[7]=' Date et heure : 13/02/2023 00:00';
 
-$fichier=br2nl($fichier);
+$res1=implode("\r",$tab);
+
+$file = file_put_contents('tickets/Ticket171.txt',$res1);
+
+//for($i=1; $i<=8; $i++):
+//    echo 'appel '.$i.' : '.fgets($res).' </br>';
+//endfor;
 
 
-echo($fichier);
 
 ?>

@@ -5,6 +5,7 @@ require('actions/objets/ticketDeCaisseAction.php');
 require('actions/objets/compteObjetDsTCtemp.php');
 require('actions/objets/getPoidsTotal.php');
 require('actions/objets/getDBVenteTemp.php');
+require('actions/objets/modifDate.php');
 ?>
 
 <!DOCTYPE HTML>
@@ -12,28 +13,54 @@ require('actions/objets/getDBVenteTemp.php');
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
     <body>
+    <?php
+        $lineheight = "uneligne";
+        $src = 'image/PictoFete.gif';
+        $alt = 'un oiseau qui fait la fête.';
+        $titre = 'Encaissement';
+        include("includes/header.php");
+        $page = 2;
+        include("includes/nav.php");
+        include("includes/nav_vente.php");
+    ?>
+    
+    
+    <?php
+        if($_SESSION['admin'] >= 1){
+    ?>
+            
+            
+            
+    <!--Formulaire de vente--> 
+
+    <?php
+        if($_GET['modif']==1):
+    ?>
+     
+        <h2 style="text-align: center;">Si vous souhaitez changer la date de la vente.</h2>
+     
+        <form class="vente" method="post">
+            <fieldset>
+                <label for="date">Date de la vente : </label>
+                <input name="date" type="text" placeholder="dd-mm-YYYY">
+                <input type="submit" name="modifierDate" value="Modifier">
+            </fieldset>
+        </form>
+
         <?php
-            $lineheight = "uneligne";
-            $src = 'image/PictoFete.gif';
-            $alt = 'un oiseau qui fait la fête.';
-            $titre = 'Encaissement';
-            include("includes/header.php");
-            $page = 2;
-            include("includes/nav.php");
-            include("includes/nav_vente.php");
-            ?>
-            
-            
-            <?php
-            if($_SESSION['admin'] >= 1){
-            ?>
-            
-            
-            
-     <!--Formulaire de vente-->       
+            if(isset($message)):
+                var_dump($message);
+            endif;
+        ?>
+        
+        <h2 style="text-align: center;">Sinon, modifiez ici la vente.</h2>
+
+    <?php
+        endif;
+    ?>
                 
-             <form classe="vente" method="post">
-                
+            <form classe="vente" method="post">
+            
                 <fieldset>
             
                     <label for="nom">Nom ou description sommaire de l'objet : </label>
@@ -80,9 +107,9 @@ require('actions/objets/getDBVenteTemp.php');
                     <input type="prix" name="prix">
                 
                 </fieldset>
+        
+            <input type="submit" name="validate" value="Vendre">
             
-                <input type="submit" name="validate" value="Vendre">
-                
         </form>
         
         <p style='text-align: center;'>Nom du vendeur : <?=$_SESSION['nom']?></p>
@@ -94,7 +121,8 @@ require('actions/objets/getDBVenteTemp.php');
         echo $NbrObjetDeTC;
         }else{
             echo 0;        }
-        ?> </p>
+        ?> 
+        </p>
         
         <!--Affichage en directe du future ticket de caisse-->
         
@@ -141,7 +169,8 @@ require('actions/objets/getDBVenteTemp.php');
         <p style="text-align: center;"> Prix Total : <?php
         $getTotalEnEuros = $getTotal['prix_total']/100;
         echo $getTotalEnEuros.'€';
-        ?> </p>
+        ?> 
+        </p>
         
         <?php 
         if($NbrObjetDeTC > 0):
