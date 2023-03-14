@@ -10,9 +10,6 @@ $res1=implode("\r",$tab);
 
 $file = file_put_contents('tickets/Ticket171.txt',$res1);
 
-//for($i=1; $i<=8; $i++):
-//    echo 'appel '.$i.' : '.fgets($res).' </br>';
-//endfor;
 
 
 
