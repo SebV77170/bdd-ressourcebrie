@@ -7,14 +7,22 @@ function get_pdo (): PDO {
     $serveur = "sql01.ouvaton.coop";
     $login = "09007_ressourceb";
     $pass = "LaRessourcerieDeBrie77170!";
-    return new PDO("mysql:host=localhost;dbname=objets;charset=utf8;", "root", "root", [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-    /*return new PDO("mysql:host=$serveur;dbname=$dbname;charset=utf8;", $login, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);*/
+
+    if($_SERVER['HTTP_HOST']=='localhost:8888'):
+
+        return new PDO("mysql:host=localhost;dbname=objets;charset=utf8;", "root", "root", [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+
+    else:
+
+        return new PDO("mysql:host=$serveur;dbname=$dbname;charset=utf8;", $login, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+
+    endif;
 }
 
 function dd(...$vars) {
