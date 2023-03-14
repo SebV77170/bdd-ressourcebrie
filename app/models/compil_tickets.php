@@ -1,13 +1,10 @@
 <?php
-namespace app;
 
-use \Fpdf\Fpdf;
-use \Fpdf\pdf;
+use Fpdf\Fpdf;
+use Fpdf\pdf;
 
 class compil_tickets {
 
-    
-    
     protected $name;
     protected $link;
     protected $id_tickets; 
@@ -46,8 +43,8 @@ class compil_tickets {
         
         foreach($this->id_tickets as $k1=>$v1):
             foreach($v1 as $v2):
-                if(file_exists('../../tickets/ticket'.$v2.'.txt')):
-                    $fichier1=file_get_contents('../../tickets/ticket'.$v2.'.txt');
+                if(file_exists('../../tickets/Ticket'.$v2.'.txt')):
+                    $fichier1=file_get_contents('../../tickets/Ticket'.$v2.'.txt');
                     $contenu1=''.$fichier1.'
             
             -------------------------------------------

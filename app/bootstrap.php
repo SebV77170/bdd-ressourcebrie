@@ -1,6 +1,6 @@
 <?php
 
-require '../../vendor/autoload.php';
+
 
 function get_pdo (): PDO {
     $dbname = "09007_ressourceb";
@@ -11,6 +11,10 @@ function get_pdo (): PDO {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
+    /*return new PDO("mysql:host=$serveur;dbname=$dbname;charset=utf8;", $login, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);*/
 }
 
 function dd(...$vars) {
