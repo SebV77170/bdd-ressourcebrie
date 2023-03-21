@@ -12,7 +12,7 @@ require('actions/objets/modifDate.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
     <?php
         $lineheight = "uneligne";
         $src = 'image/PictoFete.gif';
@@ -29,7 +29,7 @@ require('actions/objets/modifDate.php');
         if($_SESSION['admin'] >= 1){
     ?>
             
-            
+                
             
     <!--Formulaire de vente--> 
 
@@ -40,10 +40,10 @@ require('actions/objets/modifDate.php');
         <h2 style="text-align: center;">Si vous souhaitez changer la date de la vente.</h2>
      
         <form class="vente" method="post">
-            <fieldset>
-                <label for="date">Date de la vente : </label>
+            <fieldset class="jeuchamp">
+                <label class="champ" for="date">Date de la vente : </label>
                 <input name="date" type="text" placeholder="dd-mm-YYYY">
-                <input type="submit" name="modifierDate" value="Modifier">
+                <input type="submit" class="input inputsubmit" name="modifierDate" value="Modifier">
             </fieldset>
         </form>
 
@@ -61,9 +61,9 @@ require('actions/objets/modifDate.php');
                 
             <form classe="vente" method="post">
             
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="nom">Nom ou description sommaire de l'objet : </label>
+                    <label class="champ" for="nom">Nom ou description sommaire de l'objet : </label>
                     <input type="text" name="nom">
 
                     <input type="hidden" name="modif" value=<?=$_GET['modif']?>>
@@ -75,7 +75,7 @@ require('actions/objets/modifDate.php');
                         endif;
                     ?>
             
-                    <label for="type">Catégorie : </label>
+                    <label class="champ" for="type">Catégorie : </label>
                     <select id="type" name="type">
                         <option value="">Sélectionner une catégorie</option>
                         
@@ -95,7 +95,7 @@ require('actions/objets/modifDate.php');
                     
                     <!--Attention, id importante sub-category-dropdown car liée au script en bas du fichier, ceci afin de liée catégories et sous catégories-->
                     
-                    <label for="SUBCATEGORY">Sous-catégorie :</label>
+                    <label class="champ" for="SUBCATEGORY">Sous-catégorie :</label>
                     <select id="sub-category-dropdown" name="souscategorie">
                         <option value="">Sélectionner une sous-catégorie</option>
                     </select>
@@ -103,88 +103,94 @@ require('actions/objets/modifDate.php');
                     <button type="button" onclick="getValue();">Ajouter une sous-catégorie</button>
                     
             
-                    <label for="prix">Prix: </label>
+                    <label class="champ" for="prix">Prix: </label>
                     <input type="prix" name="prix">
                 
                 </fieldset>
         
-            <input type="submit" name="validate" value="Vendre">
+            <input type="submit" class="input inputsubmit" name="validate" value="Vendre">
             
         </form>
-        
-        <p style='text-align: center;'>Nom du vendeur : <?=$_SESSION['nom']?></p>
-        
-        
-        <!--information sur le nombre d'objets contenu dans le ticket de caisse temporaire, compte les entrées dans la table ticketdecaissetemp-->
-        <p style="text-align: center;"> Nombre d'objet : <?php
-        if(isset($NbrObjetDeTC)){
-        echo $NbrObjetDeTC;
-        }else{
-            echo 0;        }
-        ?> 
-        </p>
-        
-        <!--Affichage en directe du future ticket de caisse-->
-        
-        <table>
-            <tr>
-                <th>Nom</th>
-                <th>Catégorie</th>
-                <th>Sous-Catégorie</th>
-                <th>Prix en €</th>
-            </tr>
-        
-        <?php foreach($getObjets as list($id, $nom, $categorie, $souscat, $prix)){
-            
-            $prixeuro = $prix/100;
-            if(isset($_GET['id_modif'])):
-                echo '<tr>
-                
-                    
-                    <td>'.$nom.'</td>
-                    <td>'.$categorie.'</td>
-                    <td>'.$souscat.'</td>
-                    <td>'.$prixeuro.'€</td>
-                    <td><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'">Supprimer</a></td>
-                    
-                    
-                    </tr>'  ;
-            else:
-                echo '<tr>
-                
-                    
-                    <td>'.$nom.'</td>
-                    <td>'.$categorie.'</td>
-                    <td>'.$souscat.'</td>
-                    <td>'.$prixeuro.'€</td>
-                    <td><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'">Supprimer</a></td>
-                    
-                    
-                    </tr>'  ;
-            endif;
-        }
-        ?>
-        </table>
 
-        <p style="text-align: center;"> Prix Total : <?php
-        $getTotalEnEuros = $getTotal['prix_total']/100;
-        echo $getTotalEnEuros.'€';
-        ?> 
-        </p>
+        <!-- Visuel du ticket de caisse-->
+
+        <div class='ticket'>
         
-        <?php 
-        if($NbrObjetDeTC > 0):
-            if(isset($_GET['id_modif'])):
+            <p style='text-align: center;'>Nom du vendeur : <?=$_SESSION['nom']?></p>
+            
+            
+            <!--information sur le nombre d'objets contenu dans le ticket de caisse temporaire, compte les entrées dans la table ticketdecaissetemp-->
+            <p style="text-align: center;"> Nombre d'objet : <?php
+            if(isset($NbrObjetDeTC)){
+            echo $NbrObjetDeTC;
+            }else{
+                echo 0;        }
+            ?> 
+            </p>
+            
+            <!--Affichage en directe du future ticket de caisse-->
+            
+            <table class="tableau">
+                <tr class="ligne">
+                    <th class="cellule_tete">Nom</th>
+                    <th class="cellule_tete">Catégorie</th>
+                    <th class="cellule_tete">Sous-Catégorie</th>
+                    <th class="cellule_tete">Prix en €</th>
+                </tr>
+            
+            <?php foreach($getObjets as list($id, $nom, $categorie, $souscat, $prix)){
+                
+                $prixeuro = $prix/100;
+                if(isset($_GET['id_modif'])):
+                    echo '<tr class="ligne">
+                    
+                        
+                        <td class="colonne">'.$nom.'</td>
+                        <td class="colonne">'.$categorie.'</td>
+                        <td class="colonne">'.$souscat.'</td>
+                        <td class="colonne">'.$prixeuro.'€</td>
+                        <td class="colonne"><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'">Supprimer</a></td>
+                        
+                        
+                        </tr>'  ;
+                else:
+                    echo '<tr class="ligne">
+                    
+                        
+                        <td class="colonne">'.$nom.'</td>
+                        <td class="colonne">'.$categorie.'</td>
+                        <td class="colonne">'.$souscat.'</td>
+                        <td class="colonne">'.$prixeuro.'€</td>
+                        <td class="colonne"><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'">Supprimer</a></td>
+                        
+                        
+                        </tr>'  ;
+                endif;
+            }
             ?>
-                <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
-            <?php
-            else:
-            ?>
-                <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
-            <?php
+            </table>
+
+            <p style="text-align: center;"> Prix Total : <?php
+            $getTotalEnEuros = $getTotal['prix_total']/100;
+            echo $getTotalEnEuros.'€';
+            ?> 
+            </p>
+            
+            <?php 
+            if($NbrObjetDeTC > 0):
+                if(isset($_GET['id_modif'])):
+                ?>
+                    <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
+                <?php
+                else:
+                ?>
+                    <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
+                <?php
+                endif;
             endif;
-        endif;
-        ?>
+            ?>
+
+        </div>
         
         <?php
         if($_GET['modif']==1):
