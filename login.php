@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $titre = 'Login';
@@ -10,28 +10,28 @@
         ?>
         
         <article class="doc">
-            <h1>Formulaire de connexion</h1>
+            <h1 class="gros_titre">Formulaire de connexion</h1>
             
             <form method="post">
                 
-                <?php if(isset($errorMsg)){echo '<p>'.$errorMsg.'<p>';}?>
+                <?php if(isset($errorMsg)){echo '<p class="paraphdoc">'.$errorMsg.'</p>';}?>
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="pseudo">Pseudo : </label>
-                    <input type="text" name="pseudo">
+                    <label class="champ" for="pseudo">Pseudo : </label>
+                    <input class="input"type="text" name="pseudo">
             
-                    <label for="password">Mot de passe : </label>
-                    <input type="password" name="password">
+                    <label class="champ" for="password">Mot de passe : </label>
+                    <input class="input"type="password" name="password">
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="Connexion">
+                <input type="submit" class="input inputsubmit" name="validate" value="Connexion">
                 
                 
             </form>
             
-            <a href="signup.php" style="color: black"><p>Je n'ai pas encore de compte, je m'inscris ici !</p></a>
+            <a class="doc_lien" href="signup.php" style="color: black"><p class="paraphdoc">Je n'ai pas encore de compte, je m'inscris ici !</p></a>
             
         </article>
         

@@ -7,7 +7,7 @@ require('actions/users/securityAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -23,11 +23,11 @@ require('actions/users/securityAction.php');
             if($_SESSION['admin'] >= 1){
                 if(isset($_GET['message'])):
             ?>
-        <h1><?=$_GET['message']?></h1>
+        <h1 class="gros_titre"><?=$_GET['message']?></h1>
         
         <?php
                 else:
-                    echo '<h1>Une erreur s\'est produite</h1>';
+                    echo '<h1 class="gros_titre">Une erreur s\'est produite</h1>';
                 endif;
             }else{
                 echo 'Vous n\'êtes pas administrateur, veuillez contacter le webmaster svp';

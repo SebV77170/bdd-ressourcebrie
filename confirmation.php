@@ -9,7 +9,7 @@ require('actions/users/securityAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';

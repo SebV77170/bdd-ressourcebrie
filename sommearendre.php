@@ -8,7 +8,7 @@ require('actions/objets/moyenDePaiementAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';

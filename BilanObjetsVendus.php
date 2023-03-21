@@ -11,7 +11,7 @@ require('actions/objets/getSommePrixVendus.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -42,9 +42,9 @@ require('actions/objets/getSommePrixVendus.php');
         
         <form method="get">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="tri">Trier par : </label>
+                    <label class="champ" for="tri">Trier par : </label>
                     <select id="tri" name="tri">
                         <option value="nom">Nom</option>
                         <option value="categorie">Catégorie</option>
@@ -54,14 +54,14 @@ require('actions/objets/getSommePrixVendus.php');
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="Trier">
+                <input type="submit" class="input inputsubmit" name="validate" value="Trier">
         </form>
         
-        <table>
-            <tr>
-                <th>Categories</th>
-                <th>Prix total</th>
-                <th>Pourcentage</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">Categories</th>
+                <th class="cellule_tete">Prix total</th>
+                <th class="cellule_tete">Pourcentage</th>
             </tr>
             
         <?php
@@ -69,11 +69,11 @@ require('actions/objets/getSommePrixVendus.php');
         foreach($LesSommes as list($categorie, $prix_total_par_cat)){
             $prix_total_par_cat_euro = $prix_total_par_cat/100;
             $pourcentage = round((($prix_total_par_cat_euro * 100) / $prix_total_obj_collecte_kg),1);
-            echo '<tr>
+            echo '<tr class="ligne">
                         
-                            <td>'.$categorie.'</td>
-                            <td>'.$prix_total_par_cat_euro.' €</td>
-                            <td>'.$pourcentage.'%</td>         
+                            <td class="colonne">'.$categorie.'</td>
+                            <td class="colonne">'.$prix_total_par_cat_euro.' €</td>
+                            <td class="colonne">'.$pourcentage.'%</td>         
                           </tr>'  ;
         }
         ?>
@@ -82,30 +82,30 @@ require('actions/objets/getSommePrixVendus.php');
         </table>
         
         
-        <table>
-            <tr>
+        <table class="tableau">
+            <tr class="ligne">
     
-                <th>Nom</th>
-                <th>Nom du vendeur</th>
-                <th>Catégorie</th>
-                <th>Sous-Catégorie</th>
-                <th>Date de vente</th>
-                <th>Prix en €</th>
+                <th class="cellule_tete">Nom</th>
+                <th class="cellule_tete">Nom du vendeur</th>
+                <th class="cellule_tete">Catégorie</th>
+                <th class="cellule_tete">Sous-Catégorie</th>
+                <th class="cellule_tete">Date de vente</th>
+                <th class="cellule_tete">Prix en €</th>
             </tr>
         
         <?php foreach($getObjets as list($nom, $nom_vendeur, $type, $souscat, $date_vente, $timestamp, $prix)){
             
                         $prixeuro = $prix/100;
         
-                        echo '<tr>
+                        echo '<tr class="ligne">
                         
                             
-                            <td>'.$nom.'</td>
-                            <td>'.$nom_vendeur.'</td>
-                            <td>'.$type.'</td>
-                            <td>'.$souscat.'</td>
-                            <td>'.$date_vente.'</td>
-                            <td>'.$prixeuro.'€</td>
+                            <td class="colonne">'.$nom.'</td>
+                            <td class="colonne">'.$nom_vendeur.'</td>
+                            <td class="colonne">'.$type.'</td>
+                            <td class="colonne">'.$souscat.'</td>
+                            <td class="colonne">'.$date_vente.'</td>
+                            <td class="colonne">'.$prixeuro.'€</td>
                             
                             
                           </tr>'  ;

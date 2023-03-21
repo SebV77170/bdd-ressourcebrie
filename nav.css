@@ -1,7 +1,3 @@
-nav{
-    position: sticky;
-}
-
 .navforum{
     width: 100%;
     height: 80px;
@@ -9,6 +5,7 @@ nav{
     /*Peut-être à faire évoluer pour un affichage sur petit écran*/
     top: 0px;
     background-color: #FBF3E4;
+    position: sticky;
 }
 
 .navvente{
@@ -19,9 +16,10 @@ nav{
     /*Peut-être à faire évoluer pour un affichage sur petit écran*/
     top: 80px;
     background-color: #FBF3E4;
+    position: sticky;
 }
 
-.navforum > ul{
+.navforum > .navforum_ul{
   
     padding: 0px;
     display: flex;
@@ -29,7 +27,7 @@ nav{
     justify-content: center;  
 }
 
-.navforum > ul > li{
+.navforum > .navforum_ul > .navforum_li{
     display: flex;
     list-style-type: none;
     width: 160px;
@@ -44,11 +42,11 @@ nav{
 }
 
 
-.navforum ul li{
+.navforum .navforum_ul .navforum_li{
     position: relative;
 }
 
-.navforum > ul > li > a{
+.navforum > .navforum_ul > .navforum_li > .lien_li{
     display: block;
     width: 100%;
     margin: 0px;
@@ -58,7 +56,7 @@ nav{
     color: white;
 }
 
-.navvente > ul{
+.navvente > .navvente_ul{
   
     padding: 0px;
     display: flex;
@@ -66,7 +64,7 @@ nav{
     justify-content: center;  
 }
 
-.navvente > ul > li{
+.navvente > .navvente_ul > .navvente_li{
     display: flex;
     list-style-type: none;
     width: 160px;
@@ -81,11 +79,11 @@ nav{
 }
 
 
-.navvente ul li{
+.navvente .navvente_ul .navvente_li{
     position: relative;
 }
 
-.navvente > ul > li > a{
+.navvente > .navvente_ul > .navvente_li > .lien_li{
     display: block;
     width: 100%;
     margin: 0px;

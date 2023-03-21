@@ -12,7 +12,7 @@ require('actions/objets/miseAJourDb.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -30,11 +30,11 @@ require('actions/objets/miseAJourDb.php');
         
         
         <div class="doc">
-            <ul>
-                <a href="BilanObjetsCollectes.php"><li id="bleu">Objets Collectés</li></a>
-                <a href="BilanObjetsVendus.php"><li id="bleu">Objets Vendus</li></a>
-                <a href="bilanticketDeCaisse.php"><li id="bleu">Tickets de Caisse</li></a>
-                <a href="bilanJournalier.php"><li id="bleu">Bilan Journalier</li></a>
+            <ul class="doc_ul">
+                <a class="doc_lien" href="BilanObjetsCollectes.php"><li class="doc_li" id="bleu">Objets Collectés</li></a>
+                <a class="doc_lien" href="BilanObjetsVendus.php"><li class="doc_li" id="bleu">Objets Vendus</li></a>
+                <a class="doc_lien" href="bilanticketDeCaisse.php"><li class="doc_li" id="bleu">Tickets de Caisse</li></a>
+                <a class="doc_lien" href="bilanJournalier.php"><li class="doc_li" id="bleu">Bilan Journalier</li></a>
                 
             </ul>
         </div>

@@ -48,7 +48,7 @@ use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
 if (!isset($_GET['code']) && !isset($_GET['provider'])) {
     ?>
 <html>
-<body>Select Provider:<br>
+<body class="corps">Select Provider:<br>
 <a href='?provider=Google'>Google</a><br>
 <a href='?provider=Yahoo'>Yahoo</a><br>
 <a href='?provider=Microsoft'>Microsoft/Outlook/Hotmail/Live/Office365</a><br>

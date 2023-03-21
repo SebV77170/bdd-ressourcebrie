@@ -54,7 +54,7 @@ if(isset($_POST['validate'])){
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -72,13 +72,13 @@ if(isset($_POST['validate'])){
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="rep">Rajoutez au texte actuel en quelques mots ce que vous avez fait sur l'objet : </label>
-                    <textarea name="rep"><?=$texterep?></textarea>
+                    <label class="champ" for="rep">Rajoutez au texte actuel en quelques mots ce que vous avez fait sur l'objet : </label>
+                    <textarea class="champtexte" name="rep"><?=$texterep?></textarea>
                     
-                    <label for="reparateur">Nom du réparateur</label>
-                    <input type="text" name="reparateur" value="<?=$reparateur?>">
+                    <label class="champ" for="reparateur">Nom du réparateur</label>
+                    <input class="input"type="text" name="reparateur" value="<?=$reparateur?>">
                 
                 </fieldset>
                 
@@ -89,7 +89,7 @@ if(isset($_POST['validate'])){
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Valider">
+                <input type="submit" class="input inputsubmit" name="validate" value="Valider">
                 <?php if(isset($message)){
                     echo $message;
                 }

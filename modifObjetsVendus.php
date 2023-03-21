@@ -6,7 +6,7 @@
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -21,12 +21,12 @@
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="nom">Nom : </label>
-                    <input type="text" name="nom" value="<?=$objet?>">
+                    <label class="champ" for="nom">Nom : </label>
+                    <input class="input"type="text" name="nom" value="<?=$objet?>">
             
-                    <label for="type">Type : </label>
+                    <label class="champ" for="type">Type : </label>
                     <select id="type" name="type">
                         <option value="<?=$type?>"><?=$type?></option>
                         <option value="EA">Ameublement</option>
@@ -38,15 +38,15 @@
                         <option value="Autres">Autres</option>
                     </select>
             
-                    <label for="poids">Poids en gramme: </label>
-                    <input type="poids" name="poids" value="<?=$poids?>">
+                    <label class="champ" for="poids">Poids en gramme: </label>
+                    <input class="input"type="poids" name="poids" value="<?=$poids?>">
                     
-                    <label for="prix">Prix en euro: </label>
-                    <input type="text" name="prix" value="<?=$prix/100?>">
+                    <label class="champ" for="prix">Prix en euro: </label>
+                    <input class="input"type="text" name="prix" value="<?=$prix/100?>">
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="Modifier">
+                <input type="submit" class="input inputsubmit" name="validate" value="Modifier">
                 
                 
         </form>

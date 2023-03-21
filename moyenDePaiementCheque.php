@@ -8,7 +8,7 @@ require('actions/objets/moyenDePaiementChequeAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -28,18 +28,18 @@ require('actions/objets/moyenDePaiementChequeAction.php');
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
-                    <label for="paiement">Moyen de Paiement : </label>
+                    <label class="champ" for="paiement">Moyen de Paiement : </label>
                     <select id="paiement" name="paiement">
                         <option value="cheque">Chèque</option>
                     </select>
                     
-                    <label for="numero">Numéro du chèque : </label>
-                    <input type="text" name="numero">
+                    <label class="champ" for="numero">Numéro du chèque : </label>
+                    <input class="input"type="text" name="numero">
                     
-                    <label for="banque">Banque : </label>
-                    <input type="text" name="banque">
+                    <label class="champ" for="banque">Banque : </label>
+                    <input class="input"type="text" name="banque">
 
                   
                 
@@ -52,7 +52,7 @@ require('actions/objets/moyenDePaiementChequeAction.php');
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Valider">
+                <input type="submit" class="input inputsubmit" name="validate" value="Valider">
                 <?php
                 if(isset($_GET['id_modif'])):
                 ?>

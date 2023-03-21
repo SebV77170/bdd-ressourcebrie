@@ -8,7 +8,7 @@ require('actions/objets/getInfoOfEditObjet.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -28,9 +28,9 @@ require('actions/objets/getInfoOfEditObjet.php');
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
-                    <label for="flux">Type d'apport: </label>
+                    <label class="champ" for="flux">Type d'apport: </label>
                     <select id="flux" name="flux">
                         <option value="<?=$flux?>"><?=$flux?></option>
                         <option value="Apport">Apport volontaire</option>
@@ -40,7 +40,7 @@ require('actions/objets/getInfoOfEditObjet.php');
                     </select>
             
             
-                    <label for="type">Catégorie : </label>
+                    <label class="champ" for="type">Catégorie : </label>
                     <select id="type" name="type">
                         <option value="<?=$type?>"><?=$type?></option>
                         <?php
@@ -56,20 +56,20 @@ require('actions/objets/getInfoOfEditObjet.php');
                         
                     </select>
                     
-                    <label for="SUBCATEGORY">Sous-catégorie :</label>
+                    <label class="champ" for="SUBCATEGORY">Sous-catégorie :</label>
                     <select id="sub-category-dropdown" name="souscategorie">
                         <option value="<?=$souscat?>"><?=$souscat?></option>
                     </select>
                     
-                    <label for="nom">Précision : </label>
-                    <input type="text" name="nom" value="<?=$objet?>">
+                    <label class="champ" for="nom">Précision : </label>
+                    <input class="input"type="text" name="nom" value="<?=$objet?>">
             
-                    <label for="poids">Poids en gramme : </label>
-                    <input type="poids" name="poids" value="<?=$poids?>">
+                    <label class="champ" for="poids">Poids en gramme : </label>
+                    <input class="input"type="poids" name="poids" value="<?=$poids?>">
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="Insérer">
+                <input type="submit" class="input inputsubmit" name="validate" value="Insérer">
                 
                 
         </form>

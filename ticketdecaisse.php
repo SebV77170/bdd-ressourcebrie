@@ -7,7 +7,7 @@ require('actions/users/securityAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -28,7 +28,7 @@ require('actions/users/securityAction.php');
         ?>
         
         <div id="ticket">
-            <p><iframe src="<?php echo $lien;?>" frameborder=0 width=800 height=300></iframe></p>
+            <p class="paraph"><iframe src="<?php echo $lien;?>" frameborder=0 width=800 height=300></iframe></p>
         </div>
         
         <a href='bilanticketDeCaisse.php' class='stdbouton'>Retour</a>

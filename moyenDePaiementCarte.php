@@ -8,7 +8,7 @@ require('actions/objets/moyenDePaiementCarteAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -28,15 +28,15 @@ require('actions/objets/moyenDePaiementCarteAction.php');
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
-                    <label for="paiement">Moyen de Paiement : </label>
+                    <label class="champ" for="paiement">Moyen de Paiement : </label>
                     <select id="paiement" name="paiement">
                         <option value="carte">Carte</option>
                     </select>
                     
-                    <label for="numero">Numéro du transaction : </label>
-                    <input type="text" name="numerotransac">
+                    <label class="champ" for="numero">Numéro du transaction : </label>
+                    <input class="input"type="text" name="numerotransac">
 
                     
                 
@@ -49,7 +49,7 @@ require('actions/objets/moyenDePaiementCarteAction.php');
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Valider">
+                <input type="submit" class="input inputsubmit" name="validate" value="Valider">
                 <?php
                 if(isset($_GET['id_modif'])):
                 ?>

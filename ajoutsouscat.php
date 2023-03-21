@@ -64,7 +64,7 @@ if(isset($_POST['cancel'])){
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -82,10 +82,10 @@ if(isset($_POST['cancel'])){
     
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
             
-                    <label for="type">Dans quelle catégorie : </label>
+                    <label class="champ" for="type">Dans quelle catégorie : </label>
                     <select id="type" name="type">
                         <option value="<?php echo($_GET['cat']);?>"><?php echo($_GET['cat']);?></option>
                         <?php
@@ -101,14 +101,14 @@ if(isset($_POST['cancel'])){
                     </select>
                         
                     
-                    <label for="nom">Nouvelle sous-catégorie : </label>
-                    <input type="text" name="nom">
+                    <label class="champ" for="nom">Nouvelle sous-catégorie : </label>
+                    <input class="input"type="text" name="nom">
             
                     
                 </fieldset>
             
-                <input type="submit" name="validate" value="Créer">
-                <input type="submit" name="cancel" value="Annuler">
+                <input type="submit" class="input inputsubmit" name="validate" value="Créer">
+                <input type="submit" class="input inputsubmit" name="cancel" value="Annuler">
                 
         </form>
     <?php

@@ -8,7 +8,7 @@ require('actions/objets/insertObjetDsDb.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -26,17 +26,17 @@ require('actions/objets/insertObjetDsDb.php');
         
         
 
-        <h1>Bienvenue <?php echo $_SESSION['prenom']; ?></h1>
+        <h1 class="gros_titre">Bienvenue <?php echo $_SESSION['prenom']; ?></h1>
         
         <div class="doc">
-            <ul>
-                <a href="depot.php"><li id="bleu">Faire un dépot</li></a>
-                <!--<a href="accueil_depot.php"><li id="vert">Débuter ou reprendre un dépot</li></a>-->
-                <a href="accueil_vente.php"><li id="bleu">Débuter ou reprendre une vente</li></a>
-                <a href="bilan.php"><li id="bleu">Regarder les bilans</li></a>
-                <a href="reparation.php"><li id="bleu">Liste des réparations à faire</li></a>
-                <a href="cloturejournee.php"><li id="bleu">Cloturer la journée</li></a>
-                <a href="actions/users/logoutAction.php"><li id="bleu">Se déconnecter</li></a>
+            <ul class="doc_ul">
+                <a class="doc_lien" href="depot.php"><li class="doc_li" id="bleu">Faire un dépot</li></a>
+                <!--<a class="doc_lien" href="accueil_depot.php"><li class="doc_li" id="vert">Débuter ou reprendre un dépot</li></a>-->
+                <a class="doc_lien" href="accueil_vente.php"><li class="doc_li" id="bleu">Débuter ou reprendre une vente</li></a>
+                <a class="doc_lien" href="bilan.php"><li class="doc_li" id="bleu">Regarder les bilans</li></a>
+                <a class="doc_lien" href="reparation.php"><li class="doc_li" id="bleu">Liste des réparations à faire</li></a>
+                <a class="doc_lien" href="cloturejournee.php"><li class="doc_li" id="bleu">Cloturer la journée</li></a>
+                <a class="doc_lien" href="actions/users/logoutAction.php"><li class="doc_li" id="bleu">Se déconnecter</li></a>
                 
             </ul>
         </div>

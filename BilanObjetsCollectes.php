@@ -12,7 +12,7 @@ require('actions/objets/miseAJourDb.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -41,9 +41,9 @@ require('actions/objets/miseAJourDb.php');
         
         <form method="get">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="tri">Trier par : </label>
+                    <label class="champ" for="tri">Trier par : </label>
                     <select id="tri" name="tri">
                         <option value="nom">Nom</option>
                         <option value="categorie">Catégorie</option>
@@ -53,14 +53,14 @@ require('actions/objets/miseAJourDb.php');
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="Trier">
+                <input type="submit" class="input inputsubmit" name="validate" value="Trier">
         </form>
         
-        <table>
-            <tr>
-                <th>Categories</th>
-                <th>Poids total</th>
-                <th>Pourcentage</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">Categories</th>
+                <th class="cellule_tete">Poids total</th>
+                <th class="cellule_tete">Pourcentage</th>
             </tr>
             
         <?php
@@ -68,11 +68,11 @@ require('actions/objets/miseAJourDb.php');
         foreach($LesSommes as list($categorie, $poids_total_par_cat)){
             $poids_total_par_cat_kg = $poids_total_par_cat/1000;
             $pourcentage = round((($poids_total_par_cat_kg * 100) / $poids_total_obj_collecte_kg),1);
-            echo '<tr>
+            echo '<tr class="ligne">
                         
-                            <td>'.$categorie.'</td>
-                            <td>'.$poids_total_par_cat_kg.' kg</td>
-                            <td>'.$pourcentage.'%</td> 
+                            <td class="colonne">'.$categorie.'</td>
+                            <td class="colonne">'.$poids_total_par_cat_kg.' kg</td>
+                            <td class="colonne">'.$pourcentage.'%</td> 
 
                           </tr>'  ;
         }
@@ -82,34 +82,34 @@ require('actions/objets/miseAJourDb.php');
         </table>
         
         
-        <table>
-            <tr>
-                <th>Id</th>
-                <th>flux</th>
-                <th>Catégorie</th>
-                <th>Sous-Catégorie</th>
-                <th>Précision</th>
-                <th>Poids en gramme</th>
-                <th>Date d'insertion</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">Id</th>
+                <th class="cellule_tete">flux</th>
+                <th class="cellule_tete">Catégorie</th>
+                <th class="cellule_tete">Sous-Catégorie</th>
+                <th class="cellule_tete">Précision</th>
+                <th class="cellule_tete">Poids en gramme</th>
+                <th class="cellule_tete">Date d'insertion</th>
                 
             </tr>
         
         <?php foreach($getObjets as list($id, $nom, $type, $souscat, $poids, $date, $timestamp, $flux)){
                     
         
-                        echo '<tr>
+                        echo '<tr class="ligne">
                         
-                            <td>'.$id.'</td>
-                            <td>'.$flux.'</td>
-                            <td>'.$type.'</td>
-                            <td>'.$souscat.'</td>
-                            <td>'.$nom.'</td>
-                            <td>'.$poids.'</td>
-                            <td>'.$date.'</td>
+                            <td class="colonne">'.$id.'</td>
+                            <td class="colonne">'.$flux.'</td>
+                            <td class="colonne">'.$type.'</td>
+                            <td class="colonne">'.$souscat.'</td>
+                            <td class="colonne">'.$nom.'</td>
+                            <td class="colonne">'.$poids.'</td>
+                            <td class="colonne">'.$date.'</td>
                             
-                            <td><a href="modifObjet.php?id='.$id.'">Modifier</a></td>
+                            <td class="colonne"><a href="modifObjet.php?id='.$id.'">Modifier</a></td>
                             
-                            <td><a href="actions/objets/supprObjetAction.php?id='.$id.'">Supprimer</a></td>
+                            <td class="colonne"><a href="actions/objets/supprObjetAction.php?id='.$id.'">Supprimer</a></td>
                             
                           </tr>'  ;
         }

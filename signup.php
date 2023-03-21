@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $titre = 'Signup';
@@ -10,34 +10,34 @@
         ?>
         
         
-        <article class="doc">
-            <h1>Formulaire d'inscription</h1>
+        <a class="doc_lien"rticle class="doc">
+            <h1 class="gros_titre">Formulaire d'inscription</h1>
             
             <form method="post">
                 
-                <?php if(isset($errorMsg)){echo '<p>'.$errorMsg.'<p>';}?>
+                <?php if(isset($errorMsg)){echo '<p class="paraphdoc">'.$errorMsg.'</p>';}?>
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
-                    <label for="prenom">Prénom : </label>
-                    <input type="text" name="prenom">
+                    <label class="champ" for="prenom">Prénom : </label>
+                    <input class="input"type="text" name="prenom">
             
-                    <label for="nom">Nom : </label>
-                    <input type="text" name="nom">
+                    <label class="champ" for="nom">Nom : </label>
+                    <input class="input"type="text" name="nom">
             
-                    <label for="pseudo">Pseudo : </label>
-                    <input type="text" name="pseudo">
+                    <label class="champ" for="pseudo">Pseudo : </label>
+                    <input class="input"type="text" name="pseudo">
             
-                    <label for="password">Mot de passe : </label>
-                    <input type="password" name="password">
+                    <label class="champ" for="password">Mot de passe : </label>
+                    <input class="input"type="password" name="password">
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="S'inscrire">
+                <input type="submit" class="input inputsubmit" name="validate" value="S'inscrire">
                 
             </form>
             
-            <a href="login.php" style="color: black"><p>J'ai déjà un compte, je me connecte ici !</p></a>
+            <a class="doc_lien" href="login.php" style="color: black"><p class="paraphdoc">J'ai déjà un compte, je me connecte ici !</p></a>
             
         </article>
         

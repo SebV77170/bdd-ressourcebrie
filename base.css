@@ -1,6 +1,6 @@
 /*Propriété de l'entête*/
 
-header{
+.entete{
     
     margin: 0px 0px;
     padding: 0px 0px;
@@ -9,33 +9,22 @@ header{
             
 }
 
-header a{
+.lien{
     padding: 0px;
     margin: 0px;
-}
-
-header img{
-    float: left;
-    padding: 0px;
-    margin: 0px;
-
-}
-
-header h1{
-    width: 50%;
-    padding: 0px;
-    margin: 0px auto;
-
 }
 
 .logo{
+    float: left;
+    padding: 0px;
+    margin: 0px;
     width: 150px;
     height: 150px;
-    
 }
 
 .titre{
     width: 50%;
+    margin: 0px auto;
     font-size: 35px;
     text-align: center;
     font-weight: bold;
@@ -44,21 +33,14 @@ header h1{
 
 /* FIN Propriété de l'entête*/
 
-body{
+.corps{
     font-family: 'Didact Gothic', sans-serif;
     margin: 0px;
     padding: 0px;
     background-color: #FBF3E4;
 }
 
-strong{
-    font-weight: normal;
-}
-
-
-
-
-h1{
+.gros_titre{
     width: 100%;
     font-size: 35px;
     text-align: center;
@@ -68,24 +50,24 @@ h1{
 
 /* Propriété des différents tableaux*/
 
-table{
+.tableau{
     margin: 20px auto;
     border: 1px solid black;
     border-collapse: collapse;
 }
 
-th{
+.cellule_tete{
     border: 1px solid black;
     background-color: #23A3D9;
     color: white;
 }
 
-tr{
+.ligne{
     border: 1px solid black;
     
 }
 
-td{
+.colonne{
     border: 1px solid black;
     padding: 10px 10px;
 }
@@ -103,13 +85,13 @@ td{
 
 /* FIN Propriété des différents tableaux*/
 
-.doc p{
+.paraphdoc{
     text-align: center;
 }
 
 /* Propriété des différents formulaires*/
 
-fieldset{
+.jeuchamp{
     background-color: #23A3D9;
     width: 320px;
     padding: 10px;
@@ -117,30 +99,22 @@ fieldset{
     border-radius: 5px;
 }
 
-legend{
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 18px;
-}
-
-input{
+.input{
     width: 300px;
     height: 20px
 }
 
-textarea{
+.champtexte{
     width: 300px;
     height: 100px;
 }
 
-label{
+.champ{
     display: block;
     width: 200px;
 }
 
-
-
-input[type="submit"]{
+.inputsubmit{
     display: block;
     position: relative;
     margin: 30px auto;
@@ -191,7 +165,7 @@ input[type="submit"]{
 
 /*FIN Bouton pour Retour, valider ou Annuler*/
 
-input[type="submit"]:hover{
+.inputsubmit:hover{
     background-color: #23A3D9;
 }
 
@@ -202,12 +176,12 @@ input[type="submit"]:hover{
     margin: 0 auto;
 }
 
-.doc ul{
+.doc_ul{
     padding: 0px;
     width: 300px;
     margin: 0px auto 75px auto;
 }
-.doc li{
+.doc_li{
     display: block;
     padding: 0px;
     list-style-type: none;
@@ -219,7 +193,7 @@ input[type="submit"]:hover{
     border-radius: 5px;
     margin: 10px auto;
 }
-.doc a{
+.doc_lien{
     text-decoration: none;
     color: white;
 }
@@ -246,12 +220,12 @@ input[type="submit"]:hover{
 
 /*Propriété du footer*/
 
-footer{
+.pied_page{
     height: 75px;
     background-color: #23A3D9;
 }
 
-footer p{
+.paraph_pied_page{
     text-align: center;
     color: white;
 }
@@ -270,7 +244,7 @@ footer p{
         font-size: 28px;
         height: 75px;
     }
-    header{
+    .entete{
         height: 135px;
     }
     .logo{
@@ -323,7 +297,7 @@ footer p{
         font-size: 20px;
         height: 50px;
     }
-    header{
+    .entete{
         height: 110px;
     }
     .logo{
@@ -381,7 +355,7 @@ footer p{
         height: 30px;
         padding-top: 0px;
     }
-    header{
+    .entete{
         height: 60px;
        
     }

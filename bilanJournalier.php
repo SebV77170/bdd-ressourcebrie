@@ -13,7 +13,7 @@ $results=$sth->fetchAll();
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -32,15 +32,15 @@ $results=$sth->fetchAll();
             
             
         
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>Nombre de vente</th>
-                <th>Poids</th>
-                <th>Recette Totale</th>
-                <th>Espèces</th>
-                <th>Chèques</th>
-                <th>Carte</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">Date</th>
+                <th class="cellule_tete">Nombre de vente</th>
+                <th class="cellule_tete">Poids</th>
+                <th class="cellule_tete">Recette Totale</th>
+                <th class="cellule_tete">Espèces</th>
+                <th class="cellule_tete">Chèques</th>
+                <th class="cellule_tete">Carte</th>
                 
             </tr>
         
@@ -53,19 +53,19 @@ $results=$sth->fetchAll();
                         $carte = $carte/100;
                         $format_us = implode('-',array_reverse  (explode('/',$date)));
         
-                        echo '<tr>
+                        echo '<tr class="ligne">
                         
                             
-                            <td>'.$date.'</td>
-                            <td>'.$nombre.'</td>
-                            <td>'.$poids.' kg</td>
-                            <td>'.$total.' €</td>
-                            <td>'.$espece.' €</td>
-                            <td>'.$cheque.' €</td>
-                            <td>'.$carte.' €</td>
-                            <td><a href="actions/objets/update_db_bilan_manuel.php?date='.$date.'">Mise à jour</a></td>
+                            <td class="colonne">'.$date.'</td>
+                            <td class="colonne">'.$nombre.'</td>
+                            <td class="colonne">'.$poids.' kg</td>
+                            <td class="colonne">'.$total.' €</td>
+                            <td class="colonne">'.$espece.' €</td>
+                            <td class="colonne">'.$cheque.' €</td>
+                            <td class="colonne">'.$carte.' €</td>
+                            <td class="colonne"><a href="actions/objets/update_db_bilan_manuel.php?date='.$date.'">Mise à jour</a></td>
                             
-                            <td><a href="actions/objets/compiltxt.php?date='.$format_us.'">Compiler les tickets du jour</a></td>
+                            <td class="colonne"><a href="actions/objets/compiltxt.php?date='.$format_us.'">Compiler les tickets du jour</a></td>
                             
                             </tr>';
         }

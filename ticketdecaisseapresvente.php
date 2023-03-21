@@ -8,7 +8,7 @@ require('actions/objets/envoieTicketAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -26,18 +26,18 @@ require('actions/objets/envoieTicketAction.php');
         
         
         <div id="ticket">
-            <p><iframe src="<?php echo $lien;?>" frameborder=0 width=800 height=300></iframe></p>
+            <p class="paraph"><iframe src="<?php echo $lien;?>" frameborder=0 width=800 height=300></iframe></p>
         </div>
         
          <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="mail">Email du client : </label>
-                    <input type="text" name="mail">
+                    <label class="champ" for="mail">Email du client : </label>
+                    <input class="input"type="text" name="mail">
                     
-                    <label for="ok">Inscription mailing (cochez si le client est ok)</label>
-                    <input type="checkbox" name="ok">
+                    <label class="champ" for="ok">Inscription mailing (cochez si le client est ok)</label>
+                    <input class="input"type="checkbox" name="ok">
             
                 
                 </fieldset>
@@ -49,7 +49,7 @@ require('actions/objets/envoieTicketAction.php');
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Envoyer">
+                <input type="submit" class="input inputsubmit" name="validate" value="Envoyer">
                 
                 
             </form>

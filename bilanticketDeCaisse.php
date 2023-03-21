@@ -13,7 +13,7 @@ require('actions/objets/getPanierMoyenAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -44,18 +44,18 @@ require('actions/objets/getPanierMoyenAction.php');
             ?> </p>
             
         
-        <table>
-            <tr>
-                <th>N° Ticket</th>
-                <th>Nom du vendeur</th>
-                <th>Date</th>
-                <th>Nombre d'articles</th>
-                <th>Moyen de Paiement</th>
-                <th>Numéro Chèque</th>
-                <th>Banque</th>
-                <th>Transaction</th>
-                <th>Prix</th>
-                <th>Lien vers ticket</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">N° Ticket</th>
+                <th class="cellule_tete">Nom du vendeur</th>
+                <th class="cellule_tete">Date</th>
+                <th class="cellule_tete">Nombre d'articles</th>
+                <th class="cellule_tete">Moyen de Paiement</th>
+                <th class="cellule_tete">Numéro Chèque</th>
+                <th class="cellule_tete">Banque</th>
+                <th class="cellule_tete">Transaction</th>
+                <th class="cellule_tete">Prix</th>
+                <th class="cellule_tete">Lien vers ticket</th>
                 
             </tr>
         
@@ -63,23 +63,23 @@ require('actions/objets/getPanierMoyenAction.php');
             
                         $prixeuro = $prix/100;
         
-                        echo '<tr>
+                        echo '<tr class="ligne">
                         
                             
-                            <td>'.$id.'</td>
-                            <td>'.$nom.'</td>
-                            <td>'.$date.'</td>
-                            <td>'.$nbr.'</td>
-                            <td>'.$moyen.'</td>
-                            <td>'.$numcheque.'</td>
-                            <td>'.$banque.'</td>
-                            <td>'.$transac.'</td>
-                            <td>'.$prixeuro.'€</td>
-                            <td><a href="ticketdecaisseapresvente.php?id_ticket='.$id.'">Voir le ticket</a></td>
+                            <td class="colonne">'.$id.'</td>
+                            <td class="colonne">'.$nom.'</td>
+                            <td class="colonne">'.$date.'</td>
+                            <td class="colonne">'.$nbr.'</td>
+                            <td class="colonne">'.$moyen.'</td>
+                            <td class="colonne">'.$numcheque.'</td>
+                            <td class="colonne">'.$banque.'</td>
+                            <td class="colonne">'.$transac.'</td>
+                            <td class="colonne">'.$prixeuro.'€</td>
+                            <td class="colonne"><a href="ticketdecaisseapresvente.php?id_ticket='.$id.'">Voir le ticket</a></td>
                             ';
                             if($_SESSION['admin'] >1){
-                            echo '<td><a href="confirmation.php?id_ticket='.$id.'">Supprimer</a></td>';
-                            echo '<td><a href="actions/objets/modification.php?id_ticket='.$id.'">Modifier</a></td>';
+                            echo '<td class="colonne"><a href="confirmation.php?id_ticket='.$id.'">Supprimer</a></td>';
+                            echo '<td class="colonne"><a href="actions/objets/modification.php?id_ticket='.$id.'">Modifier</a></td>';
                             }
                             echo '</tr>';
         }

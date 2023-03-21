@@ -21,7 +21,7 @@ $tri = 'categorie';
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -46,9 +46,9 @@ $tri = 'categorie';
         
         <form method="get">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="tri">Trier par : </label>
+                    <label class="champ" for="tri">Trier par : </label>
                     <select id="tri" name="tri">
                         <option value="nom">Nom</option>
                         <option value="categorie">Catégorie</option>
@@ -58,20 +58,20 @@ $tri = 'categorie';
                 
                 </fieldset>
             
-                <input type="submit" name="validate" value="Trier">
+                <input type="submit" class="input inputsubmit" name="validate" value="Trier">
         </form>
         
         
-        <table>
-            <tr>
-                <th>Id_objet</th>
-                <th>Catégorie</th>
-                <th>Sous-Catégorie</th>
-                <th>Réparation</th>
-                <th>Nom de celui qui a saisi</th>
-                <th>Date</th>
-                <th>Nom de ceux qui reparent</th>
-                <th>Date de dernière modif</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">Id_objet</th>
+                <th class="cellule_tete">Catégorie</th>
+                <th class="cellule_tete">Sous-Catégorie</th>
+                <th class="cellule_tete">Réparation</th>
+                <th class="cellule_tete">Nom de celui qui a saisi</th>
+                <th class="cellule_tete">Date</th>
+                <th class="cellule_tete">Nom de ceux qui reparent</th>
+                <th class="cellule_tete">Date de dernière modif</th>
                 
             </tr>
         
@@ -79,20 +79,20 @@ $tri = 'categorie';
                     
                     if($end==0){
         
-                        echo '<tr>
+                        echo '<tr class="ligne">
                         
-                            <td>'.$id.'</td>
-                            <td>'.$categorie.'</td>
-                            <td>'.$souscat.'</td>
-                            <td>'.$reparation.'</td>
-                            <td>'.$saisipar.'</td>
-                            <td>'.$date.'</td>
-                            <td>'.$reparepar.'</td>
-                            <td>'.$daterep.'</td>
+                            <td class="colonne">'.$id.'</td>
+                            <td class="colonne">'.$categorie.'</td>
+                            <td class="colonne">'.$souscat.'</td>
+                            <td class="colonne">'.$reparation.'</td>
+                            <td class="colonne">'.$saisipar.'</td>
+                            <td class="colonne">'.$date.'</td>
+                            <td class="colonne">'.$reparepar.'</td>
+                            <td class="colonne">'.$daterep.'</td>
                             
-                            <td><a href="modifObjetRep.php?id='.$id.'">Modifier</a></td>
+                            <td class="colonne"><a href="modifObjetRep.php?id='.$id.'">Modifier</a></td>
                             
-                            <td><a href="endObjetRep.php?id='.$id.'">Terminer</a></td>
+                            <td class="colonne"><a href="endObjetRep.php?id='.$id.'">Terminer</a></td>
                             
                           </tr>'  ;
                     }

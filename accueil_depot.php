@@ -8,7 +8,7 @@ require('actions/objets/insertObjetDsDb.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -29,9 +29,9 @@ require('actions/objets/insertObjetDsDb.php');
         
         
         <div class="doc">
-            <ul>
-                <a href="depot.php"><li id="bleu">Faire un dépot rapide (peu d'objet)</li></a>
-                <a href="accueil_depot.php"><li id="vert">Débuter ou reprendre un dépot</li></a>
+            <ul class="doc_ul">
+                <a class="doc_lien" href="depot.php"><li class="doc_li" id="bleu">Faire un dépot rapide (peu d'objet)</li></a>
+                <a class="doc_lien" href="accueil_depot.php"><li class="doc_li" id="vert">Débuter ou reprendre un dépot</li></a>
                 
             </ul>
         </div>

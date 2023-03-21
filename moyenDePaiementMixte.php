@@ -8,7 +8,7 @@ require('actions/objets/moyenDePaiementMixteAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -28,30 +28,30 @@ require('actions/objets/moyenDePaiementMixteAction.php');
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
-                    <label for="paiement">Moyen de Paiement : </label>
+                    <label class="champ" for="paiement">Moyen de Paiement : </label>
                     <select id="paiement" name="paiement">
                         <option value="mixte">Mixte</option>
                     </select>
                     
-                    <label for="espece">Montant en espèce : </label>
-                    <input type="text" name="espece">
+                    <label class="champ" for="espece">Montant en espèce : </label>
+                    <input class="input"type="text" name="espece">
                     
-                    <label for="carte">Montant en carte : </label>
-                    <input type="text" name="carte">
+                    <label class="champ" for="carte">Montant en carte : </label>
+                    <input class="input"type="text" name="carte">
                     
-                    <label for="transaction">Numéro de transaction (OBLIGATOIRE SI PAIEMENT EN CARTE):  </label>
-                    <input type="text" name="transaction">
+                    <label class="champ" for="transaction">Numéro de transaction (OBLIGATOIRE SI PAIEMENT EN CARTE):  </label>
+                    <input class="input"type="text" name="transaction">
                     
-                    <label for="cheque">Montant en chèque : </label>
-                    <input type="text" name="cheque">
+                    <label class="champ" for="cheque">Montant en chèque : </label>
+                    <input class="input"type="text" name="cheque">
                     
-                    <label for="numero">Numéro du chèque : </label>
-                    <input type="text" name="numero">
+                    <label class="champ" for="numero">Numéro du chèque : </label>
+                    <input class="input"type="text" name="numero">
                     
-                    <label for="banque">Banque : </label>
-                    <input type="text" name="banque">
+                    <label class="champ" for="banque">Banque : </label>
+                    <input class="input"type="text" name="banque">
                 
                 </fieldset>
                 
@@ -62,7 +62,7 @@ require('actions/objets/moyenDePaiementMixteAction.php');
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Valider">
+                <input type="submit" class="input inputsubmit" name="validate" value="Valider">
                 <?php
                 if(isset($_GET['id_modif'])):
                 ?>

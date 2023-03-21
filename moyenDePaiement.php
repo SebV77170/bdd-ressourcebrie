@@ -8,7 +8,7 @@ require('actions/objets/moyenDePaiementAction.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -28,10 +28,10 @@ require('actions/objets/moyenDePaiementAction.php');
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
             
-                    <label for="paiement">Moyen de Paiement : </label>
+                    <label class="champ" for="paiement">Moyen de Paiement : </label>
                     <select id="paiement" name="paiement">
                         <option value="espece">Espèce</option>
                         <option value="carte">Carte</option>
@@ -43,10 +43,10 @@ require('actions/objets/moyenDePaiementAction.php');
                 
                 <h2 style='text-align: center;'>Le champ ci-dessous n'est plus obligatoire, il vous aide à rendre la monnaie si besoin.</h2>
 
-                <fieldset>
+                <fieldset class="jeuchamp">
             
-                    <label for="client">Montant donné par le client : (remplir seulement si paiement espèce) </label>
-                    <input type="text" name="client">
+                    <label class="champ" for="client">Montant donné par le client : (remplir seulement si paiement espèce) </label>
+                    <input class="input"type="text" name="client">
                 
                 </fieldset>
                 
@@ -57,7 +57,7 @@ require('actions/objets/moyenDePaiementAction.php');
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Valider">
+                <input type="submit" class="input inputsubmit" name="validate" value="Valider">
                 <?php
                 if(isset($_GET['id_modif'])):
                 ?>

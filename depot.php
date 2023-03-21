@@ -22,7 +22,7 @@ require('actions/objets/getSommePoids.php');
 
 <html lang="fr-FR">
     <?php include("includes/head.php");?>
-    <body>
+    <body class="corps">
         <?php
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
@@ -46,9 +46,9 @@ require('actions/objets/getSommePoids.php');
 
         <form method="post">
                 
-                <fieldset>
+                <fieldset class="jeuchamp">
                     
-                    <label for="flux">Type d'apport: </label>
+                    <label class="champ" for="flux">Type d'apport: </label>
                     <select id="flux" name="flux">
                         <option value="Apport">Apport volontaire</option>
                         <option value="Collecte">Collecte à domicile</option>
@@ -57,7 +57,7 @@ require('actions/objets/getSommePoids.php');
                     </select>
             
             
-                    <label for="type">Catégorie : </label>
+                    <label class="champ" for="type">Catégorie : </label>
                     <select id="type" name="type">
                         <option value="">Sélectionner une catégorie</option>
                         <?php
@@ -77,7 +77,7 @@ require('actions/objets/getSommePoids.php');
                         
                     </select>
                     
-                    <label for="SUBCATEGORY">Sous-catégorie :</label>
+                    <label class="champ" for="SUBCATEGORY">Sous-catégorie :</label>
                     <select id="sub-category-dropdown" name="souscategorie">
                         <option value="">Sélectionner une sous-catégorie</option>
                     </select>
@@ -85,13 +85,13 @@ require('actions/objets/getSommePoids.php');
                     <button type="button" onclick="getValue();">Ajouter une sous-catégorie</button>
                     
                     <!--ancienne zone de saisie retirée, mais gardé en hidden car pas le temps de modifier la base de donnée-->
-                    <input type="hidden" name="nom">
+                    <input class="input"type="hidden" name="nom">
             
-                    <label for="poids">Poids en <p class='gramme'>GRAMME (lecture balance * 1000)</p>: </label>
-                    <input type="poids" name="poids">
+                    <label class="champ" for="poids">Poids en <p class='gramme'>GRAMME (lecture balance * 1000)</p>: </label>
+                    <input class="input"type="poids" name="poids">
                     
-                     <label for="reparation">Objet à réparer ou à vérifier</label>
-                    <input type="checkbox" name="reparation">
+                     <label class="champ" for="reparation">Objet à réparer ou à vérifier</label>
+                    <input class="input"type="checkbox" name="reparation">
                 
                 </fieldset>
                 
@@ -100,7 +100,7 @@ require('actions/objets/getSommePoids.php');
                 }
                 ?>
             
-                <input type="submit" name="validate" value="Insérer">
+                <input type="submit" class="input inputsubmit" name="validate" value="Insérer">
                 
                 
                 
@@ -109,33 +109,33 @@ require('actions/objets/getSommePoids.php');
         </table>
         
        <h3 style="text-align: center;">Vos 3 dernières saisies. Si vous souhaitez les modifier ou les supprimer, cliquez sur le bouton adéquat.</h3>     
-        <table>
-            <tr>
-                <th>Id</th>
-                <th>flux</th>
-                <th>Catégorie</th>
-                <th>Sous-Catégorie</th>
-                <th>Poids en gramme</th>
-                <th>Date d'insertion</th>
+        <table class="tableau">
+            <tr class="ligne">
+                <th class="cellule_tete">Id</th>
+                <th class="cellule_tete">flux</th>
+                <th class="cellule_tete">Catégorie</th>
+                <th class="cellule_tete">Sous-Catégorie</th>
+                <th class="cellule_tete">Poids en gramme</th>
+                <th class="cellule_tete">Date d'insertion</th>
                 
             </tr>
         
         <?php foreach($getObjets as list($id, $nom, $type, $souscat, $poids, $date, $timestamp, $flux)){
                     
         
-                        echo '<tr>
+                        echo '<tr class="ligne">
                         
-                            <td>'.$id.'</td>
-                            <td>'.$flux.'</td>
-                            <td>'.$type.'</td>
-                            <td>'.$souscat.'</td>
+                            <td class="colonne">'.$id.'</td>
+                            <td class="colonne">'.$flux.'</td>
+                            <td class="colonne">'.$type.'</td>
+                            <td class="colonne">'.$souscat.'</td>
                             
-                            <td>'.$poids.'</td>
-                            <td>'.$date.'</td>
+                            <td class="colonne">'.$poids.'</td>
+                            <td class="colonne">'.$date.'</td>
                             
-                            <td><a href="modifObjet.php?id='.$id.'&from=depot">Modifier</a></td>
+                            <td class="colonne"><a href="modifObjet.php?id='.$id.'&from=depot">Modifier</a></td>
                             
-                            <td><a href="actions/objets/supprObjetAction.php?id='.$id.'&from=depot">Supprimer</a></td>
+                            <td class="colonne"><a href="actions/objets/supprObjetAction.php?id='.$id.'&from=depot">Supprimer</a></td>
                             
                           </tr>'  ;
         }
