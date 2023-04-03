@@ -11,6 +11,7 @@ if(isset($_GET['id_ticket'])):
     $count=count($results);
     
     if($count>0):
+        
         //Insertion des données du ticket de caisse dans une table temporaire modifticketdecaisse
         $sql5='INSERT INTO modifticketdecaisse (id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUE (?,?,?,?,?,?,?,?,?,?,?)';
         $sth5=$db->prepare($sql5);
@@ -93,13 +94,14 @@ if(isset($_GET['id_ticket'])):
         $id = $id['id_temp_vente'];
         
         foreach($objets as $v):
-            $sql2='INSERT INTO ticketdecaissetemp (id_temp_vente,nom_vendeur,id_vendeur,nom,categorie,souscat,prix) VALUES (?,?,?,?,?,?,?)';
+            $prix_t=$v['nbr']*$v['prix'];
+            $sql2='INSERT INTO ticketdecaissetemp (id_temp_vente,nom_vendeur,id_vendeur,nom,categorie,souscat,prix,nbr,prixt) VALUES (?,?,?,?,?,?,?,?,?)';
             $sth2=$db->prepare($sql2);
-            $sth2->execute(array($id,$_SESSION['nom'],$idvendeur,$v['nom'],$v['categorie'],$v['souscat'],$v['prix']));
+            $sth2->execute(array($id,$_SESSION['nom'],$idvendeur,$v['nom'],$v['categorie'],$v['souscat'],$v['prix'],$v['nbr'],$prix_t));
             
-            $sql7='INSERT INTO objets_vendus_modif (id_modif,id_temp_vente,id_ticket,nom_vendeur,id_vendeur,nom,categorie,souscat,date_achat,timestamp,prix) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
+            $sql7='INSERT INTO objets_vendus_modif (id_modif,id_temp_vente,id_ticket,nom_vendeur,id_vendeur,nom,categorie,souscat,date_achat,timestamp,prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
             $sth7=$db->prepare($sql7);
-            $sth7->execute(array($id_modif,$id,$v['id_ticket'],$_SESSION['nom'],$idvendeur,$v['nom'],$v['categorie'],$v['souscat'],$v['date_achat'],$v['timestamp'],$v['prix']));
+            $sth7->execute(array($id_modif,$id,$v['id_ticket'],$_SESSION['nom'],$idvendeur,$v['nom'],$v['categorie'],$v['souscat'],$v['date_achat'],$v['timestamp'],$v['prix'],$v['nbr']));
 
             $sql3='DELETE FROM objets_vendus WHERE id_ticket='.$idTicket.'';
             $sth3=$db->query($sql3);

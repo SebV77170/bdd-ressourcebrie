@@ -20,17 +20,18 @@ endif;
 //On remplit la bdd ticketdecaisse
 
 $moyenDePaiement = $_POST['paiement'];
+$nbrObjet = $_GET['nbrObjet'];
 $nomVendeur = $_SESSION['nom'];
 $idVendeur = $_SESSION['id'];
 $prenomVendeur = $_SESSION['prenom'];
 $transac = $_POST['transaction'];
 $numcheque = $_POST['numero'];
 $banque = $_POST['banque'];
-$nbrObjet = $_GET['nbrObjet'];
+
 
 
 //pour cela on récupère le prix total
-$getPrixTotal = $db->prepare('SELECT SUM(prix) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
+$getPrixTotal = $db->prepare('SELECT SUM(prixt) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
 $getPrixTotal -> execute(array($_GET['id_temp_vente']));
 
 $getTotal = $getPrixTotal->fetch();
@@ -46,7 +47,7 @@ elseif($_GET['modif']==1):
     $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $transac, $getTotalEnEuros, $lien));
 endif;
 
-//On récupère l'id du ticket de caisse
+//On récupère l'id du dernier ticket de caisse du vendeur en question.
 
 $recupInfoTc = $db-> prepare('SELECT id_ticket, prix_total FROM ticketdecaisse WHERE id_vendeur = ? ORDER BY id_ticket DESC');
 $recupInfoTc -> execute(array($idVendeur));
@@ -77,6 +78,7 @@ $fichier = fopen("tickets/Ticket$idOfThisTicket.txt", 'c+b');
 $entete = "\t RESSOURCE'BRIE\r\t Association loi 1901\r\t RNA : W772010160\r\t Siret : 91221719700017 \r\r Ticket de caisse $idOfThisTicket\r Vendeur : $prenomVendeur \r date et heure : $date_achat \r\r";
 fwrite($fichier, $entete);        
 
+    
 //On fait une boucle pour chaque élément du ticket de caisse afin de les retirer de la bdd collectée et de les mettre dans la bdd vendus.
 foreach($getObjets as $v):
     
@@ -87,21 +89,25 @@ foreach($getObjets as $v):
     $categorie_objet = $v['categorie'];
     $souscat_objet = $v['souscat'];
     $prix_objet = $v['prix'];
+    $nbr=$v['nbr'];
     $timestamp = time();
 
+        
 
     //On insère l'objet dans la db objets vendus
 
-    $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix) VALUES (?,?,?,?,?,?,?,?,?)');
-    $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet));
+    $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?)');
+    $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
     
     //On insère dans le fichier texte.
     
     $prix_objet_euros = $prix_objet/100;
-    $contenu = "$nom_objet ... $categorie_objet ... $prix_objet_euros € \r\r";
+            $prix_t = $prix_objet_euros*$nbr;
+            $contenu = "$nbr $nom_objet ... $categorie_objet ... $prix_t € \r\r";
     fwrite($fichier, $contenu);
     
-    //On vide le ticket de caisse.
+            
+            //On vide le ticket de caisse temporaire.
     
     $deleteFromTicketDeCaisse = $db -> prepare('DELETE FROM ticketdecaissetemp WHERE id = ?');
     $deleteFromTicketDeCaisse -> execute(array($id_objet));
@@ -111,7 +117,7 @@ foreach($getObjets as $v):
     $supprFromDbVente = $db -> prepare('DELETE FROM vente WHERE id_temp_vente = ?');
     $supprFromDbVente -> execute(array($_GET['id_temp_vente']));
     
-endforeach;
+        endforeach;
 
 //On vide les objets de la table objets_vendus_modif s'il s'agissait d'une modification de vente
 

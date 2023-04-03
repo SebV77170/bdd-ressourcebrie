@@ -1,6 +1,4 @@
-<?php require('actions/db.php');
-require('actions/objets/currencyToDecimalFct.php');
-?>
+
 
 <?php
 
@@ -26,6 +24,8 @@ require('actions/objets/currencyToDecimalFct.php');
                 $nom_objet = $_POST['nom'];
                 $categorie_objet = $_POST['type'];
                 $souscat = $_POST['souscategorie'];
+                $nbr=1;
+                $prixt=$nbr*$prixOfObjet;
                 
                 //On récupère les données du vendeur
                 
@@ -34,12 +34,11 @@ require('actions/objets/currencyToDecimalFct.php');
                 
                 $date_achat = date('d/m/Y');
                 
-            
                 
                 //On insère l'objet dans la db ticketdecaissetemp
                 
-                $insertObjetInTicket = $db -> prepare('INSERT INTO ticketdecaissetemp(id_temp_vente, nom_vendeur, id_vendeur, nom, categorie, souscat, prix) VALUES(?,?,?,?,?,?,?)');
-                $insertObjetInTicket -> execute(array($id_temp_vente, $nomVendeur, $idVendeur, $nom_objet, $categorie_objet, $souscat, $prixOfObjet));
+                $insertObjetInTicket = $db -> prepare('INSERT INTO ticketdecaissetemp(id_temp_vente, nom_vendeur, id_vendeur, nom, categorie, souscat, prix, nbr, prixt) VALUES(?,?,?,?,?,?,?,?,?)');
+                $insertObjetInTicket -> execute(array($id_temp_vente, $nomVendeur, $idVendeur, $nom_objet, $categorie_objet, $souscat, $prixOfObjet, $nbr, $prixt));
                 
                 
                 //On redirige vers la page objets vendus.

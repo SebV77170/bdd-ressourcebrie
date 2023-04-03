@@ -46,7 +46,7 @@ if(isset($_POST['validate'])){
     
     
         //pour cela on récupère le prix total
-    $getPrixTotal = $db->prepare('SELECT SUM(prix) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
+        $getPrixTotal = $db->prepare('SELECT SUM(prixt) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
     $getPrixTotal -> execute(array($_GET['id_temp_vente']));
 
     $getTotal = $getPrixTotal->fetch();
@@ -96,18 +96,20 @@ if(isset($_POST['validate'])){
         $categorie_objet = $v['categorie'];
         $souscat_objet = $v['souscat'];
         $prix_objet = $v['prix'];
+            $nbr=$v['nbr'];
         $timestamp = time();
     
 
         //On insère l'objet dans la db objets vendus
     
-        $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix) VALUES (?,?,?,?,?,?,?,?,?)');
-        $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet));
+            $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?)');
+            $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
         
         //On insère dans le fichier texte.
         
         $prix_objet_euros = $prix_objet/100;
-        $contenu = "$nom_objet ... $categorie_objet ... $prix_objet_euros € \r\r";
+            $prix_t = $prix_objet_euros*$nbr;
+            $contenu = "$nbr $nom_objet ... $categorie_objet ... $prix_t € \r\r";
         fwrite($fichier, $contenu);
         
         //On vide le ticket de caisse.
