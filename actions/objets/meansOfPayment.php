@@ -19,14 +19,13 @@ endif;
 
 //On remplit la bdd ticketdecaisse
 
-$moyenDePaiement = $_POST['paiement'];
+$moyenDePaiement = "mixte";
 $nbrObjet = $_GET['nbrObjet'];
 $nomVendeur = $_SESSION['nom'];
 $idVendeur = $_SESSION['id'];
 $prenomVendeur = $_SESSION['prenom'];
-$transac = $_POST['transaction'];
-$numcheque = $_POST['numero'];
-$banque = $_POST['banque'];
+$transac= $compte['compte'];
+
 
 
 
@@ -40,11 +39,11 @@ $lien = '...';
 
 //On insère.
 if($_GET['modif']==0):
-    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?)');
-    $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $transac, $getTotalEnEuros, $lien));
+    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?)');
+    $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien));
 elseif($_GET['modif']==1):
-    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-    $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $transac, $getTotalEnEuros, $lien));
+    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?)');
+    $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien));
 endif;
 
 //On récupère l'id du dernier ticket de caisse du vendeur en question.
@@ -102,12 +101,12 @@ foreach($getObjets as $v):
     //On insère dans le fichier texte.
     
     $prix_objet_euros = $prix_objet/100;
-            $prix_t = $prix_objet_euros*$nbr;
-            $contenu = "$nbr $nom_objet ... $categorie_objet ... $prix_t € \r\r";
+    $prix_t = $prix_objet_euros*$nbr;
+    $contenu = "$nbr $nom_objet ... $categorie_objet ... $prix_t € \r\r";
     fwrite($fichier, $contenu);
     
             
-            //On vide le ticket de caisse temporaire.
+    //On vide le ticket de caisse temporaire.
     
     $deleteFromTicketDeCaisse = $db -> prepare('DELETE FROM ticketdecaissetemp WHERE id = ?');
     $deleteFromTicketDeCaisse -> execute(array($id_objet));
@@ -126,9 +125,9 @@ if(isset($_GET['id_modif'])):
     $sth2=$db->query($sql2);
 endif;
 
-//ON écrit la fin du ticket.
+//On écrit la fin du ticket.
 
-$fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r numéro de chèque = $numcheque \r numéro de transaction = $transac \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";
+$fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";
 fwrite($fichier, $fin);
 fclose($fichier);
 

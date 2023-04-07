@@ -36,7 +36,7 @@ $result = $sth -> fetch(PDO::FETCH_ASSOC);
 $id = $result['id_temp_vente'];
 $modif = $result['modif'];
 
-header('location:objetsVendus.php?id_temp_vente='.$id.'&modif='.$modif.'');
+header('location:objetsVendus.php?id_temp_vente='.$id.'&modif='.$modif.'#tc');
 
 }
 

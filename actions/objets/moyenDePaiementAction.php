@@ -1,6 +1,6 @@
 <?php 
 require('actions/db.php');
-require('actions/objets/currencyToDecimalFct.php');
+
 ?>
 
 <?php
@@ -16,11 +16,10 @@ endif;
 
 $prix=$_GET['prix'];
 
-if(isset($_POST['validate'])){
+if(isset($_POST['validateespece'])):
     
     
-    if($_POST['paiement']=='espece'){
-        
+
         $getAllObjetOfTicket = $db -> prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?');
         $getAllObjetOfTicket -> execute(array($_GET['id_temp_vente']));
         
@@ -40,13 +39,11 @@ if(isset($_POST['validate'])){
          
             //On remplit la bdd ticketdecaisse
             
-        $moyenDePaiement = $_POST['paiement'];
+        $moyenDePaiement = "espèces";
         $nbrObjet = $_GET['nbrObjet'];
         $nomVendeur = $_SESSION['nom'];
         $idVendeur = $_SESSION['id'];
         $prenomVendeur = $_SESSION['prenom'];
-        $numcheque = 0;
-        $banque = 0;
             
             
         //pour cela on récupère le prix total
@@ -59,11 +56,11 @@ if(isset($_POST['validate'])){
         
         //On insère.
         if($_GET['modif']==0):
-            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?)');
-            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $getTotalEnEuros, $lien));
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien) VALUES (?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien));
         elseif($_GET['modif']==1):
-            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?)');
-            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $getTotalEnEuros, $lien));
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien) VALUES (?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien));
         endif;
 
         //On récupère l'id du dernier ticket de caisse du vendeur en question.
@@ -138,54 +135,20 @@ if(isset($_POST['validate'])){
             $sql2='DELETE FROM objets_vendus_modif WHERE id_modif='.$_GET['id_modif'].'';
             $sth2=$db->query($sql2);
         endif;
-            
+    
+        //On écrit la fin du ticket.
         
-        
+        $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";    
+        fwrite($fichier, $fin);
+        fclose($fichier);
+    
         require('actions/objets/update_db_bilan.php');
         
-        
-        //On redirige vers la page somme à rendre.
-        
-        if(!empty($_POST['client'])){
+//On redirige vers la page ticket de caisse.
 
-            $montant_client = currencyToDecimal($_POST['client']);
-            $somme_a_rendre = $montant_client - $prix;
+        header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
             
-            $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r Somme donnée = $montant_client € \r Somme rendue = $somme_a_rendre € \r\r TVA non applicable, article 293B du Code général des impôts.\r\rMerci de votre visite et à bientôt :-)";
-            fwrite($fichier, $fin);
-            fclose($fichier);
-        
-            header('location: sommearendre.php?prix='.$somme_a_rendre.'&id_ticket='.$idOfThisTicket.'');
             
-            }else{
-            $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r\r TVA non applicable, article 293B du Code général des impôts.\r\rMerci de votre visite et à bientôt :-)";
-            fwrite($fichier, $fin);
-            fclose($fichier);
-        
-            header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
-            }
-            
-    }elseif($_POST['paiement']=='cheque'){
-        $nbrObjet = $_GET['nbrObjet'];
-        if(isset($_GET['id_modif'])):
-            header('location: moyenDePaiementCheque.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');
-        else:
-            header('location: moyenDePaiementCheque.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');
-        endif;
-    }elseif($_POST['paiement']=='carte'){
-        $nbrObjet = $_GET['nbrObjet'];
-        if(isset($_GET['id_modif'])):
-        header('location: moyenDePaiementCarte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');   
-        else:
-        header('location: moyenDePaiementCarte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');   
-        endif;
-    }else{
-        $nbrObjet = $_GET['nbrObjet'];
-        if(isset($_GET['id_modif'])):
-        header('location: moyenDePaiementMixte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'&id_modif='.$_GET['id_modif'].'');
-        else:
-        header('location: moyenDePaiementMixte.php?prix='.$prix.'&nbrObjet='.$nbrObjet.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'');
-        endif;
-    }
-}
+   
+    endif;
         

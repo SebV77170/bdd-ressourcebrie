@@ -1,12 +1,9 @@
-<?php require('actions/db.php');
-require('actions/objets/currencyToDecimalFct.php');
+<?php 
+require('actions/db.php');
+
 ?>
 
 <?php
-
-//Pour vérifier si le formulaire a bien été cliqué
-
-if(isset($_POST['validate'])){
 
     //on récupère les données du ticket de caisse modifié s'il existe
     if($_GET['modif']==1):
@@ -14,8 +11,14 @@ if(isset($_POST['validate'])){
         $sth=$db->query($sql);
         $ticketmodif=$sth->fetch();
     endif;
+
+    //Pour vérifier si le formulaire a bien été cliqué
+
+$prix=$_GET['prix'];
+
+if(isset($_POST['validatecheque'])):
     
-    if(!empty($_POST['numero']) AND !empty($_POST['banque'])){
+    
 
     $getAllObjetOfTicket = $db -> prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?');
     $getAllObjetOfTicket -> execute(array($_GET['id_temp_vente']));
@@ -36,17 +39,16 @@ if(isset($_POST['validate'])){
         
     //On remplit la bdd ticketdecaisse
     
-    $moyenDePaiement = $_POST['paiement'];
+    $moyenDePaiement = "chèque";
+    $nbrObjet = $_GET['nbrObjet'];
     $nomVendeur = $_SESSION['nom'];
     $idVendeur = $_SESSION['id'];
     $prenomVendeur = $_SESSION['prenom'];
-    $numcheque = $_POST['numero'];
-    $banque = $_POST['banque'];
-    $nbrObjet = $_GET['nbrObjet'];
+
     
     
         //pour cela on récupère le prix total
-        $getPrixTotal = $db->prepare('SELECT SUM(prixt) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
+    $getPrixTotal = $db->prepare('SELECT SUM(prixt) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
     $getPrixTotal -> execute(array($_GET['id_temp_vente']));
 
     $getTotal = $getPrixTotal->fetch();
@@ -55,13 +57,14 @@ if(isset($_POST['validate'])){
         
         //On insère.
     if($_GET['modif']==0):
-    $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?)');
-    $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $getTotalEnEuros, $lien));
+        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien) VALUES (?,?,?,?,?,?,?)');
+        $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien));
     elseif($_GET['modif']==1):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, prix_total, lien) VALUES (?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $numcheque, $banque, $getTotalEnEuros, $lien));
+        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien) VALUES (?,?,?,?,?,?,?,?)');
+        $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien));
     endif;
-        //On récupère l'id du ticket de caisse
+
+        //On récupère l'id du dernier ticket de caisse du vendeur en question.
                 
     $recupInfoTc = $db-> prepare('SELECT id_ticket, prix_total FROM ticketdecaisse WHERE id_vendeur = ? ORDER BY id_ticket DESC');
     $recupInfoTc -> execute(array($idVendeur));
@@ -86,8 +89,9 @@ if(isset($_POST['validate'])){
     $entete = "\t RESSOURCE'BRIE\r\t Association loi 1901\r\t RNA : W772010160\r\t Siret : 91221719700017 \r\r Ticket de caisse $idOfThisTicket\r Vendeur : $prenomVendeur \r date et heure : $date_achat \r\r";
     fwrite($fichier, $entete);        
 
+    
     //On fait une boucle pour chaque élément du ticket de caisse afin de les retirer de la bdd collectée et de les mettre dans la bdd vendus.
-    foreach($getObjets as $v){
+        foreach($getObjets as $v):
         
         $id_objet = $v['id'];
         $nom_vendeur = $v['nom_vendeur'];
@@ -96,9 +100,10 @@ if(isset($_POST['validate'])){
         $categorie_objet = $v['categorie'];
         $souscat_objet = $v['souscat'];
         $prix_objet = $v['prix'];
-            $nbr=$v['nbr'];
+        $nbr=$v['nbr'];
         $timestamp = time();
     
+
 
         //On insère l'objet dans la db objets vendus
     
@@ -112,7 +117,8 @@ if(isset($_POST['validate'])){
             $contenu = "$nbr $nom_objet ... $categorie_objet ... $prix_t € \r\r";
         fwrite($fichier, $contenu);
         
-        //On vide le ticket de caisse.
+            
+            //On vide le ticket de caisse temporaire.
         
         $deleteFromTicketDeCaisse = $db -> prepare('DELETE FROM ticketdecaissetemp WHERE id = ?');
         $deleteFromTicketDeCaisse -> execute(array($id_objet));
@@ -122,7 +128,7 @@ if(isset($_POST['validate'])){
         $supprFromDbVente = $db -> prepare('DELETE FROM vente WHERE id_temp_vente = ?');
         $supprFromDbVente -> execute(array($_GET['id_temp_vente']));
         
-    }
+        endforeach;
 
     //On vide les objets de la table objets_vendus_modif s'il s'agissait d'une modification de vente
 
@@ -133,19 +139,16 @@ if(isset($_POST['validate'])){
 
     //On écrit la fin du ticket.
     
-    $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r numéro de chèque = $numcheque \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";
+        $fin = "\r Montant total = $prixOfThisTicket € \r Moyen de paiement = $moyenDePaiement \r\r TVA non applicable, article 293B du Code général des impôts. \r\rMerci de votre visite et à bientôt :-)";    
     fwrite($fichier, $fin);
     fclose($fichier);
     
     require('actions/objets/update_db_bilan.php');
     
     //On redirige vers la page objets collectés.
-
     header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
 
-    }else{
-        $message = 'Veuillez remplir tous les champs svp.';
             
-    }
-}
+   
+    endif;
     

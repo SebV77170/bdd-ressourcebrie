@@ -51,9 +51,9 @@ session_start();
                 $id_temp_vente = $_GET['id_temp_vente'];
 
                 if(isset($_GET['id_modif'])):
-                    header('location:../../objetsVendus.php?id_temp_vente='.$id_temp_vente.'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'');
+                    header('location:../../objetsVendus.php?id_temp_vente='.$id_temp_vente.'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'#tc');
                 else:
-                    header('location:../../objetsVendus.php?id_temp_vente='.$id_temp_vente.'&modif='.$_GET['modif'].'');
+                    header('location:../../objetsVendus.php?id_temp_vente='.$id_temp_vente.'&modif='.$_GET['modif'].'#tc');
                 endif;
             }
             else{

@@ -223,4 +223,18 @@
 }
 
 /*FIN Propriété du footer*/
+/*Propriété du div du TC dans la page objets_vendus*/
+.visu-tc {
+  height: 800px;
+  overflow: auto;
+  background-color: white;
+}
+
+.entete-ticket {
+  text-align: center;
+  font-weight: bold;
+}
+
+/*FIN Propriété du div du TC dans la page objets_vendus
+
 /*Bootstrap’s source Sass files.*//*# sourceMappingURL=styles.css.map */

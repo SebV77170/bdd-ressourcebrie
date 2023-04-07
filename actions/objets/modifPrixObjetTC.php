@@ -1,5 +1,4 @@
 <?php
-var_dump($_POST);
 
 if(isset($_POST['modifprix'])):
     if(!empty($_POST['prix']) AND $_POST['prix']>=0):

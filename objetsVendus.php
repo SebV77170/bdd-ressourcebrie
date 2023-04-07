@@ -130,85 +130,84 @@ require('actions/objets/recupBoutonsCaisse.php');
         <div class="container-fluid">
             <div class="row">
                 <div class="col">
-                    <p style='text-align: center;'>Nom du vendeur : <?=$_SESSION['nom']?></p>
-                    
-                    
-                    <!--information sur le nombre d'objets contenu dans le ticket de caisse temporaire, compte les entrées dans la table ticketdecaissetemp-->
-                    <p style="text-align: center;"> Nombre d'objet : <?php
-                    if(isset($NbrObjetDeTC)){
-                    echo $NbrObjetDeTC;
-                    }else{
-                        echo 0;        }
-                    ?> 
-                    </p>
-                    
+                    <div class="container-fluid">
+                        <div class="row m-2">
+                            <div class="col">
+                                <p class="entete-ticket">Nom du vendeur : <?=$_SESSION['nom']?></p>
+                            </div>
+                            <div class="col">
+                                <!--information sur le nombre d'objets contenu dans le ticket de caisse temporaire, compte les entrées dans la table ticketdecaissetemp-->
+                                <p class="entete-ticket"> Nombre d'objet : <?php
+                                if(isset($NbrObjetDeTC)){
+                                echo $NbrObjetDeTC;
+                                }else{
+                                    echo 0;        }
+                                ?> 
+                                </p>
+                            </div>
+                            <div class="col">
+                                <p class="entete-ticket"> Prix Total : <?php
+                                $getTotalEnEuros = $getTotal['prix_total']/100;
+                                echo $getTotalEnEuros.'€';
+                                ?> 
+                                </p>
+                            </div>
+                        </div>
+                    </div>                    
+
                     <!--Affichage en directe du future ticket de caisse-->
                     
-                    <table class="tableau">
-                        <tr class="ligne">
-                            <th class="cellule_tete">Nom</th>
-                            <th class="cellule_tete">Catégorie</th>
-                            <th class="cellule_tete">Sous-Catégorie</th>
-                            <th class="cellule_tete">Prix unit</th>
-                            <th class="cellule_tete">Nbr</th>
-                            <th class="cellule_tete">Prix</th>
-                        </tr>
-                    
-                    <?php foreach($getObjets as list($id, $nom, $categorie, $souscat, $prix, $nombre, $prix_t)){
+                    <div class="visu-tc">
+                        <table class="tableau">
+                            <tr class="ligne">
+                                <th class="cellule_tete">Nom</th>
+                                <th class="cellule_tete">Catégorie</th>
+                                <th class="cellule_tete">Sous-Catégorie</th>
+                                <th class="cellule_tete">Prix unit</th>
+                                <th class="cellule_tete">Nbr</th>
+                                <th class="cellule_tete">Prix</th>
+                            </tr>
                         
-                        $prixeuro = $prix/100;
-                        if(isset($_GET['id_modif'])):
-                            echo '<tr class="ligne">
+                        <?php foreach($getObjets as list($id, $nom, $categorie, $souscat, $prix, $nombre, $prix_t)){
                             
+                            $prixeuro = $prix/100;
+                            if(isset($_GET['id_modif'])):
+                                echo '<tr class="ligne">
                                 
-                                <td class="colonne">'.$nom.'</td>
-                                <td class="colonne">'.$categorie.'</td>
-                                <td class="colonne">'.$souscat.'</td>
-                                <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$prixeuro.'" name="prix">€<input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifprix">modif</button></form></td>
-                                <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$nombre.'" name="nbr"><input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifnbr">modif</button></form></td>
-                                <td class="colonne">'.($prix_t/100).'€</td>
-                                <td class="colonne"><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'">X</a></td>
+                                    
+                                    <td class="colonne">'.$nom.'</td>
+                                    <td class="colonne">'.$categorie.'</td>
+                                    <td class="colonne">'.$souscat.'</td>
+                                    <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$prixeuro.'" name="prix">€<input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifprix">modif</button></form></td>
+                                    <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$nombre.'" name="nbr"><input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifnbr">modif</button></form></td>
+                                    <td class="colonne">'.($prix_t/100).'€</td>
+                                    <td class="colonne"><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&id_modif='.$_GET['id_modif'].'&modif='.$_GET['modif'].'">X</a></td>
+                                    
+                                    
+                                    </tr>'  ;
+                            else:
+                                echo '<tr class="ligne">
                                 
-                                
-                                </tr>'  ;
-                        else:
-                            echo '<tr class="ligne">
-                            
-                                
-                                <td class="colonne">'.$nom.'</td>
-                                <td class="colonne">'.$categorie.'</td>
-                                <td class="colonne">'.$souscat.'</td>
-                                <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$prixeuro.'" name="prix">€<input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifprix">modif</button></form></td>
-                                <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$nombre.'" name="nbr"><input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifnbr">modif</button></form></td>
-                                <td class="colonne">'.($prix_t/100).'€</td>
-                                <td class="colonne"><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'">X</a></td>
-                                
-                                
-                                </tr>'  ;
-                        endif;
-                    }
-                    ?>
-                    </table>
+                                    
+                                    <td class="colonne">'.$nom.'</td>
+                                    <td class="colonne">'.$categorie.'</td>
+                                    <td class="colonne">'.$souscat.'</td>
+                                    <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$prixeuro.'" name="prix">€<input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifprix">modif</button></form></td>
+                                    <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$nombre.'" name="nbr"><input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifnbr">modif</button></form></td>
+                                    <td class="colonne">'.($prix_t/100).'€</td>
+                                    <td class="colonne"><a href="actions/objets/supprObjetDeTC.php?id='.$id.'&id_temp_vente='.$_GET['id_temp_vente'].'&modif='.$_GET['modif'].'">X</a></td>
+                                    
+                                    
+                                    </tr>'  ;
+                            endif;
+                        }
+                        ?>
+                        </table>
+                    </div>
 
-                    <p style="text-align: center;"> Prix Total : <?php
-                    $getTotalEnEuros = $getTotal['prix_total']/100;
-                    echo $getTotalEnEuros.'€';
-                    ?> 
-                    </p>
                     
-                    <?php 
-                    if($NbrObjetDeTC > 0):
-                        if(isset($_GET['id_modif'])):
-                        ?>
-                            <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
-                        <?php
-                        else:
-                        ?>
-                            <a href="moyenDePaiement.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Valider</a>
-                        <?php
-                        endif;
-                    endif;
-                    ?>
+                    
+                    
                 </div>
                 <div class="col-7">
                     <nav id="navbar-category" class="navbar bg-body-tertiary navbar-light bg-light px-3">
@@ -224,7 +223,8 @@ require('actions/objets/recupBoutonsCaisse.php');
                         <?php endforeach; ?>  
                         </ul>
                     </nav>
-                    <div style="height:500px; overflow:auto;" data-bs-spy="scroll" data-bs-target="#navbar-category" data-bs-offset="0" class="scrollspy-example" tabindex="0">
+                    <div style="height:650px; overflow-y:scroll;" data-bs-spy="scroll" data-bs-target="#navbar-category" data-bs-offset="200" class="scrollspy-example" tabindex="0">
+                        <div style="height:10000px;">
                     <?php foreach($category as $k=>$v):?>
                         <?php foreach($v as $v1=>$v2):?>
                         <h4 id="scrollspyHeading<?=$k?>"><?=$v2['category']?></h4>
@@ -242,27 +242,47 @@ require('actions/objets/recupBoutonsCaisse.php');
                             </div>
                         </div>    
                         <?php endforeach; ?>                     
-                    <?php endforeach; ?>                      
+                    <?php endforeach; ?>  
+                            </div>                    
                     </div>
+                    <?php 
+                    if($NbrObjetDeTC > 0):
+                        if(isset($_GET['id_modif'])):
+                        ?>
+                            <a class="btn btn-outline-primary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=espèces" class="stdbouton">Espece</a>
+                            <a class="btn btn-outline-secondary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=carte" class="stdbouton">Carte</a>
+                            <a class="btn btn-outline-warning btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=chèque" class="stdbouton">Chèque</a>
+                            <a class="btn btn-outline-success btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=mixte" class="stdbouton">Mixte</a>  
+                        <?php
+                        else:
+                        ?>
+                            <a class="btn btn-outline-primary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=espèces" class="stdbouton">Espece</a>
+                            <a class="btn btn-outline-secondary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=carte" class="stdbouton">Carte</a>
+                            <a class="btn btn-outline-warning btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=chèque" class="stdbouton">Chèque</a>
+                            <a class="btn btn-outline-success btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=mixte" class="stdbouton">Mixte</a>
+                        <?php
+                        endif;
+                    endif;             
+                    ?>
+                    <?php
+                    if($_GET['modif']==1):
+                    ?>
+
+                    <a class="btn btn-outline-danger btn-lg m-3" href="actions/objets/annulemodif.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>" class="stdbouton">Annuler Modification </a>
+                    
+                    <?php
+                    else:
+                    ?>
+
+                    <a class="btn btn-outline-danger btn-lg m-3" href="actions/objets/annulerVenteAction.php?id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Annuler </a>
+                    
+                    <?php
+                    endif;
+                    ?>
                 </div>
             </div>
         </div>
         
-        <?php
-        if($_GET['modif']==1):
-        ?>
-
-        <a href="actions/objets/annulemodif.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>" class="stdbouton">Annuler Modification </a>
-        
-        <?php
-        else:
-        ?>
-
-        <a href="actions/objets/annulerVenteAction.php?id_temp_vente=<?=$_GET['id_temp_vente']?>" class="stdbouton">Annuler </a>
-        
-        <?php
-        endif;
-        ?>
 
         <!-- Script Jquery pour dérouler des sous catégories à partir des catégories-->
         

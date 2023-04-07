@@ -44,9 +44,9 @@
                 //On redirige vers la page objets vendus.
 
                 if(isset($_POST['id_modif'])):
-                    header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&id_modif='.$_POST['id_modif'].'&modif='.$_POST['modif'].'');
+                    header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&id_modif='.$_POST['id_modif'].'&modif='.$_POST['modif'].'#tc');
                 else:
-                    header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&modif='.$_POST['modif'].'');
+                    header('location:objetsVendus.php?nbrobjet='.$NbrObjetDeTC.'&id_temp_vente='.$id_temp_vente.'&modif='.$_POST['modif'].'#tc');
                 endif;
             }
             else{

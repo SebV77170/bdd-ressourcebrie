@@ -12,8 +12,8 @@ $id_vente = $recupDBvente->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-<nav class="navvente">
-        <ul class="navvente_ul">
+<nav class="navvente" >
+        <ul class="navvente_ul" id="tc">
                 <?php
                 
                 //On fait une boucle pour afficher les nouveaux onglets des nouvelles ventes.
@@ -22,7 +22,7 @@ $id_vente = $recupDBvente->fetchAll(PDO::FETCH_ASSOC);
                         if(isset($_GET['id_temp_vente'])):
                 ?>
                         <li class="navvente_li <?php if($_GET['id_temp_vente'] == $v['id_temp_vente']){echo 'vert';}else{echo 'bleu';} ?>">
-                                <a class="lien_li" href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?><?php if($v['id_modif']>0): echo'&id_modif='.$v['id_modif'].'';endif;?>&modif=<?=$v['modif']?>'>
+                                <a class="lien_li" href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?><?php if($v['id_modif']>0): echo'&id_modif='.$v['id_modif'].'';endif;?>&modif=<?=$v['modif']?>#tc'>
                                         <?php echo $v['dateheure'];
                                         if($v['modif']==1):
                                                 echo ' Mod';
@@ -37,7 +37,7 @@ $id_vente = $recupDBvente->fetchAll(PDO::FETCH_ASSOC);
                         <!--si l'id temp vente n'existe pas dans l'URL, on affichage avec la classe bleue-->
                         
                                 <li class="navvente_li bleu">
-                                        <a class="lien_li" href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?><?php if($v['id_modif']>0): echo '&id_modif='.$v['id_modif'].'';endif;?>&modif=<?=$v['modif']?>'>
+                                        <a class="lien_li" href='objetsVendus.php?id_temp_vente=<?=$v['id_temp_vente']?><?php if($v['id_modif']>0): echo '&id_modif='.$v['id_modif'].'';endif;?>&modif=<?=$v['modif']?>#tc'>
                                                 <?php echo $v['dateheure'];
                                                 if($v['modif']==1):
                                                         echo ' Mod';

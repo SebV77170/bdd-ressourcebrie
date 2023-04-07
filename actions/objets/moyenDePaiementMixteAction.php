@@ -1,12 +1,13 @@
-<?php require('actions/db.php');
-require('actions/objets/currencyToDecimalFct.php');
+<?php 
+require('actions/db.php');
+
 ?>
 
 <?php
 
 //Pour vérifier si le formulaire a bien été cliqué
 
-if(isset($_POST['validate'])):
+if(isset($_POST['validatemixte'])):
 
     //on récupère les données du ticket de caisse modifié s'il existe
     if($_GET['modif']==1):
@@ -29,19 +30,13 @@ if(isset($_POST['validate'])):
                 $message = 'Veuillez revenir en arrière et sélectionner le paiement adéquat, merci.';
             else:
                 if(!empty($_POST['carte']) AND !empty($_POST['cheque'])):
-                    if(!empty($_POST['transaction'])):
-                        require('meansOfPayment.php');
-                    else:
-                        $message='Veuillez remplir le numéro de transaction Sumup, svp.';
-                    endif;
+                        require('actions/objets/compte_transac.php');
+                        require('meansOfPayment.php');   
                 elseif(!empty($_POST['cheque']) AND !empty($_POST['espece'])):
                         require('meansOfPayment.php');
                 elseif(!empty($_POST['carte']) AND !empty($_POST['espece'])):
-                    if(!empty($_POST['transaction'])):
-                        require('meansOfPayment.php');
-                    else:
-                        $message='Veuillez remplir le numéro de transaction Sumup, svp.';
-                    endif;
+                        require('actions/objets/compte_transac.php');
+                        require('meansOfPayment.php');    
                 endif;
             endif;
         endif;
