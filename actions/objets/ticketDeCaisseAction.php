@@ -2,7 +2,7 @@
 
 <?php
 
-$getAllObjets = $db->prepare('SELECT id, nom, categorie, souscat, prix, nbr, prixt FROM ticketdecaissetemp WHERE id_temp_vente = ?');
+$getAllObjets = $db->prepare('SELECT id, nom, categorie, souscat, prix, nbr, prixt FROM ticketdecaissetemp WHERE id_temp_vente = ? ORDER BY id DESC');
 $getAllObjets->execute(array($_GET['id_temp_vente']));
 
 $getObjets = $getAllObjets->fetchAll();

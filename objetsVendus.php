@@ -30,8 +30,101 @@ require('actions/objets/recupBoutonsCaisse.php');
    
     if($_SESSION['admin'] >= 1){
     ?>
-            
-        <div class="accordion">  
+         
+         <div class="accordion d-md-none d-lg-none d-xl-none d-xxl-none">  
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Saisie manuelle
+                    </button>
+                </h2>
+                <div id="#panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <!--Formulaire de vente--> 
+
+                        <?php
+                        if($_GET['modif']==1):
+                        ?>
+                            
+                        <h2 style="text-align: center;">Si vous souhaitez changer la date de la vente.</h2>
+                        
+                        <form class="vente" method="post">
+                            <fieldset class="jeuchamp">
+                                <label class="champ" for="date">Date de la vente : </label>
+                                <input name="date" type="text" placeholder="dd-mm-YYYY">
+                                <input type="submit" class="input inputsubmit" name="modifierDate" value="Modifier">
+                            </fieldset>
+                        </form>
+
+                        <?php
+                        if(isset($message)):
+                            var_dump($message);
+                        endif;
+                        ?>
+                        
+                        <h2 style="text-align: center;">Sinon, modifiez ici la vente.</h2>
+
+                        <?php
+                        endif;
+                        ?>
+                                    
+                        <form classe="vente" method="post">
+                        
+                            <fieldset class="jeuchamp">
+                        
+                                <label class="champ" for="nom">Nom ou description sommaire de l'objet : </label>
+                                <input type="text" name="nom">
+
+                                <input type="hidden" name="modif" value=<?=$_GET['modif']?>>
+                                <?php
+                                if(isset($_GET['id_modif'])):
+                                ?>
+                                <input type="hidden" name="id_modif" value=<?=$_GET['id_modif']?>>
+                                <?php
+                                endif;
+                                ?>
+                        
+                                <label class="champ" for="type">Catégorie : </label>
+                                <select id="type" name="type">
+                                    <option value="">Sélectionner une catégorie</option>
+                                    
+                                    <!--Va chercher les catégories dans la table categories-->
+                                    
+                                    <?php
+                                    $result = $db->prepare('SELECT * FROM categories WHERE parent_id = "parent"');
+                                    $result->execute();
+                                    
+                                    while($row = $result->fetch(PDO::FETCH_BOTH)){
+                                        ?><option value="<?php echo $row['category'];?>"><?php echo $row['category'];?></option>
+                                        <?php
+                                    }
+                                    ?>
+                                </select>
+                                
+                                <!--Attention, id importante sub-category-dropdown car liée au script en bas du fichier, ceci afin de liée catégories et sous catégories-->
+                                
+                                <label class="champ" for="SUBCATEGORY">Sous-catégorie :</label>
+                                <select id="sub-category-dropdown" name="souscategorie">
+                                    <option value="">Sélectionner une sous-catégorie</option>
+                                </select>
+                                
+                                <button type="button" onclick="getValue();">Ajouter une sous-catégorie</button>
+                                
+                        
+                                <label class="champ" for="prix">Prix: </label>
+                                <input type="prix" name="prix">
+                            
+                            </fieldset>
+                    
+                            <input type="submit" class="input inputsubmit" name="validate" value="Vendre">
+                        
+                        </form>
+                    </div>
+                </div>
+            </div> 
+        </div>  
+
+        <div class="accordion d-none d-md-block d-lg-block d-xl-block d-xxl-block">  
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -210,7 +303,7 @@ require('actions/objets/recupBoutonsCaisse.php');
                     
                 </div>
                 <div class="col-7">
-                    <nav id="navbar-category" class="navbar bg-body-tertiary navbar-light bg-light px-3">
+                    <nav id="navbar-category" class="navbar bg-body-tertiary navbar-light bg-light px-3 d-none d-md-block d-lg-block d-xl-block d-xxl-block">
                         <ul class="nav nav-pills">    
                         <?php foreach($category as $k=>$v):?>
                             <?php foreach($v as $v1=>$v2):?>
@@ -223,27 +316,27 @@ require('actions/objets/recupBoutonsCaisse.php');
                         <?php endforeach; ?>  
                         </ul>
                     </nav>
-                    <div style="height:650px; overflow-y:scroll;" data-bs-spy="scroll" data-bs-target="#navbar-category" data-bs-offset="200" class="scrollspy-example" tabindex="0">
-                        <div style="height:10000px;">
-                    <?php foreach($category as $k=>$v):?>
-                        <?php foreach($v as $v1=>$v2):?>
-                        <h4 id="scrollspyHeading<?=$k?>"><?=$v2['category']?></h4>
-                        <div class="container text-center ">
-                            <div class="row row-cols-5">
-                                <?php 
-                                foreach($boutons[$k] as $key=>$value):
-                                    
-                                ?>
-                                <a class="col btn btn-<?=$value['color']?> border-dark m-1 rounded-3" role="button" href="actions/objets/objetsVendusViaBoutonsAction.php?id_bouton=<?=$value['id_bouton']?>&id_temp_vente=<?=$_GET['id_temp_vente']?><?php if(isset($_GET['id_modif'])):?>&id_modif=<?=$_GET['id_modif']?><?php endif;?>&modif=<?=$_GET['modif']?>"><?=$value['nom']?></a>
-                                <?php 
-                                       
-                                endforeach;
-                                ?>                           
-                            </div>
-                        </div>    
-                        <?php endforeach; ?>                     
-                    <?php endforeach; ?>  
-                            </div>                    
+                    <div style="height:450px; overflow-y:scroll;" data-bs-spy="scroll" data-bs-target="#navbar-category" data-bs-offset="0" class="scrollspy-example d-none d-md-block d-lg-block d-xl-block d-xxl-block" tabindex="0">
+                        <div style="height:5000px;">
+                        <?php foreach($category as $k=>$v):?>
+                            <?php foreach($v as $v1=>$v2):?>
+                            <h4 id="scrollspyHeading<?=$k?>"><?=$v2['category']?></h4>
+                            <div class="container text-center ">
+                                <div class="row row-cols-5">
+                                    <?php 
+                                    foreach($boutons[$k] as $key=>$value):
+                                        
+                                    ?>
+                                    <a class="col btn btn-<?=$value['color']?> border-dark m-1 rounded-3" role="button" href="actions/objets/objetsVendusViaBoutonsAction.php?id_bouton=<?=$value['id_bouton']?>&id_temp_vente=<?=$_GET['id_temp_vente']?><?php if(isset($_GET['id_modif'])):?>&id_modif=<?=$_GET['id_modif']?><?php endif;?>&modif=<?=$_GET['modif']?>"><?=$value['nom']?></a>
+                                    <?php 
+                                        
+                                    endforeach;
+                                    ?>                           
+                                </div>
+                            </div>    
+                            <?php endforeach; ?>                     
+                        <?php endforeach; ?>  
+                        </div>                    
                     </div>
                     <?php 
                     if($NbrObjetDeTC > 0):
@@ -314,6 +407,8 @@ require('actions/objets/recupBoutonsCaisse.php');
             document.location.href='ajoutsouscat.php?from=vente&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?><?php if(isset($_GET['id_modif'])): echo '&id_modif='.$_GET['id_modif'].''; endif;?>&cat='+input;
             }    
         </script>
+       
+
         
         <?php
             }else{

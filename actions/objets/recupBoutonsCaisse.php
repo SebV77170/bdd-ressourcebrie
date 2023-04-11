@@ -8,7 +8,8 @@ foreach($id_cat as $k=>$v):
 
     $sql='SELECT * FROM boutons_ventes
             INNER JOIN categories ON boutons_ventes.id_cat=categories.id
-            WHERE boutons_ventes.id_cat=?';
+            WHERE boutons_ventes.id_cat=?
+            ORDER BY boutons_ventes.nom ASC';
     $sth=$db->prepare($sql);
     $sth->execute(array($v['id_cat']));
     $boutons[$k]=$sth->fetchAll(PDO::FETCH_ASSOC);
