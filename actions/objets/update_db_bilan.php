@@ -32,7 +32,7 @@ if(isset($prix_total_ticket['prix_total'])){
 }
 
 
-$paiement = 'AND (moyen_paiement = "espece" )';
+$paiement = 'AND (moyen_paiement = "espèces" )';
 require('actions/objets/getTotalTicket.php');
 if(isset($prix_total_ticket['prix_total'])){
     $prix_total_journee_espece = $prix_total_ticket['prix_total'];
