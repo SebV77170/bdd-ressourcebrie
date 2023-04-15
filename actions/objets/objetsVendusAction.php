@@ -22,7 +22,11 @@
                 //On récupère les données de l'objet
                 
                 $nom_objet = $_POST['nom'];
-                $categorie_objet = $_POST['type'];
+                if(isset($_POST['type1'])):
+                    $categorie_objet = $_POST['type1'];
+                else:
+                    $categorie_objet = $_POST['type2'];
+                endif;
                 $souscat = $_POST['souscategorie'];
                 $nbr=1;
                 $prixt=$nbr*$prixOfObjet;

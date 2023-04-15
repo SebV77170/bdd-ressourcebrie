@@ -84,8 +84,8 @@ require('actions/objets/recupBoutonsCaisse.php');
                                 endif;
                                 ?>
                         
-                                <label class="champ" for="type">Catégorie : </label>
-                                <select id="type" name="type">
+                                <label class="champ" for="type2">Catégorie : </label>
+                                <select id="type2" name="type2">
                                     <option value="">Sélectionner une catégorie</option>
                                     
                                     <!--Va chercher les catégories dans la table categories-->
@@ -104,7 +104,7 @@ require('actions/objets/recupBoutonsCaisse.php');
                                 <!--Attention, id importante sub-category-dropdown car liée au script en bas du fichier, ceci afin de liée catégories et sous catégories-->
                                 
                                 <label class="champ" for="SUBCATEGORY">Sous-catégorie :</label>
-                                <select id="sub-category-dropdown" name="souscategorie">
+                                <select id="sub-category-dropdown2" name="souscategorie">
                                     <option value="">Sélectionner une sous-catégorie</option>
                                 </select>
                                 
@@ -177,8 +177,8 @@ require('actions/objets/recupBoutonsCaisse.php');
                                 endif;
                                 ?>
                         
-                                <label class="champ" for="type">Catégorie : </label>
-                                <select id="type" name="type">
+                                <label class="champ" for="type1">Catégorie : </label>
+                                <select id="type1" name="type1">
                                     <option value="">Sélectionner une catégorie</option>
                                     
                                     <!--Va chercher les catégories dans la table categories-->
@@ -197,7 +197,7 @@ require('actions/objets/recupBoutonsCaisse.php');
                                 <!--Attention, id importante sub-category-dropdown car liée au script en bas du fichier, ceci afin de liée catégories et sous catégories-->
                                 
                                 <label class="champ" for="SUBCATEGORY">Sous-catégorie :</label>
-                                <select id="sub-category-dropdown" name="souscategorie">
+                                <select id="sub-category-dropdown1" name="souscategorie">
                                     <option value="">Sélectionner une sous-catégorie</option>
                                 </select>
                                 
@@ -382,7 +382,7 @@ require('actions/objets/recupBoutonsCaisse.php');
         <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
         <script>
             $(document).ready(function() {
-                $('#type').on('change',function(){
+                $('#type1').on('change',function(){
                     var category_id = this.value;
                     $.ajax({
                         url:"actions/objets/get-subcat.php",
@@ -392,7 +392,26 @@ require('actions/objets/recupBoutonsCaisse.php');
                         },
                         cache: false,
                         success: function(result){
-                            $("#sub-category-dropdown").html(result);
+                            $("#sub-category-dropdown1").html(result);
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <script>
+            $(document).ready(function() {
+                $('#type2').on('change',function(){
+                    var category_id = this.value;
+                    $.ajax({
+                        url:"actions/objets/get-subcat.php",
+                        type:"POST",
+                        data:{
+                            category_id: category_id 
+                        },
+                        cache: false,
+                        success: function(result){
+                            $("#sub-category-dropdown2").html(result);
                         }
                     });
                 });
