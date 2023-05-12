@@ -32,4 +32,9 @@ else:
         $sth3->execute(array($date,$value));
     endif;
 endif;
+
+//On récupère les nouvelles valeurs de la db compte_transac
+$sql4="SELECT * FROM compte_transac";
+$sth4=$db->query($sql4);
+$nouveau_compte=$sth4->fetch();
 ?>

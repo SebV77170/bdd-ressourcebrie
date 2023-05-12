@@ -42,7 +42,7 @@ if(isset($_POST['validatecarte'])):
     $nomVendeur = $_SESSION['nom'];
     $idVendeur = $_SESSION['id'];
     $prenomVendeur = $_SESSION['prenom'];
-    $transac= $compte['compte'];
+    $transac= $nouveau_compte['compte'];
     
     
     
