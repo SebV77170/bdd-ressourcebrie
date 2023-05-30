@@ -223,6 +223,7 @@ require('actions/objets/recupBoutonsCaisse.php');
         <div class="container-fluid">
             <div class="row">
                 <div class="col">
+                    <!-- entête du ticket de caisse -->
                     <div class="container-fluid">
                         <div class="row m-2">
                             <div class="col">
@@ -249,7 +250,6 @@ require('actions/objets/recupBoutonsCaisse.php');
                     </div>                    
 
                     <!--Affichage en directe du future ticket de caisse-->
-                    
                     <div class="visu-tc">
                         <table class="tableau">
                             <tr class="ligne">
@@ -302,6 +302,7 @@ require('actions/objets/recupBoutonsCaisse.php');
                     
                     
                 </div>
+                <!-- Affichage des boutons de vente -->
                 <div class="col-7">
                     <nav id="navbar-category" class="navbar bg-body-tertiary navbar-light bg-light px-3 d-none d-md-block d-lg-block d-xl-block d-xxl-block">
                         <ul class="nav nav-pills">    
@@ -339,6 +340,7 @@ require('actions/objets/recupBoutonsCaisse.php');
                         </div>                    
                     </div>
                     <?php 
+                    // Affichage des boutons carte/espece/cheque/mixte
                     if($NbrObjetDeTC > 0):
                         if(isset($_GET['id_modif'])):
                         ?>
@@ -360,7 +362,7 @@ require('actions/objets/recupBoutonsCaisse.php');
                     <?php
                     if($_GET['modif']==1):
                     ?>
-
+                    <!-- Boutons annnuler ou annuler modif -->
                     <a class="btn btn-outline-danger btn-lg m-3" href="actions/objets/annulemodif.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>" class="stdbouton">Annuler Modification </a>
                     
                     <?php
