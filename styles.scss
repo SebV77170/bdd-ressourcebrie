@@ -248,9 +248,50 @@
 
 /*FIN Propriété du div du TC dans la page objets_vendus
 
+/*Affichage des sous-catégoriesdans les boutons de vente*/
+
+.sous-cat{
+    margin-top: 10px !important; /*important pour overider la classe row de bootstrap*/
+    margin-bottom: 0px;
+}
+
+/*Différente couleur des boutons de vente*/
+/*En faisant un merge-map entre les themes de bootstrap et les themes customisés*/
+
+@import "vendor/twbs/bootstrap/scss/functions";
+@import "vendor/twbs/bootstrap/scss/variables";
+@import "vendor/twbs/bootstrap/scss/variables-dark";
+@import "vendor/twbs/bootstrap/scss/maps";
+@import "vendor/twbs/bootstrap/scss/mixins";
+
+
+$custom-theme-colors:(
+  "linge-de-maison": #ffce3c,
+  "vetements-adulte":#FFE699,
+  "enfants":#FF9999,
+  "puericulture":#f79191,
+  "vetements-enfants": #f79191,
+  "livres-enfants":#fcc6c6,
+  "jouets":#fcc6c6,
+  "livres-adultes":#00B0F0,
+  "materiel-bureau":#d61df7,
+  "bricolage":#CCCCFF,
+  "divers-hobby":#9a9afe,
+  "Outils-de-bricolage":#5f5ffe,
+  "mobilier":#FF0066,
+  "vaisselle":#CCFFCC,
+  "decoration":#92D050,
+  "appareils-electrique":#009999,
+  "hobby-sport":#FF9966
+);
+
+$theme-colors: map-merge($theme-colors, $custom-theme-colors);
+
+
 /*Bootstrap’s source Sass files.*/
 
-@import url("vendor/twbs/bootstrap/scss/bootstrap.scss");
+@import "vendor/twbs/bootstrap/scss/bootstrap.scss";
+
 
 
 

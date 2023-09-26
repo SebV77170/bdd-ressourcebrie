@@ -17,14 +17,6 @@ endif;
 $prix=$_GET['prix'];
 
 if(isset($_POST['validateespece'])):
-    
-    
-
-        $getAllObjetOfTicket = $db -> prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?');
-        $getAllObjetOfTicket -> execute(array($_GET['id_temp_vente']));
-        
-        //FETCH_ASSOC retourne un tableau multidimensionnel avec des clefs associatives
-        $getObjets = $getAllObjetOfTicket -> fetchAll(PDO::FETCH_ASSOC);
 
         if($_GET['modif']==0):
 
@@ -51,16 +43,53 @@ if(isset($_POST['validateespece'])):
         $getPrixTotal -> execute(array($_GET['id_temp_vente']));
 
         $getTotal = $getPrixTotal->fetch();
-        $getTotalEnEuros = $getTotal['prix_total'];
+        if($getTotal['prix_total']>=0):
+            $getTotalEnEuros = $getTotal['prix_total'];
+        else:
+            //Pour adapter le coût de la réduction si elle est d'une valeur inférieure à celle prévue.
+            $getTotalEnEuros=0;
+            if($_GET['ra']=='trueClient'):
+                $reduc=-($getTotal['prix_total']+500);
+                $sql='UPDATE ticketdecaissetemp SET prix=? WHERE nom="reduction fid client" AND id_temp_vente=?';
+            elseif($_GET['ra']=='trueBene'):
+                $reduc=-($getTotal['prix_total']+1000);
+                $sql='UPDATE ticketdecaissetemp SET prix=? WHERE nom="reduction fid bénévole" AND id_temp_vente=?';
+            endif;
+            $sth=$db->prepare($sql);
+            $sth->execute(array($reduc,$_GET['id_temp_vente']));
+        endif;
+
         $lien = '...';
         
         //On insère.
         if($_GET['modif']==0):
-            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien) VALUES (?,?,?,?,?,?,?)');
-            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien));
+            if($_GET['ra']=='trueClient'):
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien, 0,1,0));
+            elseif($_GET['ra']=='trueBene'):
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien, 1,0,0));
+            elseif($_GET['ra']=='trueGrosPanier'):
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien, 0,0,1));
+            else:
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien,0,0,0));
+            endif;
         elseif($_GET['modif']==1):
-            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien) VALUES (?,?,?,?,?,?,?,?)');
-            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'], $nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien));
+            if($_GET['ra']=='trueClient'):
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien, 0,1,0 ));
+            elseif($_GET['ra']=='trueBene'):
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien, 1,0,0));
+            elseif($_GET['ra']=='trueGrosPanier'):
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien, 0,0,1));
+            else:
+                $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+                $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $getTotalEnEuros, $lien,0,0,0));
+            endif;
         endif;
 
         //On récupère l'id du dernier ticket de caisse du vendeur en question.
@@ -72,11 +101,14 @@ if(isset($_POST['validateespece'])):
 
         if($_GET['modif']==0):
             $idOfThisTicket = $infoOfTicket[0];
+            $prixOfThisTicket = $infoOfTicket[1]/100;
+
         elseif($_GET['modif']==1):
             $idOfThisTicket = $ticketmodif['id_ticket'];
+            $prixOfThisTicket = $getTotalEnEuros/100;
         endif;
 
-        $prixOfThisTicket = $infoOfTicket[1]/100;
+        
         
         //On update le lien de la db ticketdecaisse.
         $updatelien = $db->prepare('UPDATE ticketdecaisse SET lien = "tickets/Ticket'.$idOfThisTicket.'.txt" WHERE id_ticket = ?');
@@ -87,7 +119,12 @@ if(isset($_POST['validateespece'])):
         $fichier = fopen("tickets/Ticket$idOfThisTicket.txt", 'c+b');
         $entete = "\t RESSOURCE'BRIE\r\t Association loi 1901\r\t RNA : W772010160\r\t Siret : 91221719700017 \r\r Ticket de caisse $idOfThisTicket\r Vendeur : $prenomVendeur \r date et heure : $date_achat \r\r";
         fwrite($fichier, $entete);
-            
+        
+        $getAllObjetOfTicket = $db -> prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?');
+        $getAllObjetOfTicket -> execute(array($_GET['id_temp_vente']));
+        
+        //FETCH_ASSOC retourne un tableau multidimensionnel avec des clefs associatives
+        $getObjets = $getAllObjetOfTicket -> fetchAll(PDO::FETCH_ASSOC);
     
         //On fait une boucle pour chaque élément du ticket de caisse afin de les retirer de la bdd collectée et de les mettre dans la bdd vendus.
         foreach($getObjets as $v):
@@ -101,9 +138,7 @@ if(isset($_POST['validateespece'])):
             $prix_objet = $v['prix'];
             $nbr=$v['nbr'];
             $timestamp = time();
-            
         
-
             //On insère l'objet dans la db objets vendus
         
             $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?)');

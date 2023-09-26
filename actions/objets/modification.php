@@ -52,7 +52,7 @@ if(isset($_GET['id_ticket'])):
 
         //on récupère l'id de la modification
 
-        $sql6='SELECT id_modif FROM modifticketdecaisse WHERE id_ticket ='.$idTicket.'';
+        $sql6='SELECT id_modif FROM modifticketdecaisse WHERE id_ticket ='.$idTicket.' ORDER BY id_modif DESC';
         $sth6=$db->query($sql6);
         $id_modif=$sth6->fetch();
         $id_modif=$id_modif[0];

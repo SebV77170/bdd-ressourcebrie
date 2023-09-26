@@ -11,6 +11,8 @@ require('actions/objets/getPoidsTotal.php');
 require('actions/objets/getDBVenteTemp.php');
 require('actions/objets/modifDate.php');
 require('actions/objets/recupBoutonsCaisse.php');
+require('app/bootstrap.php');
+
 ?>
 
 <!DOCTYPE HTML>
@@ -319,21 +321,35 @@ require('actions/objets/recupBoutonsCaisse.php');
                     </nav>
                     <div style="height:450px; overflow-y:scroll;" data-bs-spy="scroll" data-bs-target="#navbar-category" data-bs-offset="0" class="scrollspy-example d-none d-md-block d-lg-block d-xl-block d-xxl-block" tabindex="0">
                         <div style="height:5000px;">
+                        <!-- On va chercher le nom des catégories dans le tableau $category de recupBoutonsCaisse.php -->
                         <?php foreach($category as $k=>$v):?>
                             <?php foreach($v as $v1=>$v2):?>
-                            <h4 id="scrollspyHeading<?=$k?>"><?=$v2['category']?></h4>
+                            <h3 id="scrollspyHeading<?=$k?>"><?=$v2['category']?></h3>
                             <div class="container text-center ">
-                                <div class="row row-cols-5">
-                                    <?php 
-                                    foreach($boutons[$k] as $key=>$value):
+                                <?php 
+                                //On affiche maintenant les boutons par sous catégories dans chaque catégorie, à l'aide du tableau bien arrangé dans recupBoutonsCaisse.php
+                                foreach($newboutons[$k] as $key=>$value):
+                                ?>
+                                    <div class="row row-cols-5">
+                                        <?php if($v2['category']==$key):?>
                                         
-                                    ?>
-                                    <a class="col btn btn-<?=$value['color']?> border-dark m-1 rounded-3" role="button" href="actions/objets/objetsVendusViaBoutonsAction.php?id_bouton=<?=$value['id_bouton']?>&id_temp_vente=<?=$_GET['id_temp_vente']?><?php if(isset($_GET['id_modif'])):?>&id_modif=<?=$_GET['id_modif']?><?php endif;?>&modif=<?=$_GET['modif']?>"><?=$value['nom']?></a>
-                                    <?php 
-                                        
-                                    endforeach;
-                                    ?>                           
-                                </div>
+                                        <?php else:?>
+                                        <p class="sous-cat"><?=$key?></p>
+                                        <?php endif;?>
+                                    </div>
+                                    <div class="row row-cols-5">   
+                                        <?php
+                                        foreach($value as $value1=>$value2):
+                                        ?>
+                                        <!-- Les valeurs des couleurs sont définies dans styles.scss dans $custom-theme-colors -->
+                                        <a class="col btn btn-<?=$value2['color']?> border-dark m-1 rounded-3" role="button" href="actions/objets/objetsVendusViaBoutonsAction.php?id_bouton=<?=$value2['id_bouton']?>&id_temp_vente=<?=$_GET['id_temp_vente']?><?php if(isset($_GET['id_modif'])):?>&id_modif=<?=$_GET['id_modif']?><?php endif;?>&modif=<?=$_GET['modif']?>"><?=$value2['nom']?></a>
+                                        <?php 
+                                        endforeach; 
+                                        ?>
+                                    </div>
+                                <?php
+                                endforeach;
+                                ?>                           
                             </div>    
                             <?php endforeach; ?>                     
                         <?php endforeach; ?>  
