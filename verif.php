@@ -24,11 +24,16 @@ if(isset($_GET['ra']) AND !isset($_POST['final-validation'])):
             $nom_objet = 'reduction fid bénévole';
             $categorie_objet = 'reduction fid bénévole';
             $souscat = 'reduction fid bénévole';
-        elseif($_GET['ra']=='trueGrosPanier'):
-            $prixOfObjet = -500;
-            $nom_objet = 'reduction gros panier';
-            $categorie_objet = 'reduction gros panier';
-            $souscat = 'reduction gros panier';
+        elseif($_GET['ra']=='trueGrosPanierClient'):
+            $prixOfObjet = -$_GET['delta_prix_client']*100;
+            $nom_objet = 'reduction gros panier client';
+            $categorie_objet = 'reduction gros panier client';
+            $souscat = 'reduction gros panier client';
+        elseif($_GET['ra']=='trueGrosPanierBene'):
+            $prixOfObjet = -$_GET['delta_prix_bene']*100;
+            $nom_objet = 'reduction gros panier bénévole';
+            $categorie_objet = 'reduction gros panier bénévole';
+            $souscat = 'reduction gros panier bénévole';
         endif;
         $id_temp_vente = $_GET['id_temp_vente'];
 
@@ -217,9 +222,11 @@ endif;
                 if(!isset($_GET['ra'])):
                     if($_GET['prix']>=50):
                 ?>
+                    <!-- Affichage des deux boutons pour valider la réduction gros panier client ou bénévole (pas le même taux, 10% pour l'un, 20% pour l'autre        -->
                     <div class='col'>
                         <form method='get'>
-                            <input type="hidden"  name="prix" value=<?=$_GET['prix']-5?>>
+                            <input type="hidden"  name="prix" value=<?=round($_GET['prix']*0.9,1,PHP_ROUND_HALF_UP)?>>
+                            <input type="hidden"  name="delta_prix_client" value=<?=round($_GET['prix']*0.1,1,PHP_ROUND_HALF_UP)?>>                      
                             <input type="hidden"  name="nbrObjet" value=<?=$_GET['nbrObjet']?>>
                             <input type="hidden"  name="modif" value=<?=$_GET['modif']?>>
                             <input type="hidden"  name="id_temp_vente" value=<?=$_GET['id_temp_vente']?>>
@@ -228,7 +235,21 @@ endif;
                             <?php if(isset($_GET['id_modif'])):?>
                             <input type="hidden"  name="id_modif" value=<?=$_GET['id_modif']?>>
                             <?php endif; ?>
-                            <button type="submit" class="btn btn-warning m-2" name="ra" value="trueGrosPanier">valider avec réduction 'gros panier'</button>
+                            <button type="submit" class="btn btn-warning m-2" name="ra" value="trueGrosPanierClient">valider avec réduction 'gros panier' CLIENT</button>
+                        </form>
+                        <form method='get'>
+                            <input type="hidden"  name="prix" value=<?=round($_GET['prix']*0.8,1,PHP_ROUND_HALF_UP)?>>
+                            <input type="hidden"  name="delta_prix_bene" value=<?=round($_GET['prix']*0.2,1,PHP_ROUND_HALF_UP)?>>                            
+                            <input type="hidden"  name="nbrObjet" value=<?=$_GET['nbrObjet']?>>
+                            <input type="hidden"  name="modif" value=<?=$_GET['modif']?>>
+                            <input type="hidden"  name="id_temp_vente" value=<?=$_GET['id_temp_vente']?>>
+                            <input type="hidden"  name="mp" value=<?=$_GET['mp']?>>
+                            <input type="hidden"  name="etape_de_validation" value=2>
+                            <?php if(isset($_GET['id_modif'])):?>
+                            <input type="hidden"  name="id_modif" value=<?=$_GET['id_modif']?>>
+                            <?php endif; ?>
+                            <button type="submit" class="btn btn-warning m-2" name="ra" value="trueGrosPanierBene">valider avec réduction 'gros panier' BENEVOLE</button>
+
                         </form>
                     </div>
                 <?php endif;?>
