@@ -81,7 +81,7 @@ require('actions/objets/envoieTicketAction.php');
                 }
                 ?>
             
-                <input type="submit" class="input inputsubmit" name="validate_adresse" value="Générer facture">
+                <input type="submit" class="input inputsubmit" name="validate_adresse" value="facture">
                 
                 
             </form>
