@@ -53,6 +53,20 @@ require('actions/objets/envoieTicketAction.php');
                 
                 
             </form>
+
+            <form method="post">
+                
+                <fieldset class="jeuchamp">
+            
+                    <label class="champ" for="adresse">Adresse du client si besoin de facture : </label>
+                    <input class="input" type="text" name="adresse">
+            
+                </fieldset>
+            
+                <input type="submit" class="input inputsubmit" name="validate_adresse" value="Envoyer">
+                
+                
+            </form>
         
         <a href='accueil_vente.php' class='stdbouton'>Retour</a>
 
