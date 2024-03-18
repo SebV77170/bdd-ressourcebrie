@@ -22,7 +22,10 @@ if(isset($_POST['validatemixte'])):
 
     $somme = $espece + $cheque + $carte;
 
-    if($somme == $_GET['prix']*100):
+    //pour palier à des problèmes d'arrondis de $_GET['prix]*100 (sur certaines valeurs), et par conséquent à des problèmes de comparaison dans le if ci-dessous.
+    $number = round($_GET['prix']*100,0);
+
+    if($somme == $number):
         if(empty($_POST['carte']) AND empty($_POST['cheque']) AND empty($_POST['espece'])):
             $message = 'Veuillez remplir au moins 2 moyens de paiments ou revenir en arrière et sélectionner le paiement adéquat, merci.';
         else:
