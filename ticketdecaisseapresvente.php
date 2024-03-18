@@ -1,6 +1,7 @@
 <?php
 require('actions/users/securityAction.php');
 require('actions/objets/getTicket.php');
+require('actions/objets/facturation.php');
 require('actions/objets/envoieTicketAction.php');
 ?>
 
