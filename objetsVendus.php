@@ -4,6 +4,7 @@ require('actions/objets/currencyToDecimalFct.php');
 require('actions/users/securityAction.php');
 require('actions/objets/modifPrixObjetTC.php');
 require('actions/objets/modifNbr.php');
+require('actions/objets/modifNom.php');
 require('actions/objets/objetsVendusAction.php');
 require('actions/objets/ticketDeCaisseAction.php');
 require('actions/objets/compteObjetDsTCtemp.php');
@@ -269,8 +270,7 @@ require('app/bootstrap.php');
                             if(isset($_GET['id_modif'])):
                                 echo '<tr class="ligne">
                                 
-                                    
-                                    <td class="colonne">'.$nom.'</td>
+                                    <td class="colonne"><form method="post"><input type="text" style="width:auto" value="'.$nom.'" name="nom"><input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifnom">modif</button></form></td>
                                     <td class="colonne">'.$categorie.'</td>
                                     <td class="colonne">'.$souscat.'</td>
                                     <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$prixeuro.'" name="prix">€<input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifprix">modif</button></form></td>
@@ -282,9 +282,8 @@ require('app/bootstrap.php');
                                     </tr>'  ;
                             else:
                                 echo '<tr class="ligne">
-                                
-                                    
-                                    <td class="colonne">'.$nom.'</td>
+
+                                    <td class="colonne"><form method="post"><input type="text" style="width:auto" value="'.$nom.'" name="nom"><input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifnom">modif</button></form></td>
                                     <td class="colonne">'.$categorie.'</td>
                                     <td class="colonne">'.$souscat.'</td>
                                     <td class="colonne"><form method="post"><input type="text" style="width:40px" value="'.$prixeuro.'" name="prix">€<input type="hidden" value="'.$id.'" name="idobjet"><button type="submit" class="btn btn-primary btn-sm mt-1" name="modifprix">modif</button></form></td>
