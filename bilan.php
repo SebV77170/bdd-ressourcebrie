@@ -35,7 +35,7 @@ require('actions/objets/miseAJourDb.php');
                 <a class="doc_lien" href="BilanObjetsVendus.php"><li class="doc_li" id="bleu">Objets Vendus</li></a>
                 <a class="doc_lien" href="bilanticketDeCaisse.php"><li class="doc_li" id="bleu">Tickets de Caisse</li></a>
                 <a class="doc_lien" href="bilanJournalier.php"><li class="doc_li" id="bleu">Bilan Journalier</li></a>
-                
+                <a class="doc_lien" href="bilanDechetterie.php"><li class="doc_li" id="bleu">Bilan dechetterie</li></a>
             </ul>
         </div>
         

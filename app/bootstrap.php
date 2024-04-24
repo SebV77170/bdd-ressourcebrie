@@ -33,4 +33,9 @@ function dd(...$vars) {
     }
 }
 
+function convertDateFRenDateUS($string){
+    $format_us = implode('-',array_reverse  (explode('-',$string)));
+    return $format_us;
+}
+
 ?>
