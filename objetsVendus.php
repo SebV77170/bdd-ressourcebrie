@@ -225,7 +225,7 @@ require('app/bootstrap.php');
 
         <div class="container-fluid">
             <div class="row">
-                <div class="col">
+                <div class="col-5">
                     <!-- entête du ticket de caisse -->
                     <div class="container-fluid">
                         <div class="row m-2">

@@ -2,7 +2,7 @@
             $dbname = "objets";
             $serveur = "localhost";
             $login = "root";
-            $pass = "root";
+            $pass = "";
             
             try{
                         $db = new PDO("mysql:host=$serveur;dbname=$dbname;charset=utf8;", $login, $pass);
