@@ -6,11 +6,11 @@ require('../db.php');
 // Nom de la table à exporter
 if ($_GET['type'] == 'OV') {
     $table = 'objets_vendus';
-    $sql = "SELECT * FROM $table WHERE `date_achat` >= '2024-01-01 00:00:00' AND `date_achat` < '2025-01-01 00:00:00'";
 } elseif ($_GET['type'] == 'OC') {
     $table = 'objets_collectes';
-    $sql = "SELECT * FROM $table WHERE `date` >= '2024-01-01 00:00:00' AND `date` < '2025-01-01 00:00:00'";
 }
+
+$sql = "SELECT * FROM $table";
 
 
 
