@@ -6,7 +6,9 @@ $moment = time();
     if(!empty($_POST['type']) AND !empty($_POST['poids']) AND !empty($_POST['flux']) AND !empty($_POST['souscategorie'])){
         
         $objet_nom = $_POST['nom'];
-        $objet_date_insertion = date('d/m/Y');
+        
+        $objet_date_insertion = new DateTime('now', new DateTimeZone('Europe/paris'));
+        $objet_date_insertion = $objet_date_insertion->format('Y/m/d G:i');
         
         $objet_type = $_POST['type'];
         $objet_souscat = $_POST['souscategorie'];

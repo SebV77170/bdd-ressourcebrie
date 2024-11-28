@@ -6,7 +6,8 @@ require('actions/objets/insertObjetDsDb.php');
 $tridepot = 'timestamp DESC';
 $limit = " LIMIT 3";
 // Cette variable permet de rajouter dans la requete SQL de recupDb, de n'afficher que les dernières saisies de la personne loguée et du jour actuel
-$date_actuelle = date('d/m/Y');
+$date_actuelle = new DateTime('now', new DateTimeZone('Europe/paris'));
+$date_actuelle = $date_actuelle->format('Y/m/d G:i');
 $where1 = 'WHERE (saisipar = "'.$_SESSION['nom'].' '.$_SESSION['prenom'].'") AND (date = "'.$date_actuelle.'")';
 
 require('actions/objets/recupDb.php');

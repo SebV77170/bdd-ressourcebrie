@@ -1,11 +1,12 @@
 <?php
 
+$date_actuelle = new DateTime('now', new DateTimeZone('Europe/paris'));
+$date_actuelle = $date_actuelle->format('Y/m/d G:i');
 
-$date_actuelle = date('d/m/Y');
-// Format fr => format us
-$format_us = implode('-',array_reverse  (explode('/',$date_actuelle)));
-//transforme en timestamp
-$timestamp = strtotime($format_us);
+$format_us = new DateTime('now', new DateTimeZone('Europe/paris'));
+$format_us = $format_us->format('Y/m/d');
+$timestamp = strtotime($date_actuelle);
+
     
 $where2 = 'WHERE date = "'.$date_actuelle.'"';
 require('actions/objets/getPoidsBilan.php');
