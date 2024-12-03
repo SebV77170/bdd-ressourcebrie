@@ -7,7 +7,7 @@ $date_actuelle = implode('/',array_reverse  (explode('-',$format_us)));
 //transforme en timestamp
 $timestamp = strtotime($format_us);
     
-$where2 = 'WHERE date = "'.$date_actuelle.'"';
+$where2 = 'WHERE date LIKE "'.$format_us.'%"';
 require('getPoidsBilan.php');
 if(isset($poids_total_obj_collecte['poids_total'])){
     $poids=$poids_total_obj_collecte['poids_total'];
