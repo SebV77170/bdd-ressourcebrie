@@ -50,32 +50,36 @@ $lien = '...';
 //On insère.
 
 if($_GET['modif']==0):
-    if($_GET['ra']=='trueClient'):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,1,0 ));
-    elseif($_GET['ra']=='trueBene'):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 1,0,0));
-    elseif($_GET['ra']=='trueGrosPanier'):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,0,1));
-    else:
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien,0,0,0));
+    if(isset($_GET['ra'])):
+        if($_GET['ra']=='trueClient'):
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,1,0 ));
+        elseif($_GET['ra']=='trueBene'):
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 1,0,0));
+        elseif($_GET['ra']=='trueGrosPanier'):
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,0,1));
+        else:
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien,0,0,0));
+        endif;
     endif;
 elseif($_GET['modif']==1):
-    if($_GET['ra']=='trueClient'):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,1,0 ));
-    elseif($_GET['ra']=='trueBene'):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 1,0,0));
-    elseif($_GET['ra']=='trueGrosPanier'):
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,0,1));
-    else:
-        $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
-        $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien,0,0,0));
+    if(isset($_GET['ra'])):
+        if($_GET['ra']=='trueClient'):
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,1,0 ));
+        elseif($_GET['ra']=='trueBene'):
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 1,0,0));
+        elseif($_GET['ra']=='trueGrosPanier'):
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien, 0,0,1));
+        else:
+            $insertDataDansTicketCaisse = $db-> prepare('INSERT INTO ticketdecaisse(id_ticket,nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_transac, prix_total, lien, reducbene, reducclient, reducgrospanier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
+            $insertDataDansTicketCaisse -> execute(array($ticketmodif['id_ticket'],$nomVendeur, $idVendeur, $date_achat, $nbrObjet, $moyenDePaiement, $transac, $getTotalEnEuros, $lien,0,0,0));
+        endif;
     endif;
 endif;
 
