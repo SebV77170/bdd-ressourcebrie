@@ -14,11 +14,7 @@ require('actions/db.php');
 
 $prix=$_GET['prix'];
 
-if(isset($_POST['validatecarte'])):
-    
-    require('actions/objets/compte_transac.php');
-   
-    
+if(isset($_POST['validatevirement'])):
 
     if($_GET['modif']==0):
 
@@ -33,13 +29,11 @@ if(isset($_POST['validatecarte'])):
     
     //On remplit la bdd ticketdecaisse
     
-    $moyenDePaiement = "carte";
+    $moyenDePaiement = "virement";
     $nbrObjet = $_GET['nbrObjet'];
     $nomVendeur = $_SESSION['nom'];
     $idVendeur = $_SESSION['id'];
     $prenomVendeur = $_SESSION['prenom'];
-    $transac= $nouveau_compte['compte'];
-    
     
     
     //pour cela on récupère le prix total
@@ -192,10 +186,9 @@ if(isset($_POST['validatecarte'])):
     
     require('actions/objets/update_db_bilan.php');
     
-    //On redirige vers la page objets collectés.
+    //On redirige vers la page ticketdecaisseapresvente.
     header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
         
         
 
 endif;
-    

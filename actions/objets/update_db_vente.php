@@ -63,14 +63,22 @@ print_r($touteslesdatessansredondance);
     }else{
         $prix_total_journee_carte = 0;
     }
+
+    $paiement = 'AND (moyen_paiement = "virement" )';
+    require('getTotalTicket.php');
+    if(isset($prix_total_ticket['prix_total'])){
+        $prix_total_journee_virement = $prix_total_ticket['prix_total'];
+    }else{
+        $prix_total_journee_virement = 0;
+    }
     
     $sth2 = $db -> prepare('SELECT id_ticket FROM ticketdecaisse WHERE (date_achat LIKE "'.$date_actuelle.'%")');
     $sth2 -> execute();
     $toutelesventesdujour = $sth2 -> fetchAll(PDO::FETCH_ASSOC);
     $nombre_vente = count($toutelesventesdujour);
     
-    $sth1 = $db -> prepare('INSERT into bilan (date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte) VALUES(?,?,?,?,?,?,?,?)');
-    $sth1 -> execute(array($date_actuelle, $timestamp, $nombre_vente, $poids, $prix_total_journee, $prix_total_journee_espece, $prix_total_journee_cheque, $prix_total_journee_carte));
+    $sth1 = $db -> prepare('INSERT into bilan (date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement) VALUES(?,?,?,?,?,?,?,?,?)');
+    $sth1 -> execute(array($date_actuelle, $timestamp, $nombre_vente, $poids, $prix_total_journee, $prix_total_journee_espece, $prix_total_journee_cheque, $prix_total_journee_carte, $prix_total_journee_virement));
 }
 
 

@@ -3,8 +3,8 @@ require('actions/users/securityAction.php');
 require('actions/objets/currencyToDecimalFct.php');
 require('actions/objets/moyenDePaiementAction.php');
 require('actions/objets/moyenDePaiementCarteAction.php');
+require('actions/objets/moyenDePaiementVirementAction.php');
 require('actions/objets/moyenDePaiementChequeAction.php');
-require('actions/objets/moyenDePaiementMixteAction.php');
 require('actions/objets/moyenDePaiementMixteAction.php');
 require('app/bootstrap.php');
 
@@ -150,6 +150,10 @@ endif;
                             <input type="hidden"  name="final-validation" value='ok'>
                             <input type="submit" class="btn btn-success" name="validatecarte" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
 
+                            <?php elseif(($_GET['mp'])=='virement'):?>
+                            <input type="hidden"  name="final-validation" value='ok'>
+                            <input type="submit" class="btn btn-success" name="validatevirement" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
+
                             <?php elseif(($_GET['mp'])=='chèque'):?>
                             <input type="hidden"  name="final-validation" value='ok'>
                             <input type="submit" class="btn btn-success" name="validatecheque" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
@@ -165,6 +169,9 @@ endif;
                                 
                                 <label class="champ" for="cheque">Montant en chèque : </label>
                                 <input class="input"type="text" name="cheque">
+
+                                <label class="champ" for="virement">Montant par virement : </label>
+                                <input class="input"type="text" name="virement">
 
                                 <input type="hidden"  name="final-validation" value='ok'>
                                 <input type="submit" class="btn btn-success" name="validatemixte" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
@@ -193,6 +200,10 @@ endif;
                         <input type="hidden"  name="final-validation" value='ok'>
                         <input type="submit" class="btn btn-success" name="validatecarte" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
 
+                        <?php elseif(($_GET['mp'])=='virement'):?>
+                        <input type="hidden"  name="final-validation" value='ok'>
+                        <input type="submit" class="btn btn-success" name="validatevirement" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
+
                         <?php elseif(($_GET['mp'])=='chèque'):?>
                         <input type="hidden"  name="final-validation" value='ok'>
                         <input type="submit" class="btn btn-success" name="validatecheque" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>
@@ -208,6 +219,9 @@ endif;
                             
                             <label class="champ" for="cheque">Montant en chèque : </label>
                             <input class="input"type="text" name="cheque">
+
+                            <label class="champ" for="virement">Montant par virement : </label>
+                            <input class="input"type="text" name="virement">
 
                             <input type="hidden"  name="final-validation" value='ok'>
                             <input type="submit" class="btn btn-success" name="validatemixte" <?php if(!isset($_GET['ra'])): ?> value="Valider sans remise" <?php else:?> value="Valider" <?php endif;?>>

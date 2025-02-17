@@ -2,7 +2,7 @@
 require('actions/users/securityAction.php');
 require('actions/db.php');
 
-$sql ='SELECT date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte FROM bilan ORDER by timestamp DESC';
+$sql ='SELECT date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement FROM bilan ORDER by timestamp DESC';
 $sth = $db->query($sql);
 $results=$sth->fetchAll();
 
@@ -41,16 +41,18 @@ $results=$sth->fetchAll();
                 <th class="cellule_tete">Espèces</th>
                 <th class="cellule_tete">Chèques</th>
                 <th class="cellule_tete">Carte</th>
+                <th class="cellule_tete">virement</th>
                 
             </tr>
         
-        <?php foreach($results as list($date, $timestamp, $nombre, $poids, $total, $espece, $cheque, $carte)){
+        <?php foreach($results as list($date, $timestamp, $nombre, $poids, $total, $espece, $cheque, $carte, $virement)){
             
                         $poids = $poids/1000;
                         $total = $total/100;
                         $espece = $espece/100;
                         $cheque = $cheque/100;
                         $carte = $carte/100;
+                        $virement = $virement/100;
                         $format_us = implode('-',array_reverse  (explode('/',$date)));
         
                         echo '<tr class="ligne">
@@ -63,6 +65,7 @@ $results=$sth->fetchAll();
                             <td class="colonne">'.$espece.' €</td>
                             <td class="colonne">'.$cheque.' €</td>
                             <td class="colonne">'.$carte.' €</td>
+                            <td class="colonne">'.$virement.' €</td>
                             <td class="colonne"><a href="actions/objets/update_db_bilan_manuel.php?date='.$date.'">Mise à jour</a></td>
                             
                             <td class="colonne"><a href="actions/objets/compiltxt.php?date='.$format_us.'">Compiler les tickets du jour</a></td>

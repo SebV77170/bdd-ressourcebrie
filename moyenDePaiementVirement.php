@@ -1,6 +1,6 @@
 <?php
 require('actions/users/securityAction.php');
-require('actions/objets/moyenDePaiementAction.php');
+require('actions/objets/moyenDePaiementVirementAction.php');
 
 ?>
 
@@ -13,7 +13,7 @@ require('actions/objets/moyenDePaiementAction.php');
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
             $alt = 'un oiseau qui fait la fête.';
-            $titre = 'Insérez le moyen de paiement';
+            $titre = 'virement';
             include("includes/header.php");
             $page = 2;
             include("includes/nav.php");
@@ -30,24 +30,12 @@ require('actions/objets/moyenDePaiementAction.php');
                 
                 <fieldset class="jeuchamp">
                     
-            
                     <label class="champ" for="paiement">Moyen de Paiement : </label>
                     <select id="paiement" name="paiement">
-                        <option value="espece">Espèce</option>
-                        <option value="carte">Carte</option>
                         <option value="virement">Virement</option>
-                        <option value="cheque">Chèque</option>
-                        <option value="mixte">Mixte</option>
                     </select>
-                
-                </fieldset>
-                
-                <h2 style='text-align: center;'>Le champ ci-dessous n'est plus obligatoire, il vous aide à rendre la monnaie si besoin.</h2>
 
-                <fieldset class="jeuchamp">
-            
-                    <label class="champ" for="client">Montant donné par le client : (remplir seulement si paiement espèce) </label>
-                    <input class="input"type="text" name="client">
+                    
                 
                 </fieldset>
                 
@@ -62,17 +50,15 @@ require('actions/objets/moyenDePaiementAction.php');
                 <?php
                 if(isset($_GET['id_modif'])):
                 ?>
-                    <a href="objetsVendus.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
+                    <a href="moyenDePaiement.php?prix=<?=$_GET['prix']?>&nbrObjet=<?=$_GET['nbrObjet']?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
                 <?php
                 else:
                 ?>
-                    <a href="objetsVendus.php?id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
+                    <a href="moyenDePaiement.php?prix=<?=$_GET['prix']?>&nbrObjet=<?=$_GET['nbrObjet']?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>" class="stdbouton">Retour</a>
                 <?php
                 endif;
                 ?>
         </form>
-        
-       
         
         
         <?php

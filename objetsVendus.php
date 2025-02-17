@@ -361,6 +361,7 @@ require('app/bootstrap.php');
                         ?>
                             <a class="btn btn-outline-primary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=espèces" class="stdbouton">Espece</a>
                             <a class="btn btn-outline-secondary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=carte" class="stdbouton">Carte</a>
+                            <a class="btn btn-outline-success btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=virement" class="stdbouton">Virement</a>  
                             <a class="btn btn-outline-warning btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=chèque" class="stdbouton">Chèque</a>
                             <a class="btn btn-outline-success btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&id_modif=<?=$_GET['id_modif']?>&modif=<?=$_GET['modif']?>&mp=mixte" class="stdbouton">Mixte</a>  
                         <?php
@@ -368,6 +369,7 @@ require('app/bootstrap.php');
                         ?>
                             <a class="btn btn-outline-primary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=espèces" class="stdbouton">Espece</a>
                             <a class="btn btn-outline-secondary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=carte" class="stdbouton">Carte</a>
+                            <a class="btn btn-outline-primary btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=virement" class="stdbouton">Virement</a>
                             <a class="btn btn-outline-warning btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=chèque" class="stdbouton">Chèque</a>
                             <a class="btn btn-outline-success btn-lg m-3" href="verif.php?prix=<?=$getTotalEnEuros?>&nbrObjet=<?=$NbrObjetDeTC?>&id_temp_vente=<?=$_GET['id_temp_vente']?>&modif=<?=$_GET['modif']?>&mp=mixte" class="stdbouton">Mixte</a>
                         <?php
