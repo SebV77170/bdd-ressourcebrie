@@ -83,7 +83,7 @@ if($activite == 0){
                             prix_total = '$prix_total_journee',
                             prix_total_espece = '$prix_total_journee_espece',
                             prix_total_cheque = '$prix_total_journee_cheque',
-                            prix_total_carte = '$prix_total_journee_carte'
+                            prix_total_carte = '$prix_total_journee_carte',
                             prix_total_virement = '$prix_total_journee_virement'
                            WHERE date = '$date_actuelle'");
     
