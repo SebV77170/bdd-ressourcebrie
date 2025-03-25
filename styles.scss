@@ -281,9 +281,8 @@ $custom-theme-colors:(
   "mobilier":#FF0066,
   "vaisselle":#CCFFCC,
   "decoration":#92D050,
-  "appareils-electrique":#4d8787,
-  "hobby-sport":#FF9966,
-  "autres":#676c8b"
+  "appareils-electrique":#009999,
+  "hobby-sport":#FF9966
 );
 
 $theme-colors: map-merge($theme-colors, $custom-theme-colors);

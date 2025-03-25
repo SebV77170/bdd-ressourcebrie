@@ -1,8 +1,8 @@
 <?php
-            $dbname = "objets";
-            $serveur = "localhost";
-            $login = "root";
-            $pass = "";
+            $dbname = "09007_ressourceb";
+            $serveur = "sql01.ouvaton.coop";
+            $login = "09007_ressourceb";
+            $pass = "LaRessourcerieDeBrie77170!";
             
             try{
                         $db = new PDO("mysql:host=$serveur;dbname=$dbname;charset=utf8;", $login, $pass);
