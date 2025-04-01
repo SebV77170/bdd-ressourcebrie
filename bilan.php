@@ -31,6 +31,7 @@ require('actions/objets/miseAJourDb.php');
         
         <div class="doc">
             <ul class="doc_ul">
+                <a class="doc_lien" href="dashboard_bilan.php"><li class="doc_li" id="bleu">Tableau de bord</li></a>
                 <a class="doc_lien" href="prixoeuvre.php"><li class="doc_li" id="bleu">Oeuvres</li></a>
                 <a class="doc_lien" href="BilanObjetsCollectes.php"><li class="doc_li" id="bleu">Objets Collectés</li></a>
                 <a class="doc_lien" href="BilanObjetsVendus.php"><li class="doc_li" id="bleu">Objets Vendus</li></a>
