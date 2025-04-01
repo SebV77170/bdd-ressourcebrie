@@ -15,6 +15,34 @@ if (isset($_GET['date']) && isset($_GET['count']) && $_GET['count'] === 'true') 
     exit;
 }
 
+if (isset($_GET['date']) && isset($_GET['bilan']) && $_GET['bilan'] === 'true') {
+    $date = $_GET['date'];
+
+    // Convertir la date sélectionnée en jj/mm/aaaa pour correspondre au format de la table bilan
+    $formattedDate = date('d/m/Y', strtotime($date));
+
+    // Récupérer le bilan journalier pour la date donnée
+    $query = $db->prepare('SELECT * FROM bilan WHERE date = ?');
+    $query->execute([$formattedDate]);
+    $bilan = $query->fetch(PDO::FETCH_ASSOC);
+
+    if ($bilan) {
+        // Convertir les valeurs en euros et en kilogrammes
+        $bilan['poids'] = $bilan['poids'] / 1000;
+        $bilan['prix_total'] = $bilan['prix_total'] / 100;
+        $bilan['prix_total_espece'] = $bilan['prix_total_espece'] / 100;
+        $bilan['prix_total_cheque'] = $bilan['prix_total_cheque'] / 100;
+        $bilan['prix_total_carte'] = $bilan['prix_total_carte'] / 100;
+        $bilan['prix_total_virement'] = $bilan['prix_total_virement'] / 100;
+
+        // Retourner le bilan en JSON
+        echo json_encode($bilan);
+    } else {
+        echo json_encode(['error' => 'Aucun bilan trouvé pour cette date.']);
+    }
+    exit;
+}
+
 if (isset($_GET['date'])) {
     $date = $_GET['date'];
 
@@ -44,6 +72,8 @@ if (isset($_GET['date'])) {
                     <td>' . $ticket['moyen_paiement'] . '</td>
                     <td>' . $prixEuro . '€</td>
                     <td><a href="ticketdecaisseapresvente.php?id_ticket=' . $ticket['id_ticket'] . '">Voir le ticket</a></td>
+                    <td class="colonne"><a href="confirmation.php?id_ticket='.$ticket['id_ticket'].'">Supprimer</a></td>
+                    <td class="colonne"><a href="actions/objets/modification.php?id_ticket='.$ticket['id_ticket'].'">Modifier</a></td>
                   </tr>';
         }
         echo '</table>';
@@ -152,6 +182,18 @@ if (isset($_GET['date'])) {
             tr:hover {
                 background-color: #e0e0e0;
             }
+
+            .bilan-journalier {
+                margin: 20px auto;
+                padding: 10px;
+                border: 1px solid #000;
+                background-color: #f9f9f9;
+                max-width: 800px;
+                text-align: center;
+            }
+            .bilan-journalier span {
+                font-weight: bold;
+            }
         </style>
 
         <!-- Corps de page -->
@@ -165,9 +207,13 @@ if (isset($_GET['date'])) {
                 </div>
                 <div class="calendar" id="calendar"></div>
             </div>
+            <div id="bilanJournalier" class="bilan-journalier">
+                <!-- Le bilan journalier sera affiché ici -->
+            </div>
             <div class="tickets" id="tickets">
                 <!-- Les tickets de caisse associés à la date sélectionnée seront affichés ici -->
             </div>
+            
         </div>
 
         <script>
@@ -237,10 +283,38 @@ if (isset($_GET['date'])) {
 
             // Fonction pour récupérer les tickets de caisse associés à une date
             function fetchTickets(date) {
+                // Récupérer les tickets de caisse pour la date sélectionnée
                 fetch(`bilanticketDeCaisse.php?date=${date}`)
                     .then(response => response.text())
                     .then(data => {
                         document.getElementById('tickets').innerHTML = data;
+                    })
+                    .catch(error => console.error('Erreur:', error));
+
+                // Récupérer le bilan journalier pour la date sélectionnée
+                fetchBilanJournalier(date);
+            }
+
+            // Fonction pour récupérer et afficher le bilan journalier
+            function fetchBilanJournalier(date) {
+                fetch(`bilanticketDeCaisse.php?date=${date}&bilan=true`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const bilanContainer = document.getElementById('bilanJournalier');
+                        if (data.error) {
+                            bilanContainer.innerHTML = `<p>${data.error}</p>`;
+                        } else {
+                            bilanContainer.innerHTML = `
+                                <p><span>Date :</span> ${date}</p>
+                                <p><span>Nombre de ventes :</span> ${data.nombre_vente}</p>
+                                <p><span>Poids total :</span> ${data.poids} kg</p>
+                                <p><span>Recette totale :</span> ${data.prix_total} €</p>
+                                <p><span>Espèces :</span> ${data.prix_total_espece} €</p>
+                                <p><span>Chèques :</span> ${data.prix_total_cheque} €</p>
+                                <p><span>Carte :</span> ${data.prix_total_carte} €</p>
+                                <p><span>Virement :</span> ${data.prix_total_virement} €</p>
+                            `;
+                        }
                     })
                     .catch(error => console.error('Erreur:', error));
             }
