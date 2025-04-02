@@ -32,7 +32,7 @@ function getMonthName($month) {
             $lineheight = "uneligne";
             $src = 'image/PictoFete.gif';
             $alt = 'un oiseau qui fait la fête.';
-            $titre = 'Bilans périodiques';
+            $titre = 'Bilans journaliers';
             include("includes/header.php");
             $page = 3;
             include("includes/nav.php");
@@ -65,7 +65,7 @@ function getMonthName($month) {
             </form>
         </div>
 
-        <!-- Tableau récapitulatif des totaux -->
+        <!-- Tableau récapitulatif des totaux avec un style distinct -->
         <?php
             $totals = [
             'nombre_vente' => 0,
@@ -95,26 +95,26 @@ function getMonthName($month) {
             $totals['prix_total_carte'] /= 100;
             $totals['prix_total_virement'] /= 100;
         ?>
-        <div style="text-align: center; margin: 20px;">
-            <h3>Récapitulatif du mois</h3>
-            <table class="tableau">
-            <tr class="ligne">
-                <th class="cellule_tete">Total Nombre de Ventes</th>
-                <th class="cellule_tete">Total Poids (T)</th>
-                <th class="cellule_tete">Total Recette (€)</th>
-                <th class="cellule_tete">Total Espèces (€)</th>
-                <th class="cellule_tete">Total Chèques (€)</th>
-                <th class="cellule_tete">Total Carte (€)</th>
-                <th class="cellule_tete">Total Virement (€)</th>
+        <div style="text-align: center; margin: 30px; padding: 20px; background-color: #f9f9f9; border: 2px solid #007BFF; border-radius: 10px;">
+            <h3 style="color: #007BFF;">Récapitulatif du mois</h3>
+            <table class="tableau" style="width: 80%; margin: 0 auto; border-collapse: collapse; background-color: #ffffff;">
+            <tr class="ligne" style="background-color: #007BFF; color: #ffffff;">
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Nombre de Ventes</th>
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Poids (T)</th>
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Recette (€)</th>
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Espèces (€)</th>
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Chèques (€)</th>
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Carte (€)</th>
+            <th class="cellule_tete" style="padding: 10px; border: 1px solid #007BFF;">Total Virement (€)</th>
             </tr>
-            <tr class="ligne">
-                <td class="colonne"><?= $totals['nombre_vente'] ?></td>
-                <td class="colonne"><?= $totals['poids'] ?> T</td>
-                <td class="colonne"><?= $totals['prix_total'] ?> €</td>
-                <td class="colonne"><?= $totals['prix_total_espece'] ?> €</td>
-                <td class="colonne"><?= $totals['prix_total_cheque'] ?> €</td>
-                <td class="colonne"><?= $totals['prix_total_carte'] ?> €</td>
-                <td class="colonne"><?= $totals['prix_total_virement'] ?> €</td>
+            <tr class="ligne" style="text-align: center;">
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['nombre_vente'] ?></td>
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['poids'] ?> T</td>
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['prix_total'] ?> €</td>
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['prix_total_espece'] ?> €</td>
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['prix_total_cheque'] ?> €</td>
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['prix_total_carte'] ?> €</td>
+            <td class="colonne" style="padding: 10px; border: 1px solid #007BFF;"><?= $totals['prix_total_virement'] ?> €</td>
             </tr>
             </table>
         </div>
