@@ -304,13 +304,13 @@ require('app/bootstrap.php');
                     
                 </div>
                 <!-- Affichage des boutons de vente -->
-                 <h1>Test test test</h1>
-                <iframe 
-                    src="http://localhost:3000" 
-                    style="width: 100%; height: 700px; border: none;" 
-                    title="Interface Caisse"
-                ></iframe>
-
+                <div class="col-7">
+                    <!-- Affichage de l'interface caisse -->
+                    <iframe 
+                        src="http://localhost:3000" 
+                        style="width: 100%; height: 700px; border: none;" 
+                    ></iframe>
+                </div>
                     <?php 
                     // Affichage des boutons carte/espece/cheque/mixte
                     if($NbrObjetDeTC > 0):
