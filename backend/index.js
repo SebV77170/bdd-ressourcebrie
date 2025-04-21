@@ -15,6 +15,7 @@ app.use('/api/produits', produitsRoutes);
 app.use('/api/ticket', ticketRoutes);
 app.use('/api/valider', validerRoute);
 
+
 app.listen(port, () => {
   console.log(`Serveur backend lancé sur http://localhost:${port}`);
 });

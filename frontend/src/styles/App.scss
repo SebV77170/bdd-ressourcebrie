@@ -1,0 +1,40 @@
+// src/styles/custom.scss
+
+// 🎨 Couleurs personnalisées liées aux catégories en base
+$custom-theme-colors: (
+  "linge-de-maison": #ffce3c,
+  "vetements-adulte": #FFE699,
+  "enfants": #FF9999,
+  "puericulture": #f79191,
+  "vetements-enfants": #f79191,
+  "livres-enfants": #fcc6c6,
+  "jouets": #fcc6c6,
+  "livres-adultes": #00B0F0,
+  "materiel-bureau": #d61df7,
+  "bricolage": #CCCCFF,
+  "divers-hobby": #9a9afe,
+  "Outils-de-bricolage": #5f5ffe,
+  "mobilier": #FF0066,
+  "vaisselle": #CCFFCC,
+  "decoration": #92D050,
+  "appareils-electrique": #009999,
+  "hobby-sport": #FF9966
+);
+
+// 🛠 Fusion avec les couleurs Bootstrap existantes
+$theme-colors: map-merge(
+  (
+    "primary": #0d6efd,
+    "secondary": #6c757d,
+    "success": #198754,
+    "danger": #dc3545,
+    "warning": #ffc107,
+    "info": #0dcaf0,
+    "light": #f8f9fa,
+    "dark": #212529,
+  ),
+  $custom-theme-colors
+);
+
+// 📦 Import complet de Bootstrap avec tes couleurs
+@import "~bootstrap/scss/bootstrap";

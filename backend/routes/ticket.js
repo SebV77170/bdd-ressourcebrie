@@ -41,4 +41,31 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+router.put('/:id', (req, res) => {
+  const { champ, valeur } = req.body;
+  const id = req.params.id;
+
+  if (!['nbr', 'prix'].includes(champ)) {
+    return res.status(400).json({ error: "Champ modifiable invalide." });
+  }
+
+  const sql = `
+    UPDATE ticketdecaissetemp
+    SET ${champ} = ?, prixt = prix * nbr
+    WHERE id = ?
+  `;
+
+  db.query(sql, [valeur, id], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+      return res.status(500).json({ error: err });
+    }
+
+    console.log("✅ Mise à jour réussie :", result.affectedRows);
+    res.json({ success: true });
+  });
+});
+
+
+
 module.exports = router;
