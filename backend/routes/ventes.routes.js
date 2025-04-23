@@ -1,0 +1,23 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../db'); // Assure-toi que ce fichier contient la connexion MySQL
+
+// Créer une nouvelle vente
+router.post('/', (req, res) => {
+  const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  const sql = `INSERT INTO vente (dateheure) VALUES (?)`;
+  db.query(sql, [now], (err, result) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ id_temp_vente: result.insertId });
+  });
+});
+
+// Obtenir toutes les ventes
+router.get('/', (req, res) => {
+  db.query('SELECT id_temp_vente FROM vente ORDER BY id_temp_vente DESC', (err, rows) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json(rows);
+  });
+});
+
+module.exports = router;
