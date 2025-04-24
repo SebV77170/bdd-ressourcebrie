@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles/App.scss';
 import VenteSelector from './components/VenteSelector';
 import CategorieSelector from './components/CategorieSelector';
 import BoutonsCaisse from './components/BoutonsCaisse';
@@ -126,6 +127,25 @@ function App() {
       });
   };
 
+  const annulerVente = () => {
+    if (!venteActive) return;
+  
+    const confirmer = window.confirm("Confirmer l'annulation de la vente ?");
+    if (!confirmer) return;
+  
+    fetch(`http://localhost:3001/api/ventes/${venteActive}`, {
+      method: 'DELETE'
+    })
+      .then(() => {
+        setVenteActive(null);
+        setTicketModif([]);
+        setModifs({});
+        chargerVentes(); // recharge les autres ventes
+      })
+      .catch(err => console.error("Erreur lors de l'annulation :", err));
+  };
+  
+
   return (
     <div className="container-fluid p-0">
       {/* Bandeau horizontal ventes sticky */}
@@ -137,6 +157,13 @@ function App() {
             onSelect={setVenteActive}
             onNew={nouvelleVente}
           />
+          <button
+            className="btn btn-sm btn-outline-danger mt-3"
+            onClick={annulerVente}
+          >
+            ❌ Annuler la vente
+          </button>
+
         </div>
       </div>
 

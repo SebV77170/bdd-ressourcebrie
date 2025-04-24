@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+
 
 function TicketVente({ ticket, modifs, onChange, onDelete, onSave }) {
   const total = ticket.reduce((sum, item) => sum + (item.prixt || 0), 0);
+  const [localPrix, setLocalPrix] = useState({});
+
+  const handleSavePrix = (id) => {
+    const raw = localPrix[id];
+    if (!raw || raw.trim() === '') return;
+  
+    const parsed = parseFloat(raw.replace(',', '.'));
+    if (!isNaN(parsed)) {
+      const prixCents = Math.round(parsed * 100);
+      onChange(id, 'prix', prixCents);
+      onSave(id);
+    }
+  
+    setLocalPrix(prev => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+  };
+  
 
   return (
     <>
@@ -24,13 +46,14 @@ function TicketVente({ ticket, modifs, onChange, onDelete, onSave }) {
                   style={{ width: "50px" }}
                 />
                 <input
-                  type="number"
-                  value={(item.prix / 100).toFixed(2)}
-                  onChange={(e) => onChange(item.id, 'prix', Math.round(parseFloat(e.target.value) * 100))}
-                  onKeyDown={(e) => e.key === 'Enter' && onSave(item.id)}
-                  className="form-control form-control-sm mx-1"
-                  style={{ width: "70px" }}
+                    type="text"
+                    value={localPrix[item.id] ?? (item.prix / 100).toFixed(2).replace('.', ',')}
+                    onChange={(e) => setLocalPrix(prev => ({ ...prev, [item.id]: e.target.value }))}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSavePrix(item.id);
+                    }}
                 />
+
                 <span className="ms-2">{(item.prixt / 100).toFixed(2)} €</span>
               </div>
             </div>

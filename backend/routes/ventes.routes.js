@@ -20,4 +20,21 @@ router.get('/', (req, res) => {
   });
 });
 
+router.delete('/:id_temp_vente', (req, res) => {
+  const id = req.params.id_temp_vente;
+
+  const deleteTicket = `DELETE FROM ticketdecaissetemp WHERE id_temp_vente = ?`;
+  const deleteVente = `DELETE FROM vente WHERE id_temp_vente = ?`;
+
+  db.query(deleteTicket, [id], (err) => {
+    if (err) return res.status(500).json({ error: err });
+
+    db.query(deleteVente, [id], (err2) => {
+      if (err2) return res.status(500).json({ error: err2 });
+      res.json({ success: true });
+    });
+  });
+});
+
+
 module.exports = router;
