@@ -5,13 +5,14 @@ import VenteSelector from './components/VenteSelector';
 import CategorieSelector from './components/CategorieSelector';
 import BoutonsCaisse from './components/BoutonsCaisse';
 import TicketVente from './components/TicketVente';
-import PaiementForm from './components/PaiementForm';
+import ValidationVente from './components/ValidationVente';
+
 
 function App() {
   const [boutons, setBoutons] = useState({});
   const [categorieActive, setCategorieActive] = useState('');
   const [ticketModif, setTicketModif] = useState([]);
-  const [paiement, setPaiement] = useState('');
+  //const [paiement, setPaiement] = useState('');
   const [modifs, setModifs] = useState({});
   const [ventes, setVentes] = useState([]);
   const [venteActive, setVenteActive] = useState(null);
@@ -112,20 +113,6 @@ function App() {
       });
   };
 
-  const validerVente = () => {
-    if (!paiement || !venteActive) return alert("Sélectionnez un mode de paiement.");
-    fetch('http://localhost:3001/api/valider', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ moyenPaiement: paiement, id_temp_vente: venteActive })
-    })
-      .then(() => {
-        alert(`Vente ${venteActive} validée en ${paiement}`);
-        setPaiement('');
-        setVenteActive(null);
-        chargerVentes();
-      });
-  };
 
   const annulerVente = () => {
     if (!venteActive) return;
@@ -184,18 +171,26 @@ function App() {
         </div>
 
         <div className="col-md-4 bg-light pt-3 d-flex flex-column justify-content-between vh-100">
-          <TicketVente
-            ticket={ticketModif}
-            modifs={modifs}
-            onChange={handleInputChange}
-            onDelete={supprimerArticle}
-            onSave={enregistrerModifs}
-          />
-          <PaiementForm
-            paiement={paiement}
-            onChange={setPaiement}
-            onValider={validerVente}
-          />
+        <TicketVente
+              ticket={ticketModif}
+              modifs={modifs}
+              onChange={handleInputChange}
+              onDelete={supprimerArticle}
+              onSave={enregistrerModifs}
+            />
+
+            {venteActive && (
+              <ValidationVente
+                total={ticketModif.reduce((sum, item) => sum + item.prixt, 0)}
+                id_temp_vente={venteActive}
+                onValide={() => {
+                  setVenteActive(null);
+                  chargerVentes();
+                  setTicketModif([]);
+                }}
+              />
+            )}
+
         </div>
       </div>
     </div>
