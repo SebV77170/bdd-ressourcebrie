@@ -165,10 +165,17 @@ function App() {
 
         <div className="col-md-6 pt-3 overflow-auto" style={{ maxHeight: '100vh' }}>
           <h4>{categorieActive}</h4>
-          {categorieActive && boutons[categorieActive] && (
-            <BoutonsCaisse produits={boutons[categorieActive]} onClick={ajouterAuTicket} />
+          {venteActive ? (
+            categorieActive && boutons[categorieActive] && (
+              <BoutonsCaisse produits={boutons[categorieActive]} onClick={ajouterAuTicket} />
+            )
+          ) : (
+            <div className="alert alert-info text-center my-5">
+              <h5>Merci de cliquer sur <strong>Nouvelle Vente</strong> svp.</h5>
+            </div>
           )}
         </div>
+
 
         <div className="col-md-4 bg-light pt-3 d-flex flex-column justify-content-between vh-100">
         <TicketVente
