@@ -3,5 +3,18 @@ tickets/
 factures/
 /essai.php
 .vscode/sftp.json
+# Ignorer node_modules
+node_modules/
+
+# Ignorer les fichiers de log
+*.log
+
+# Ignorer le build
+build/
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+
 
 
