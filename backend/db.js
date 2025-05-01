@@ -1,15 +1,16 @@
-const mysql = require('mysql2');
+const path = require('path');
+const fs = require('fs');
+const Database = require('better-sqlite3');
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'objets' // ou le nom exact depuis ton .sql
-});
+// 👉 Définir le chemin AVANT de l’utiliser
+const dbPath = path.join(__dirname, '..', 'database', 'ressourcebrie-sqlite.db');
 
-db.connect((err) => {
-  if (err) throw err;
-  console.log('Connecté à MySQL');
-});
+// 👉 Vérifier l'existence après sa déclaration
+if (!fs.existsSync(dbPath)) {
+  throw new Error(`Base de données SQLite introuvable à : ${dbPath}`);
+}
+
+const db = new Database(dbPath);
+console.log('Connecté à SQLite :', dbPath);
 
 module.exports = db;

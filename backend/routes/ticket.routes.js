@@ -5,63 +5,72 @@ const db = require('../db');
 // Ajouter un article au ticket
 router.post('/', (req, res) => {
   const { id_produit, quantite, id_temp_vente } = req.body;
+  console.log('🎯 POST /api/ticket reçu');
+console.log('🧾 Corps de requête :', req.body);
 
-  const sql = `
-    INSERT INTO ticketdecaissetemp (id_temp_vente, nom, categorie, souscat, prix, nbr, prixt)
-    SELECT ?, bv.nom, cat1.category AS categorie, cat2.category AS souscat, bv.prix, ?, bv.prix * ?
-    FROM boutons_ventes bv
-    LEFT JOIN categories cat1 ON bv.id_cat = cat1.id
-    LEFT JOIN categories cat2 ON bv.id_souscat = cat2.id
-    WHERE bv.id_bouton = ?
-  `;
+  try {
+    const produit = db.prepare(`
+      SELECT bv.nom, cat1.category AS categorie, cat2.category AS souscat, bv.prix
+      FROM boutons_ventes bv
+      LEFT JOIN categories cat1 ON bv.id_cat = cat1.id
+      LEFT JOIN categories cat2 ON bv.id_souscat = cat2.id
+      WHERE bv.id_bouton = ?
+    `).get(id_produit);
 
-  db.query(sql, [id_temp_vente, quantite, quantite, id_produit], (err, result) => {
-    if (err) {
-      console.error('❌ ERREUR SQL :', err.sqlMessage);
-      return res.status(500).json({ error: err.sqlMessage });
-    }
+    if (!produit) return res.status(404).json({ error: 'Produit introuvable' });
+
+    db.prepare(`
+      INSERT INTO ticketdecaissetemp (id_temp_vente, nom, categorie, souscat, prix, nbr, prixt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id_temp_vente,
+      produit.nom,
+      produit.categorie,
+      produit.souscat,
+      produit.prix,
+      quantite,
+      produit.prix * quantite
+    );
+
     res.status(200).json({ success: true });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
-
 
 // Lire les articles d'un ticket
 router.get('/:id_temp_vente', (req, res) => {
-  const id = req.params.id_temp_vente;
-  db.query('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?', [id], (err, rows) => {
-    if (err) return res.status(500).json({ error: err });
+  try {
+    const rows = db.prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?').all(req.params.id_temp_vente);
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Supprimer un article du ticket
+// Supprimer un article
 router.delete('/:id', (req, res) => {
-  db.query('DELETE FROM ticketdecaissetemp WHERE id = ?', [req.params.id], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
+  try {
+    db.prepare('DELETE FROM ticketdecaissetemp WHERE id = ?').run(req.params.id);
     res.json({ success: true });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Mettre à jour une info d'un article
+// Modifier un champ (nbr ou prix)
 router.put('/:id', (req, res) => {
   const { champ, valeur } = req.body;
   const id = req.params.id;
-  const sql = `UPDATE ticketdecaissetemp SET ?? = ? WHERE id = ?`;
+  if (!['nbr', 'prix'].includes(champ)) return res.status(400).json({ error: 'Champ non autorisé' });
 
-  db.query(sql, [champ, valeur, id], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-
-    // Recalculer le total (prixt) si champ modifié est nbr ou prix
-    if (champ === 'nbr' || champ === 'prix') {
-      const recalcul = `UPDATE ticketdecaissetemp SET prixt = prix * nbr WHERE id = ?`;
-      db.query(recalcul, [id], (err2) => {
-        if (err2) return res.status(500).json({ error: err2 });
-        res.json({ success: true });
-      });
-    } else {
-      res.json({ success: true });
-    }
-  });
+  try {
+    db.prepare(`UPDATE ticketdecaissetemp SET ${champ} = ? WHERE id = ?`).run(valeur, id);
+    db.prepare(`UPDATE ticketdecaissetemp SET prixt = prix * nbr WHERE id = ?`).run(id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
