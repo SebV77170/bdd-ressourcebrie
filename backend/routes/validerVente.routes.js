@@ -62,6 +62,44 @@ router.post('/', (req, res) => {
     db.prepare('DELETE FROM vente WHERE id_temp_vente = ?').run(id_temp_vente);
     db.prepare('DELETE FROM ticketdecaissetemp WHERE id_temp_vente = ?').run(id_temp_vente);
 
+    // 🔁 Mise à jour ou insertion dans la table bilan
+    const today = new Date().toISOString().slice(0, 10);
+    const poids = articles.reduce((s, a) => s + (a.poids || 0), 0);
+    const bilanExistant = db.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+
+    const normalisation = {
+      "espèces": "espece",
+      "espèce": "espece",
+      "espèce ": "espece",
+      "chèque": "cheque",
+      "carte": "carte",
+      "virement": "virement",
+      "espece": "espece",
+      "cheque": "cheque"
+    };
+
+    const paiementNettoye = normalisation[moyenPaiement.toLowerCase()] || moyenPaiement.toLowerCase();
+    const champPaiement = `prix_total_${paiementNettoye}`;
+
+    if (bilanExistant) {
+      db.prepare(`
+        UPDATE bilan
+        SET
+          nombre_vente = nombre_vente + 1,
+          poids = poids + ?,
+          prix_total = prix_total + ?,
+          ${champPaiement} = COALESCE(${champPaiement}, 0) + ?
+        WHERE date = ?
+      `).run(poids, prixTotal, prixTotal, today);
+    } else {
+      const champs = ["prix_total_espece", "prix_total_cheque", "prix_total_carte", "prix_total_virement"];
+      const valeurs = champs.map(c => c === champPaiement ? prixTotal : 0);
+      db.prepare(`
+        INSERT INTO bilan (date, timestamp, nombre_vente, poids, prix_total, ${champs.join(", ")})
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(today, Math.floor(Date.now() / 1000), 1, poids, prixTotal, ...valeurs);
+    }
+
     res.json({ success: true, id_ticket });
   } catch (err) {
     console.error('Erreur validation :', err);
