@@ -7,6 +7,10 @@ const ventesRoutes = require('./routes/ventes.routes');
 const produitsRoutes = require('./routes/produits');
 const ticketRoutes = require('./routes/ticket.routes');
 const bilanRoutes = require('./routes/bilan.routes');
+const correctionRoutes = require('./routes/correction.routes');
+const sessionRoutes = require('./routes/session.routes');
+const usersRoutes = require('./routes/users.routes');
+
 
 
 
@@ -17,6 +21,12 @@ app.use('/api/ticket', ticketRoutes);
 app.use('/api/valider', validerVenteRoutes);
 app.use('/api/ventes', ventesRoutes);
 app.use('/api/bilan', bilanRoutes);
+app.use('/api/correction', correctionRoutes);
+app.use('/api/session', sessionRoutes);
+app.use('/api/users', usersRoutes);
+
+
+
 
 
 app.listen(port, () => {

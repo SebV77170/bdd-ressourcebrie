@@ -3,7 +3,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './BilanTickets.css';
-import TicketDetail from './TicketDetail';
+import TicketDetail from '../components/TicketDetail';
+import CorrectionModal from '../components/CorrectionModal';
+import { Button } from 'react-bootstrap';
 
 const BilanTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -11,6 +13,8 @@ const BilanTickets = () => {
   const [datesDisponibles, setDatesDisponibles] = useState([]);
   const [details, setDetails] = useState({});
   const [ticketActif, setTicketActif] = useState(null);
+  const [showCorrection, setShowCorrection] = useState(false);
+  const [ticketPourCorrection, setTicketPourCorrection] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/bilan')
@@ -79,6 +83,7 @@ const BilanTickets = () => {
               <th>Mode Paiement</th>
               <th>Total</th>
               <th>Réduction</th>
+              <th>Type</th>
             </tr>
           </thead>
           <tbody>
@@ -95,12 +100,30 @@ const BilanTickets = () => {
                   <td>{ticket.moyen_paiement || '—'}</td>
                   <td>{typeof ticket.prix_total === 'number' ? `${(ticket.prix_total / 100).toFixed(2)} €` : '—'}</td>
                   <td>{aReduction(ticket) ? '✅' : '—'}</td>
+                  <td>
+                    {ticket.flag_correction
+                      ? <span className="badge bg-danger">Annulation</span>
+                      : ticket.correction_de
+                        ? <span className="badge bg-warning text-dark">Correctif</span>
+                        : <span className="text-muted">—</span>}
+                  </td>
                 </tr>
 
                 {ticketActif === ticket.id_ticket && details[ticket.id_ticket] && (
                   <tr>
-                    <td colSpan="6">
+                    <td colSpan="7">
                       <TicketDetail id_ticket={ticket.id_ticket} />
+                      <Button
+                        variant="outline-warning"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => {
+                          setTicketPourCorrection(details[ticket.id_ticket]);
+                          setShowCorrection(true);
+                        }}
+                      >
+                        Corriger
+                      </Button>
                     </td>
                   </tr>
                 )}
@@ -108,6 +131,18 @@ const BilanTickets = () => {
             ))}
           </tbody>
         </table>
+      )}
+
+      {ticketPourCorrection && (
+        <CorrectionModal
+          show={showCorrection}
+          onHide={() => setShowCorrection(false)}
+          ticketOriginal={ticketPourCorrection}
+          onSuccess={() => {
+            setDetails({});
+            setTicketActif(null);
+          }}
+        />
       )}
     </div>
   );

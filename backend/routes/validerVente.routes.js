@@ -4,6 +4,8 @@ const router = express.Router();
 const db = require('../db');
 const fs = require('fs');
 const path = require('path');
+const session = require('../session');
+
 
 router.post('/', (req, res) => {
   const { id_temp_vente, reductionType, paiements } = req.body;

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/App.scss';
-import VenteSelector from './VenteSelector';
-import CategorieSelector from './CategorieSelector';
-import BoutonsCaisse from './BoutonsCaisse';
-import TicketVente from './TicketVente';
-import ValidationVente from './ValidationVente';
+import VenteSelector from '../components/VenteSelector';
+import CategorieSelector from '../components/CategorieSelector';
+import BoutonsCaisse from '../components/BoutonsCaisse';
+import TicketVente from '../components/TicketVente';
+import ValidationVente from '../components/ValidationVente';
 
 
 function Caisse() {
