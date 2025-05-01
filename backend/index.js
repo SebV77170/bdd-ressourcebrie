@@ -6,6 +6,7 @@ const validerVenteRoutes = require('./routes/validerVente.routes');
 const ventesRoutes = require('./routes/ventes.routes');
 const produitsRoutes = require('./routes/produits');
 const ticketRoutes = require('./routes/ticket.routes');
+const bilanRoutes = require('./routes/bilan.routes');
 
 
 
@@ -15,6 +16,7 @@ app.use('/api/produits', produitsRoutes);
 app.use('/api/ticket', ticketRoutes);
 app.use('/api/valider', validerVenteRoutes);
 app.use('/api/ventes', ventesRoutes);
+app.use('/api/bilan', bilanRoutes);
 
 
 app.listen(port, () => {
