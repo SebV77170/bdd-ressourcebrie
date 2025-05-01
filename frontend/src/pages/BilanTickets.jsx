@@ -3,6 +3,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './BilanTickets.css';
+import TicketDetail from './TicketDetail';
 
 const BilanTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -39,17 +40,17 @@ const BilanTickets = () => {
 
   const chargerObjets = (id_ticket) => {
     if (details[id_ticket]) {
-      setTicketActif(ticketActif === id_ticket ? null : id_ticket); // toggle
+      setTicketActif(ticketActif === id_ticket ? null : id_ticket);
       return;
     }
 
-    fetch(`http://localhost:3001/api/bilan/${id_ticket}/objets`)
+    fetch(`http://localhost:3001/api/bilan/${id_ticket}/details`)
       .then(res => res.json())
       .then(data => {
         setDetails(prev => ({ ...prev, [id_ticket]: data }));
         setTicketActif(id_ticket);
       })
-      .catch(err => console.error('Erreur chargement objets vendus:', err));
+      .catch(err => console.error('Erreur chargement détails ticket:', err));
   };
 
   return (
@@ -92,37 +93,14 @@ const BilanTickets = () => {
                   <td>{ticket.nom_vendeur || '—'}</td>
                   <td>{new Date(ticket.date_achat_dt).toLocaleString()}</td>
                   <td>{ticket.moyen_paiement || '—'}</td>
-                  <td>{typeof ticket.prix_total === 'number' ? `${(ticket.prix_total.toFixed(2))/100} €` : '—'}</td>
+                  <td>{typeof ticket.prix_total === 'number' ? `${(ticket.prix_total / 100).toFixed(2)} €` : '—'}</td>
                   <td>{aReduction(ticket) ? '✅' : '—'}</td>
                 </tr>
 
                 {ticketActif === ticket.id_ticket && details[ticket.id_ticket] && (
                   <tr>
                     <td colSpan="6">
-                      <table className="table table-sm table-bordered mb-0">
-                        <thead className="table-light">
-                          <tr>
-                            <th>Produit</th>
-                            <th>Catégorie</th>
-                            <th>Sous-catégorie</th>
-                            <th>Quantité</th>
-                            <th>Prix Unitaire</th>
-                            <th>Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {details[ticket.id_ticket].map((item, idx) => (
-                            <tr key={idx}>
-                              <td>{item.nom}</td>
-                              <td>{item.categorie}</td>
-                              <td>{item.souscat}</td>
-                              <td>{item.nbr}</td>
-                              <td>{(item.prix / 100).toFixed(2)} €</td>
-                              <td>{((item.prix * item.nbr) / 100).toFixed(2)} €</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <TicketDetail id_ticket={ticket.id_ticket} />
                     </td>
                   </tr>
                 )}

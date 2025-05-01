@@ -1,12 +1,28 @@
+// ✅ Nouveau ValidationVente.jsx
 import React, { useState, useEffect } from 'react';
 
 function ValidationVente({ total, id_temp_vente, onValide }) {
   const [reduction, setReduction] = useState('');
-  const [paiement, setPaiement] = useState('');
   const [reductionsDisponibles, setReductionsDisponibles] = useState([]);
+  const [paiements, setPaiements] = useState([{ moyen: 'carte', montant: (total / 100).toFixed(2).replace('.', ',') }]);
 
+  const totalAvecReduction = React.useMemo(() => {
+    switch (reduction) {
+      case 'trueClient':
+        return total - 500; // -5€
+      case 'trueBene':
+        return total - 1000; // -10€
+      case 'trueGrosPanierClient':
+        return Math.round(total * 0.9); // -10%
+      case 'trueGrosPanierBene':
+        return Math.round(total * 0.8); // -20%
+      default:
+        return total;
+    }
+  }, [total, reduction]);
+  
   useEffect(() => {
-    if (total < 5000) { // 50,00€ en centimes
+    if (total < 5000) {
       setReductionsDisponibles([
         { value: 'trueClient', label: 'Fidélité Client (-5€)' },
         { value: 'trueBene', label: 'Fidélité Bénévole (-10€)' },
@@ -19,16 +35,85 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
     }
   }, [total]);
 
+  useEffect(() => {
+    if (paiements.length === 1) {
+      const montantActuel = parseMontant(paiements[0].montant);
+      if (montantActuel !== totalAvecReduction) {
+        setPaiements([{
+          ...paiements[0],
+          montant: (totalAvecReduction / 100).toFixed(2).replace('.', ',')
+        }]);
+      }
+    }
+  }, [totalAvecReduction, paiements]);
+  
+  
+  
+  
+
+  const parseMontant = (str) => {
+    if (!str) return 0;
+    const normalise = str.replace(',', '.');
+    const nombre = parseFloat(normalise);
+    return isNaN(nombre) ? 0 : Math.round(nombre * 100);
+  };
+
+  const totalPaiements = paiements.reduce((s, p) => s + parseMontant(p.montant), 0);
+
+  const corrigerTotalPaiementsExact = (paiementsModifiés) => {
+    const copie = [...paiementsModifiés];
+    const totalCents = copie.reduce((s, p) => s + parseMontant(p.montant), 0);
+    const delta = totalAvecReduction - totalCents;
+  
+    if (copie.length === 0) return copie;
+  
+    const dernierIndex = copie.length - 1;
+    const montantDernier = parseMontant(copie[dernierIndex].montant);
+    const nouveauMontant = Math.max(montantDernier + delta, 0);
+  
+    copie[dernierIndex].montant = (nouveauMontant / 100).toFixed(2).replace('.', ',');
+    return copie;
+  };
+  
+  
+
+  const ajouterPaiement = () => {
+    setPaiements([...paiements, { moyen: '', montant: '' }]);
+  };
+  
+  
+
+  const supprimerPaiement = (index) => {
+    const copie = [...paiements];
+    copie.splice(index, 1);
+    setPaiements(corrigerTotalPaiementsExact(copie));
+
+  };
+
+  const modifierPaiement = (index, champ, valeur) => {
+    const copie = [...paiements];
+    copie[index][champ] = valeur;
+    const corrigé = corrigerTotalPaiementsExact(copie);
+    setPaiements(corrigé);
+  };
+  
+  
+
   const validerVente = () => {
-    if (!paiement) {
-      alert('Veuillez choisir un mode de paiement');
+    if (totalPaiements !== totalAvecReduction) {
+      alert('Le total des paiements ne correspond pas au montant à payer.');
       return;
     }
+
+    const paiementsCentimes = paiements.map(p => ({
+      moyen: p.moyen,
+      montant: parseMontant(p.montant)
+    }));
 
     const data = {
       id_temp_vente,
       reductionType: reduction || null,
-      moyenPaiement: paiement
+      paiements: paiementsCentimes
     };
 
     fetch('http://localhost:3001/api/valider', {
@@ -40,7 +125,7 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
       .then(result => {
         if (result.success) {
           alert('Vente validée avec succès');
-          onValide(); // on recharge les ventes etc
+          onValide();
         } else {
           alert('Erreur pendant validation');
         }
@@ -57,41 +142,56 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
 
       <div className="mb-2">
         <label>Réduction :</label>
-        <select
-          className="form-select"
-          value={reduction}
-          onChange={(e) => setReduction(e.target.value)}
-        >
+        <select className="form-select" value={reduction} onChange={(e) => setReduction(e.target.value)}>
           <option value="">Aucune</option>
           {reductionsDisponibles.map(red => (
-            <option key={red.value} value={red.value}>
-              {red.label}
-            </option>
+            <option key={red.value} value={red.value}>{red.label}</option>
           ))}
         </select>
       </div>
 
+      <div>Total à payer après réduction : {(totalAvecReduction / 100).toFixed(2)} €</div>
+
+
       <div className="mb-2">
-        <label>Moyen de paiement :</label>
-        <select
-          className="form-select"
-          value={paiement}
-          onChange={(e) => setPaiement(e.target.value)}
-        >
-          <option value="">Sélectionner...</option>
-          <option value="espèces">Espèces</option>
-          <option value="chèque">Chèque</option>
-          <option value="carte">Carte</option>
-          <option value="virement">Virement</option>
-        </select>
+        <label>Paiements :</label>
+        {paiements.map((p, index) => (
+          <div className="d-flex mb-1" key={index}>
+            <select
+              className="form-select me-2"
+              value={p.moyen}
+              onChange={e => modifierPaiement(index, 'moyen', e.target.value)}
+            >
+              <option value="">Mode...</option>
+              <option value="espèces">Espèces</option>
+              <option value="carte">Carte</option>
+              <option value="chèque">Chèque</option>
+              <option value="virement">Virement</option>
+            </select>
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Montant en euros"
+              value={p.montant}
+              onChange={e => modifierPaiement(index, 'montant', e.target.value)}
+            />
+            {paiements.length > 1 && (
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => supprimerPaiement(index)}
+                title="Supprimer ce paiement"
+              >
+                ❌
+              </button>
+            )}
+          </div>
+        ))}
+        <button className="btn btn-sm btn-secondary w-100 mt-2" onClick={ajouterPaiement}>+ Ajouter un paiement</button>
       </div>
 
-      <button
-        className="btn btn-success w-100 mt-3"
-        onClick={validerVente}
-      >
-        Valider la vente
-      </button>
+      <div>Total saisi : {(totalPaiements / 100).toFixed(2)} €</div>
+
+      <button className="btn btn-success w-100 mt-3" onClick={validerVente}>Valider la vente</button>
     </div>
   );
 }
