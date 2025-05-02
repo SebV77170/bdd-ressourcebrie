@@ -13,6 +13,12 @@ router.post('/', (req, res) => {
   if (!id_temp_vente || !paiements || !Array.isArray(paiements) || paiements.length === 0) {
     return res.status(400).json({ error: 'Informations manquantes ou invalide' });
   }
+  console.log('🔐 Session utilisateur active :', session.getUser());
+
+  const user = session.getUser();
+  if (!user) {
+    return res.status(401).json({ error: 'Aucun utilisateur connecté' });
+  }
 
   try {
     const articles = db.prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?').all(id_temp_vente);
@@ -28,8 +34,8 @@ router.post('/', (req, res) => {
 
     if (prixTotal < 0) prixTotal = 0;
 
-    const vendeur = 'Inconnu';
-    const id_vendeur = 1;
+    const vendeur = user.nom;
+    const id_vendeur = user.id;
     const date_achat = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     const insertVente = db.prepare(`

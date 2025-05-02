@@ -24,7 +24,7 @@ function LoginPage() {
       .then(data => {
         if (data.success) {
           localStorage.setItem('vendeur', JSON.stringify(data.user));
-          navigate('/');
+          window.location.href = '/';
         }
       })
       .catch(() => alert('Erreur de connexion'));
