@@ -20,6 +20,14 @@ function TicketDetail({ id_ticket }) {
   return (
     <div className="p-3 border bg-white rounded">
       <h4>Ticket #{ticket.id_ticket}</h4>
+      {ticket.flag_correction === 1 && ticket.correction_de && (
+        <p className="text-danger">⚠️ Ce ticket annule le ticket #{ticket.correction_de}</p>
+      )}
+     {ticket.corrige_le_ticket && (
+        <p className="text-warning">✏️ Ce ticket corrige le ticket #{ticket.corrige_le_ticket}</p>
+      )}
+
+
       <p><strong>Date :</strong> {ticket.date_achat_dt}</p>
       <p><strong>Vendeur :</strong> {ticket.nom_vendeur}</p>
       <p><strong>Total :</strong> {(ticket.prix_total / 100).toFixed(2)} €</p>

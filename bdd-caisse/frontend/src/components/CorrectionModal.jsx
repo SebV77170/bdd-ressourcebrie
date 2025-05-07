@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
-  const [corrections, setCorrections] = useState(ticketOriginal.objets || []);
+  const [corrections, setCorrections] = useState(
+    (ticketOriginal.objets || []).map(obj => ({ ...obj }))
+  );
+  
   const [motif, setMotif] = useState('');
   const [loading, setLoading] = useState(false);
   const [moyenPaiement, setMoyenPaiement] = useState(ticketOriginal.ticket.moyen_paiement || '');
   const [reductionType, setReductionType] = useState('');
   const [paiements, setPaiements] = useState({
-    espèces: 0,
-    carte: 0,
-    chèque: 0,
-    virement: 0
+    "espèces": 0,
+    "carte": 0,
+    "chèque": 0,
+    "virement": 0
   });
 
   const handleChange = (index, field, value) => {
@@ -46,7 +49,7 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
 
     const body = {
       id_ticket_original: ticketOriginal.ticket.id_ticket,
-      articles_origine: ticketOriginal.objets,
+      articles_origine: ticketOriginal.objets, // <- version intacte
       articles_correction: corrections,
       motif,
       moyen_paiement: moyenPaiement,

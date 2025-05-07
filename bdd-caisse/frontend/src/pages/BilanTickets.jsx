@@ -98,7 +98,12 @@ const BilanTickets = () => {
                   <td>{ticket.nom_vendeur || '—'}</td>
                   <td>{new Date(ticket.date_achat_dt).toLocaleString()}</td>
                   <td>{ticket.moyen_paiement || '—'}</td>
-                  <td>{typeof ticket.prix_total === 'number' ? `${(ticket.prix_total / 100).toFixed(2)} €` : '—'}</td>
+                  <td>
+                    {typeof ticket.prix_total === 'number'
+                      ? `${ticket.flag_correction ? '-' : ''}${(ticket.prix_total / 100).toFixed(2)} €`
+                      : '—'}
+                  </td>
+
                   <td>{aReduction(ticket) ? '✅' : '—'}</td>
                   <td>
                     {ticket.flag_correction
