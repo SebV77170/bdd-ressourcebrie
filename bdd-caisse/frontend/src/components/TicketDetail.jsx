@@ -48,8 +48,9 @@ function TicketDetail({ id_ticket }) {
       <div className="mt-3">
         <h5>Objets vendus :</h5>
         <ul className="list-group">
-          {objets.map(obj => (
-            <li className="list-group-item d-flex justify-content-between" key={obj.id}>
+         {objets.map((obj, index) => (
+            <li className="list-group-item d-flex justify-content-between" key={`${obj.nom}-${index}`}>
+
               <span>{obj.nbr} x {obj.nom} ({obj.categorie})</span>
               <span>{(obj.prix * obj.nbr / 100).toFixed(2)} €</span>
             </li>

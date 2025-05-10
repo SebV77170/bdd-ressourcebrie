@@ -106,12 +106,17 @@ const BilanTickets = () => {
 
                   <td>{aReduction(ticket) ? '✅' : '—'}</td>
                   <td>
-                    {ticket.flag_correction
-                      ? <span className="badge bg-danger">Annulation</span>
-                      : ticket.correction_de
-                        ? <span className="badge bg-warning text-dark">Correctif</span>
-                        : <span className="text-muted">—</span>}
+                    {ticket.flag_correction ? (
+                      <span className="badge bg-danger">Annulation</span>
+                    ) : ticket.correction_de ? (
+                      <span className="badge bg-warning text-dark">Correctif</span>
+                    ) : ticket.corrige_le_ticket ? (
+                      <span className="badge bg-info text-dark">Correction</span>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
+
                 </tr>
 
                 {ticketActif === ticket.id_ticket && details[ticket.id_ticket] && (

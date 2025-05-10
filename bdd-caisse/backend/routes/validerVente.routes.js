@@ -60,6 +60,44 @@ router.post('/', (req, res) => {
     });
     insertMany(articles);
 
+    // Ajout d'une ligne réduction dans objets_vendus si applicable
+    if (reductionType) {
+      const mapReductions = {
+        'trueClient': { label: 'Fidélité client', montant: 500 },
+        'trueBene': { label: 'Fidélité bénévole', montant: 1000 },
+        'trueGrosPanierClient': { label: 'Gros panier client', taux: 0.10 },
+        'trueGrosPanierBene': { label: 'Gros panier bénévole', taux: 0.20 }
+      };
+
+      const reduc = mapReductions[reductionType];
+
+      if (reduc) {
+        let valeur = reduc.montant || 0;
+        if (!valeur && reduc.taux) {
+          const totalAvant = articles.reduce((s, a) => s + a.prixt, 0);
+          valeur = Math.round(totalAvant * reduc.taux);
+        }
+
+        db.prepare(`
+          INSERT INTO objets_vendus
+            (id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix, nbr)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          id_ticket,
+          'Réduction',
+          vendeur,
+          id_vendeur,
+          'Réduction',
+          reduc.label,
+          date_achat,
+          Math.floor(Date.now() / 1000),
+          valeur,
+          -1
+        );
+      }
+    }
+
+
     // Enregistrement dans la table paiement_mixte
     const pm = { espece: 0, carte: 0, cheque: 0, virement: 0 };
     const normalisation = {
@@ -124,6 +162,12 @@ router.post('/', (req, res) => {
     console.error('Erreur validation :', err);
     res.status(500).json({ error: err.message });
   }
+
+  const io = req.app.get('socketio');
+if (io) {
+  io.emit('bilanUpdated');
+}
+
 });
 
 module.exports = router;

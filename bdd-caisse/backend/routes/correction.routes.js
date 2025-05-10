@@ -157,6 +157,12 @@ router.post('/', (req, res) => {
     console.error("Erreur correction :", err);
     res.status(500).json({ error: 'Erreur serveur lors de la correction' });
   }
+
+  const io = req.app.get('socketio');
+if (io) {
+  io.emit('bilanUpdated');
+}
+
 });
 
 module.exports = router;
