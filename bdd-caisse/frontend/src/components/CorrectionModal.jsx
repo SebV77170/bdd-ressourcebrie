@@ -19,9 +19,16 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
 
   const handleChange = (index, field, value) => {
     const updated = [...corrections];
-    updated[index][field] = field === 'nbr' || field === 'prix' ? parseInt(value) : value;
+    if (field === 'nbr') {
+      updated[index][field] = parseInt(value);
+    } else if (field === 'prix') {
+      updated[index][field] = Math.round(parseFloat(value.replace(',', '.')) * 100); // euros -> centimes
+    } else {
+      updated[index][field] = value;
+    }
     setCorrections(updated);
   };
+  
 
   const calculerTotalCorrige = () => {
     let total = corrections.reduce((sum, art) => sum + art.prix * art.nbr, 0);
@@ -102,9 +109,11 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
             />
             <Form.Control
               type="number"
-              value={art.prix}
+              step="0.01"
+              value={(art.prix / 100).toFixed(2)}
               onChange={(e) => handleChange(i, 'prix', e.target.value)}
             />
+
             <Form.Control value={art.categorie} disabled />
           </div>
         ))}
@@ -126,18 +135,19 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
             <Form.Label>Détail des montants par mode :</Form.Label>
             <div className="d-flex flex-wrap gap-2">
               {['espèces', 'carte', 'chèque', 'virement'].map((moyen) => (
-                <Form.Group key={moyen} className="flex-fill">
-                  <Form.Label className="text-capitalize">{moyen}</Form.Label>
-                  <Form.Control
-                    type="number"
-                    min={0}
-                    step={100}
-                    value={paiements[moyen]}
-                    onChange={(e) =>
-                      setPaiements({ ...paiements, [moyen]: parseInt(e.target.value || 0) })
-                    }
-                  />
-                </Form.Group>
+                <Form.Control
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={(paiements[moyen] / 100).toFixed(2)}
+                  onChange={(e) =>
+                    setPaiements({
+                      ...paiements,
+                      [moyen]: Math.round(parseFloat(e.target.value.replace(',', '.')) * 100) || 0
+                    })
+                  }
+                />
+              
               ))}
             </div>
           </div>
