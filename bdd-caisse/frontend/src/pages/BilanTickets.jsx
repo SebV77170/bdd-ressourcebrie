@@ -137,7 +137,7 @@ const BilanTickets = () => {
                   <tr>
                     <td colSpan="7">
                       <TicketDetail id_ticket={ticket.id_ticket} />
-                      {!ticket.flag_correction && (
+                      {!ticket.flag_correction && !ticket.ticket_corrige && (
                         <Button
                           variant="outline-warning"
                           size="sm"

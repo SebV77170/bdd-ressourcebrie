@@ -79,7 +79,8 @@ describe('Test complet des corrections avec bilan', () => {
     });
     console.log('RESPONSE 1:', res.body);
     expect(res.body.success).toBe(true);
-    idCorrection1 = res.body.id_corrige;
+    idCorrection1 = res.body.id_ticket_correction;
+
 
     const bilan = db.prepare('SELECT * FROM bilan').get();
     expect(bilan.prix_total).toBe(1500);
@@ -99,7 +100,8 @@ describe('Test complet des corrections avec bilan', () => {
     });
     console.log('RESPONSE 2:', res.body);
     expect(res.body.success).toBe(true);
-    idCorrection2 = res.body.id_corrige;
+    idCorrection2 = res.body.id_ticket_correction;
+
 
     const bilan = db.prepare('SELECT * FROM bilan').get();
     expect(bilan.prix_total).toBe(2000);
@@ -119,7 +121,8 @@ describe('Test complet des corrections avec bilan', () => {
     });
     console.log('RESPONSE 3:', res.body);
     expect(res.body.success).toBe(true);
-    idCorrection3 = res.body.id_corrige;
+    idCorrection3 = res.body.id_ticket_correction;
+
 
     const bilan = db.prepare('SELECT * FROM bilan').get();
     expect(bilan.prix_total).toBe(2000);

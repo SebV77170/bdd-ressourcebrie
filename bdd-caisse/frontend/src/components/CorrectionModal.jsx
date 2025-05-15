@@ -93,30 +93,40 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
     }
   };
 
+  const estUneReduction = (article) => {
+    return article.nom.toLowerCase().includes('réduction');
+  };
+  
+
   return (
     <Modal show={show} onHide={onHide} size="lg" backdrop="static">
       <Modal.Header closeButton>
         <Modal.Title>Corriger le ticket #{ticketOriginal.ticket.id_ticket}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {corrections.map((art, i) => (
-          <div className="d-flex gap-2 mb-2" key={i}>
-            <Form.Control value={art.nom} disabled />
-            <Form.Control
-              type="number"
-              value={art.nbr}
-              onChange={(e) => handleChange(i, 'nbr', e.target.value)}
-            />
-            <Form.Control
-              type="number"
-              step="0.01"
-              value={(art.prix / 100).toFixed(2)}
-              onChange={(e) => handleChange(i, 'prix', e.target.value)}
-            />
+      {corrections.map((art, i) => {
+  const isReduction = estUneReduction(art);
+  return (
+    <div className="d-flex gap-2 mb-2" key={i}>
+      <Form.Control value={art.nom} disabled />
+      <Form.Control
+        type="number"
+        value={art.nbr}
+        onChange={(e) => handleChange(i, 'nbr', e.target.value)}
+        disabled={isReduction}
+      />
+      <Form.Control
+        type="number"
+        step="0.01"
+        value={(art.prix / 100).toFixed(2)}
+        onChange={(e) => handleChange(i, 'prix', e.target.value)}
+        disabled={isReduction}
+      />
+      <Form.Control value={art.categorie} disabled />
+    </div>
+  );
+})}
 
-            <Form.Control value={art.categorie} disabled />
-          </div>
-        ))}
 
         <Form.Group className="mt-3">
           <Form.Label>Mode de paiement</Form.Label>

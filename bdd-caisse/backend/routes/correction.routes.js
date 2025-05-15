@@ -26,11 +26,8 @@ router.post('/', (req, res) => {
   const utilisateur = user.nom;
   const id_vendeur = user.id;
 
-  const articles_sans_reduction = articles_origine.filter(a => a.categorie !== 'Réduction');
-  const reductionOriginale = articles_origine.find(a => a.categorie === 'Réduction');
-  if (reductionOriginale) {
-    articles_sans_reduction.push(reductionOriginale);
-  }
+  const articles_sans_reduction = [...articles_origine];
+
 
   let articles_correction_sans_reduction = articles_correction.filter(a => a.categorie !== 'Réduction');
 
@@ -62,7 +59,8 @@ router.post('/', (req, res) => {
   let prixTotal = articles_correction_sans_reduction.reduce((sum, a) => sum + a.prix * a.nbr, 0);
   if (prixTotal < 0) prixTotal = 0;
 
-  const totalAnnulation = articles_sans_reduction.reduce((sum, a) => sum + a.prix * (-Math.abs(a.nbr)), 0);
+  let totalAnnulation = articles_sans_reduction.reduce((sum, a) => sum + a.prix * (-(a.nbr)), 0);
+  if (totalAnnulation > 0) totalAnnulation = 0;
 
   try {
     const annul = db.prepare(`
@@ -81,7 +79,7 @@ router.post('/', (req, res) => {
     `);
 
     for (const art of articles_sans_reduction) {
-      insertArticle.run(id_annul, art.nom, art.prix, -Math.abs(art.nbr), art.categorie, utilisateur, id_vendeur, now, timestamp);
+      insertArticle.run(id_annul, art.nom, art.prix, -(art.nbr), art.categorie, utilisateur, id_vendeur, now, timestamp);
     }
 
     const correc = db.prepare(`
@@ -253,7 +251,12 @@ router.post('/', (req, res) => {
       );
     }
 
-    res.json({ success: true, id_annul, id_corrige });
+    res.json({
+      success: true,
+      id_ticket_annulation: id_annul,
+      id_ticket_correction: id_corrige
+    });
+    
   } catch (err) {
     console.error("Erreur correction :", err);
     res.status(500).json({ error: 'Erreur serveur lors de la correction' });
