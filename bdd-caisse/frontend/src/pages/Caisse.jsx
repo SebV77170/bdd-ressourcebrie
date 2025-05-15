@@ -39,6 +39,8 @@ function Caisse() {
   }, [venteActive]);
 
   const chargerTicket = useCallback(() => {
+    console.log("📥 Ticket rechargé");
+
     if (!venteActive) return;
     fetch(`http://localhost:3001/api/ticket/${venteActive}`)
       .then(res => res.json())
@@ -93,25 +95,10 @@ function Caisse() {
   };
 
   const enregistrerModifs = (id) => {
-    const changements = modifs[id];
-    if (!changements) return;
-
-    const requetes = Object.entries(changements).map(([champ, valeur]) =>
-      fetch(`http://localhost:3001/api/ticket/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ champ, valeur })
-      })
-    );
-
-    Promise.all(requetes)
-      .then(() => {
-        const newModifs = { ...modifs };
-        delete newModifs[id];
-        setModifs(newModifs);
-        chargerTicket();
-      });
+    chargerTicket();
   };
+  
+  
 
 
   const annulerVente = () => {

@@ -1,66 +1,125 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 
-
-
-function TicketVente({ ticket, modifs, onChange, onDelete, onSave }) {
+function TicketVente({ ticket, onChange, onDelete, onSave }) {
   const total = ticket.reduce((sum, item) => sum + (item.prixt || 0), 0);
-  const [localPrix, setLocalPrix] = useState({});
+  const prixRef = useRef({});
+  const nbrRef = useRef({});
 
-  const handleSavePrix = (id) => {
-    const raw = localPrix[id];
-    if (!raw || raw.trim() === '') return;
-  
-    const parsed = parseFloat(raw.replace(',', '.'));
-    if (!isNaN(parsed)) {
+  const handleSavePrix = async (id, rawValue) => {
+    console.log("✅ Prix utilisé :", rawValue);
+
+    if (!rawValue || rawValue.trim() === '') return;
+
+    const parsed = parseFloat(rawValue.replace(',', '.'));
+    if (!isNaN(parsed) && parsed >= 0 && parsed < 100000) {
       const prixCents = Math.round(parsed * 100);
-      onChange(id, 'prix', prixCents);
+      const article = ticket.find(t => t.id === id);
+      const quantite = article?.nbr || 1;
+      const prixt = prixCents * quantite;
+
+      await fetch(`http://localhost:3001/api/ticket/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prix: prixCents, prixt })
+      });
+
+      console.log("⏳ Rechargement du ticket...");
       onSave(id);
     }
-  
-    setLocalPrix(prev => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
   };
-  
+
+  const handleSaveQuantite = async (id, rawValue) => {
+    console.log("✅ Quantité utilisée :", rawValue);
+
+    const parsed = parseInt(rawValue);
+    if (!isNaN(parsed) && parsed > 0 && parsed < 100000) {
+      const article = ticket.find(t => t.id === id);
+      const prixCents = article?.prix ?? Math.round(article.prixt / article.nbr || 1);
+      const prixt = prixCents * parsed;
+
+      await fetch(`http://localhost:3001/api/ticket/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nbr: parsed, prixt })
+      });
+
+      console.log("⏳ Rechargement du ticket...");
+      onSave(id);
+    }
+  };
 
   return (
     <>
       <h5>Ticket</h5>
       <ul className="list-group">
-        {ticket.map(item => (
-          <li key={item.id} className="list-group-item">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <button className="btn btn-sm btn-outline-danger me-2" onClick={() => onDelete(item.id)}>🗑️</button>
-                <strong>{item.nom}</strong>
-              </div>
-              <div className="d-flex align-items-center">
-                <input
-                  type="number"
-                  value={item.nbr}
-                  onChange={(e) => onChange(item.id, 'nbr', parseInt(e.target.value))}
-                  onKeyDown={(e) => e.key === 'Enter' && onSave(item.id)}
-                  className="form-control form-control-sm mx-1"
-                  style={{ width: "50px" }}
-                />
-                <input
-                    type="text"
-                    value={localPrix[item.id] ?? (item.prix / 100).toFixed(2).replace('.', ',')}
-                    onChange={(e) => setLocalPrix(prev => ({ ...prev, [item.id]: e.target.value }))}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSavePrix(item.id);
-                    }}
-                />
+        {ticket.map(item => {
+          const prixCents = item.prix ?? Math.round(item.prixt / (item.nbr || 1));
+          const prixAffiché = (prixCents / 100).toFixed(2).replace('.', ',');
 
-                <span className="ms-2">{(item.prixt / 100).toFixed(2)} €</span>
+          return (
+            <li key={item.id} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <button
+                    className="btn btn-sm btn-outline-danger me-2"
+                    onClick={() => {
+                      if (window.confirm(`Supprimer "${item.nom}" ?`)) onDelete(item.id);
+                    }}
+                  >
+                    🗑️
+                  </button>
+                  <strong>{item.nom}</strong>
+                </div>
+                <div className="d-flex align-items-center">
+                  <input
+                    type="number"
+                    min="1"
+                    defaultValue={item.nbr}
+                    ref={el => nbrRef.current[item.id] = el}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const rawValue = nbrRef.current[item.id]?.value;
+                        handleSaveQuantite(item.id, rawValue);
+                      }
+                    }}
+                    className="form-control form-control-sm mx-1"
+                    style={{ width: "50px" }}
+                  />
+
+                  <input
+                    type="text"
+                    defaultValue={prixAffiché}
+                    ref={el => prixRef.current[item.id] = el}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const rawValue = prixRef.current[item.id]?.value;
+                        handleSavePrix(item.id, rawValue);
+                      }
+                    }}
+                    className="form-control form-control-sm"
+                    style={{ width: "70px" }}
+                  />
+
+                  <button
+                    className="btn btn-sm btn-success ms-1"
+                    onClick={() => {
+                      const rawValue = prixRef.current[item.id]?.value;
+                      handleSavePrix(item.id, rawValue);
+                    }}
+                    title="Sauvegarder prix"
+                  >
+                    💾
+                  </button>
+                  <span className="ms-2">{(item.prixt / 100).toFixed(2)} €</span>
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
-      <h5 className="mt-3">Total: {(total / 100).toFixed(2)} €</h5>
+      <h5 className="mt-3">Total : {(total / 100).toFixed(2)} €</h5>
     </>
   );
 }

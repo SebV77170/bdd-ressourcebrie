@@ -58,19 +58,34 @@ router.delete('/:id', (req, res) => {
   }
 });
 
-// Modifier un champ (nbr ou prix)
 router.put('/:id', (req, res) => {
-  const { champ, valeur } = req.body;
   const id = req.params.id;
-  if (!['nbr', 'prix'].includes(champ)) return res.status(400).json({ error: 'Champ non autorisé' });
+  const champsAutorisés = ['prix', 'nbr'];
+  const modifications = req.body;
+
+  const champs = Object.keys(modifications).filter(c => champsAutorisés.includes(c));
+
+  if (champs.length === 0) {
+    return res.status(400).json({ error: 'Aucun champ modifiable fourni' });
+  }
+
+  const dbUpdate = db.transaction(() => {
+    champs.forEach(champ => {
+      const valeur = modifications[champ];
+      db.prepare(`UPDATE ticketdecaissetemp SET ${champ} = ? WHERE id = ?`).run(valeur, id);
+    });
+
+    // Recalcul du prixt
+    db.prepare(`UPDATE ticketdecaissetemp SET prixt = prix * nbr WHERE id = ?`).run(id);
+  });
 
   try {
-    db.prepare(`UPDATE ticketdecaissetemp SET ${champ} = ? WHERE id = ?`).run(valeur, id);
-    db.prepare(`UPDATE ticketdecaissetemp SET prixt = prix * nbr WHERE id = ?`).run(id);
+    dbUpdate();
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 module.exports = router;
