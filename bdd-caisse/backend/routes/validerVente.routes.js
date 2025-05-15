@@ -1,4 +1,4 @@
-// ✅ Mise à jour de validerVente.routes.js pour supporter les paiements mixtes
+// ✅ Mise à jour de validerVente.routes.js avec gestion des réductions excessives, ventes gratuites et bilan cohérent
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
@@ -6,48 +6,60 @@ const fs = require('fs');
 const path = require('path');
 const session = require('../session');
 
-
 router.post('/', (req, res) => {
   const { id_temp_vente, reductionType, paiements } = req.body;
 
   if (!id_temp_vente || !paiements || !Array.isArray(paiements) || paiements.length === 0) {
     return res.status(400).json({ error: 'Informations manquantes ou invalide' });
   }
-  console.log('🔐 Session utilisateur active :', session.getUser());
 
   const user = session.getUser();
-  if (!user) {
-    return res.status(401).json({ error: 'Aucun utilisateur connecté' });
-  }
+  if (!user) return res.status(401).json({ error: 'Aucun utilisateur connecté' });
 
   try {
     const articles = db.prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?').all(id_temp_vente);
     if (articles.length === 0) return res.status(400).json({ error: 'Aucun article dans le ticket' });
 
-    let prixTotal = articles.reduce((sum, item) => sum + item.prixt, 0);
-    let reducBene = 0, reducClient = 0, reducGrosPanierClient = 0, reducGrosPanierBene = 0;
-
-    if (reductionType === 'trueClient')      { prixTotal -= 500; reducClient = 1; }
-    else if (reductionType === 'trueBene')   { prixTotal -= 1000; reducBene = 1; }
-    else if (reductionType === 'trueGrosPanierClient') { prixTotal = Math.round(prixTotal * 0.9); reducGrosPanierClient = 1; }
-    else if (reductionType === 'trueGrosPanierBene')   { prixTotal = Math.round(prixTotal * 0.8); reducGrosPanierBene = 1; }
-
-    if (prixTotal < 0) prixTotal = 0;
-
     const vendeur = user.nom;
     const id_vendeur = user.id;
     const date_achat = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let prixTotal = articles.reduce((sum, item) => sum + item.prixt, 0);
+    let reducBene = 0, reducClient = 0, reducGrosPanierClient = 0, reducGrosPanierBene = 0;
+    let reductionValeurTheorique = 0;
+    let reductionValeurReelle = 0;
 
-    const insertVente = db.prepare(`
-      INSERT INTO ticketdecaisse (nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanierclient, reducgrospanierbene)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
+    const mapReductions = {
+      'trueClient': { label: 'Fidélité client', montant: 500 },
+      'trueBene': { label: 'Fidélité bénévole', montant: 1000 },
+      'trueGrosPanierClient': { label: 'Gros panier client', taux: 0.10 },
+      'trueGrosPanierBene': { label: 'Gros panier bénévole', taux: 0.20 }
+    };
+
+    if (reductionType && mapReductions[reductionType]) {
+      const reduc = mapReductions[reductionType];
+
+      if (reduc.montant) {
+        reductionValeurTheorique = reduc.montant;
+      } else if (reduc.taux) {
+        reductionValeurTheorique = Math.round(prixTotal * reduc.taux);
+      }
+
+      reductionValeurReelle = Math.min(prixTotal, reductionValeurTheorique);
+      prixTotal -= reductionValeurReelle;
+
+      if (reductionType === 'trueClient') reducClient = 1;
+      else if (reductionType === 'trueBene') reducBene = 1;
+      else if (reductionType === 'trueGrosPanierClient') reducGrosPanierClient = 1;
+      else if (reductionType === 'trueGrosPanierBene') reducGrosPanierBene = 1;
+    }
 
     const moyenGlobal = paiements.length > 1 ? 'mixte' : paiements[0].moyen;
-    const result = insertVente.run(vendeur, id_vendeur, date_achat, articles.length, moyenGlobal, prixTotal, '', reducBene, reducClient, reducGrosPanierClient, reducGrosPanierBene);
+    const result = db.prepare(`
+      INSERT INTO ticketdecaisse (nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, prix_total, lien, reducbene, reducclient, reducgrospanierclient, reducgrospanierbene)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(vendeur, id_vendeur, date_achat, articles.length, moyenGlobal, prixTotal, '', reducBene, reducClient, reducGrosPanierClient, reducGrosPanierBene);
     const id_ticket = result.lastInsertRowid;
 
-    // Enregistrement des articles vendus
     const insertArticle = db.prepare(`
       INSERT INTO objets_vendus (id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix, nbr)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -60,54 +72,29 @@ router.post('/', (req, res) => {
     });
     insertMany(articles);
 
-    // Ajout d'une ligne réduction dans objets_vendus si applicable
-    if (reductionType) {
-      const mapReductions = {
-        'trueClient': { label: 'Fidélité client', montant: 500 },
-        'trueBene': { label: 'Fidélité bénévole', montant: 1000 },
-        'trueGrosPanierClient': { label: 'Gros panier client', taux: 0.10 },
-        'trueGrosPanierBene': { label: 'Gros panier bénévole', taux: 0.20 }
-      };
-
-      const reduc = mapReductions[reductionType];
-
-      if (reduc) {
-        let valeur = reduc.montant || 0;
-        if (!valeur && reduc.taux) {
-          const totalAvant = articles.reduce((s, a) => s + a.prixt, 0);
-          valeur = Math.round(totalAvant * reduc.taux);
-        }
-
-        db.prepare(`
-          INSERT INTO objets_vendus
-            (id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix, nbr)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          id_ticket,
-          'Réduction',
-          vendeur,
-          id_vendeur,
-          'Réduction',
-          reduc.label,
-          date_achat,
-          Math.floor(Date.now() / 1000),
-          valeur,
-          -1
-        );
-      }
+    if (reductionValeurReelle > 0) {
+      db.prepare(`
+        INSERT INTO objets_vendus
+        (id_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix, nbr)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id_ticket,
+        'Réduction',
+        vendeur,
+        id_vendeur,
+        'Réduction',
+        `${reductionType} (valeur théorique ${(reductionValeurTheorique / 100).toFixed(2)}€, réelle ${(reductionValeurReelle / 100).toFixed(2)}€)`,
+        date_achat,
+        Math.floor(Date.now() / 1000),
+        reductionValeurReelle,
+        -1
+      );
     }
 
-
-    // Enregistrement dans la table paiement_mixte
     const pm = { espece: 0, carte: 0, cheque: 0, virement: 0 };
     const normalisation = {
-      "espèces": "espece",
-      "espèce": "espece",
-      "carte": "carte",
-      "chèque": "cheque",
-      "chéque": "cheque",
-      "cheque": "cheque",
-      "virement": "virement"
+      'espèces': 'espece', 'espèce': 'espece', 'carte': 'carte',
+      'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
     };
 
     for (const p of paiements) {
@@ -117,26 +104,34 @@ router.post('/', (req, res) => {
       }
     }
 
-    db.prepare(`INSERT INTO paiement_mixte (id_ticket, espece, carte, cheque, virement) VALUES (?, ?, ?, ?, ?)`)
-      .run(id_ticket, pm.espece, pm.carte, pm.cheque, pm.virement);
+    if (prixTotal > 0) {
+      db.prepare(`INSERT INTO paiement_mixte (id_ticket, espece, carte, cheque, virement) VALUES (?, ?, ?, ?, ?)`).run(id_ticket, pm.espece, pm.carte, pm.cheque, pm.virement);
+    }
 
-    // Écriture du ticket
     const ticketPath = path.join(__dirname, `../../tickets/Ticket${id_ticket}.txt`);
     let contenu = `RESSOURCE'BRIE\nAssociation loi 1901\nTicket de caisse #${id_ticket}\nDate : ${date_achat}\nVendeur : ${vendeur}\n\n`;
-    articles.forEach(a => {
-      contenu += `${a.nbr} x ${a.nom} (${a.categorie}) - ${(a.prix * a.nbr / 100).toFixed(2)}€\n`;
+    const lignesTicket = db.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(id_ticket);
+    lignesTicket.forEach(a => {
+      const ligne = a.nbr > 0
+        ? `${a.nbr} x ${a.nom} (${a.categorie}) - ${(a.prix * a.nbr / 100).toFixed(2)}€\n`
+        : `${a.nom} (${a.souscat}) : -${(a.prix / 100).toFixed(2)}€\n`;
+      contenu += ligne;
     });
-    contenu += `\nTOTAL : ${(prixTotal / 100).toFixed(2)}€\nPaiement : ${moyenGlobal}\nMerci de votre visite !\n`;
+    contenu += `\nTOTAL : ${(prixTotal / 100).toFixed(2)}€\nPaiement : ${moyenGlobal}\n`;
+    if (reductionValeurReelle > 0) {
+      contenu += `Réduction appliquée : ${reductionType}\nValeur théorique : ${(reductionValeurTheorique / 100).toFixed(2)}€, réelle : ${(reductionValeurReelle / 100).toFixed(2)}€\n`;
+    }
+    contenu += `Merci de votre visite !\n`;
     fs.writeFileSync(ticketPath, contenu, 'utf8');
 
     db.prepare('UPDATE ticketdecaisse SET lien = ? WHERE id_ticket = ?').run(`tickets/Ticket${id_ticket}.txt`, id_ticket);
     db.prepare('DELETE FROM vente WHERE id_temp_vente = ?').run(id_temp_vente);
     db.prepare('DELETE FROM ticketdecaissetemp WHERE id_temp_vente = ?').run(id_temp_vente);
 
-    // Bilan
-    const today = new Date().toISOString().slice(0, 10);
+    const today = date_achat.slice(0, 10);
     const poids = articles.reduce((s, a) => s + (a.poids || 0), 0);
     const bilanExistant = db.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+    const totalPaiement = pm.espece + pm.carte + pm.cheque + pm.virement;
 
     if (bilanExistant) {
       db.prepare(`
@@ -149,12 +144,26 @@ router.post('/', (req, res) => {
             prix_total_carte = prix_total_carte + ?,
             prix_total_virement = prix_total_virement + ?
         WHERE date = ?
-      `).run(poids, prixTotal, pm.espece, pm.cheque, pm.carte, pm.virement, today);
+      `).run(
+        poids,
+        prixTotal,
+        prixTotal === 0 ? 0 : pm.espece,
+        prixTotal === 0 ? 0 : pm.cheque,
+        prixTotal === 0 ? 0 : pm.carte,
+        prixTotal === 0 ? 0 : pm.virement,
+        today
+      );
     } else {
       db.prepare(`
         INSERT INTO bilan (date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(today, Math.floor(Date.now() / 1000), 1, poids, prixTotal, pm.espece, pm.cheque, pm.carte, pm.virement);
+      `).run(
+        today, Math.floor(Date.now() / 1000), 1, poids, prixTotal,
+        prixTotal === 0 ? 0 : pm.espece,
+        prixTotal === 0 ? 0 : pm.cheque,
+        prixTotal === 0 ? 0 : pm.carte,
+        prixTotal === 0 ? 0 : pm.virement
+      );
     }
 
     res.json({ success: true, id_ticket });
@@ -164,10 +173,9 @@ router.post('/', (req, res) => {
   }
 
   const io = req.app.get('socketio');
-if (io) {
-  io.emit('bilanUpdated');
-}
-
+  if (io) {
+    io.emit('bilanUpdated');
+  }
 });
 
 module.exports = router;

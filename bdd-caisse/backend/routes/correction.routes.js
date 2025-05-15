@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
 
   if (prixTotal < 0) prixTotal = 0;
 
-  const totalAnnulation = articles_origine.reduce((sum, a) => sum + a.prix * Math.abs(a.nbr), 0);
+  const totalAnnulation = articles_origine.reduce((sum, a) => sum + a.prix * (-(a.nbr)), 0);
 
   try {
     const annul = db.prepare(`
@@ -151,6 +151,90 @@ router.post('/', (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?)
     `).run(now, id_ticket_original, id_annul, id_corrige, utilisateur, motif || '');
 
+// 📊 MISE À JOUR DU BILAN : soustraction ticket original + ajout ticket corrigé
+const today = now.slice(0, 10);
+
+// 🧾 Récupérer ticket original (celui annulé)
+const ticketOriginal = db.prepare('SELECT * FROM ticketdecaisse WHERE id_ticket = ?').get(id_ticket_original);
+
+// 🔽 Paiements du ticket original à soustraire
+let pmAnnul = { espece: 0, carte: 0, cheque: 0, virement: 0 };
+
+if (ticketOriginal.moyen_paiement === 'mixte') {
+  const pmx = db.prepare('SELECT * FROM paiement_mixte WHERE id_ticket = ?').get(id_ticket_original);
+  if (pmx) {
+    pmAnnul = {
+      espece: pmx.espece || 0,
+      carte: pmx.carte || 0,
+      cheque: pmx.cheque || 0,
+      virement: pmx.virement || 0
+    };
+  }
+} else {
+  const champ = {
+    'espèce': 'espece', 'espèces': 'espece', 'carte': 'carte',
+    'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
+  }[ticketOriginal.moyen_paiement.toLowerCase()];
+  if (champ && pmAnnul.hasOwnProperty(champ)) {
+    pmAnnul[champ] = ticketOriginal.prix_total;
+  }
+}
+
+// 🔼 Paiements du ticket corrigé à ajouter
+const pmCorrige = { espece: 0, carte: 0, cheque: 0, virement: 0 };
+const normalisation = {
+  'espèce': 'espece', 'espèces': 'espece', 'carte': 'carte',
+  'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
+};
+
+if (moyen_paiement === 'mixte') {
+  for (const p of paiements) {
+    const champ = normalisation[p.moyen?.toLowerCase()] || null;
+    if (champ && pmCorrige.hasOwnProperty(champ)) {
+      pmCorrige[champ] += p.montant;
+    }
+  }
+} else {
+  const champ = normalisation[moyen_paiement.toLowerCase()] || null;
+  if (champ) pmCorrige[champ] = prixTotal;
+}
+
+// 🧮 Mise à jour dans la table bilan
+const bilanExistant = db.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+
+if (bilanExistant) {
+  db.prepare(`
+    UPDATE bilan
+    SET prix_total = prix_total - ? + ?,
+        prix_total_espece = prix_total_espece - ? + ?,
+        prix_total_cheque = prix_total_cheque - ? + ?,
+        prix_total_carte = prix_total_carte - ? + ?,
+        prix_total_virement = prix_total_virement - ? + ?
+    WHERE date = ?
+  `).run(
+    Math.abs(ticketOriginal.prix_total), prixTotal,
+    Math.abs(pmAnnul.espece), pmCorrige.espece,
+    Math.abs(pmAnnul.cheque), pmCorrige.cheque,
+    Math.abs(pmAnnul.carte), pmCorrige.carte,
+    Math.abs(pmAnnul.virement), pmCorrige.virement,
+    today
+  );
+} else {
+  db.prepare(`
+    INSERT INTO bilan (
+      date, timestamp, nombre_vente, poids, prix_total,
+      prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    today, timestamp, 1, 0,
+    prixTotal - Math.abs(ticketOriginal.prix_total),
+    pmCorrige.espece - Math.abs(pmAnnul.espece),
+    pmCorrige.cheque - Math.abs(pmAnnul.cheque),
+    pmCorrige.carte - Math.abs(pmAnnul.carte),
+    pmCorrige.virement - Math.abs(pmAnnul.virement)
+  );
+}
+
     res.json({ success: true, id_annul, id_corrige });
 
   } catch (err) {
@@ -161,6 +245,7 @@ router.post('/', (req, res) => {
   const io = req.app.get('socketio');
 if (io) {
   io.emit('bilanUpdated');
+  io.emit('ticketsmisajour');
 }
 
 });

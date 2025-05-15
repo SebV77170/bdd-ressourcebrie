@@ -1,4 +1,3 @@
-// ✅ Nouveau ValidationVente.jsx
 import React, { useState, useEffect } from 'react';
 
 function ValidationVente({ total, id_temp_vente, onValide }) {
@@ -7,20 +6,26 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
   const [paiements, setPaiements] = useState([{ moyen: 'carte', montant: (total / 100).toFixed(2).replace('.', ',') }]);
 
   const totalAvecReduction = React.useMemo(() => {
+    let t = total;
     switch (reduction) {
       case 'trueClient':
-        return total - 500; // -5€
+        t -= 500;
+        break;
       case 'trueBene':
-        return total - 1000; // -10€
+        t -= 1000;
+        break;
       case 'trueGrosPanierClient':
-        return Math.round(total * 0.9); // -10%
+        t = Math.round(total * 0.9);
+        break;
       case 'trueGrosPanierBene':
-        return Math.round(total * 0.8); // -20%
+        t = Math.round(total * 0.8);
+        break;
       default:
-        return total;
+        break;
     }
+    return Math.max(t, 0);
   }, [total, reduction]);
-  
+
   useEffect(() => {
     if (total < 5000) {
       setReductionsDisponibles([
@@ -45,11 +50,7 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
         }]);
       }
     }
-  }, [totalAvecReduction, paiements]);
-  
-  
-  
-  
+  }, [totalAvecReduction]);
 
   const parseMontant = (str) => {
     if (!str) return 0;
@@ -64,30 +65,25 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
     const copie = [...paiementsModifiés];
     const totalCents = copie.reduce((s, p) => s + parseMontant(p.montant), 0);
     const delta = totalAvecReduction - totalCents;
-  
+
     if (copie.length === 0) return copie;
-  
+
     const dernierIndex = copie.length - 1;
     const montantDernier = parseMontant(copie[dernierIndex].montant);
     const nouveauMontant = Math.max(montantDernier + delta, 0);
-  
+
     copie[dernierIndex].montant = (nouveauMontant / 100).toFixed(2).replace('.', ',');
     return copie;
   };
-  
-  
 
   const ajouterPaiement = () => {
     setPaiements([...paiements, { moyen: '', montant: '' }]);
   };
-  
-  
 
   const supprimerPaiement = (index) => {
     const copie = [...paiements];
     copie.splice(index, 1);
     setPaiements(corrigerTotalPaiementsExact(copie));
-
   };
 
   const modifierPaiement = (index, champ, valeur) => {
@@ -96,8 +92,6 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
     const corrigé = corrigerTotalPaiementsExact(copie);
     setPaiements(corrigé);
   };
-  
-  
 
   const validerVente = () => {
     if (totalPaiements !== totalAvecReduction) {
@@ -151,7 +145,6 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
       </div>
 
       <div>Total à payer après réduction : {(totalAvecReduction / 100).toFixed(2)} €</div>
-
 
       <div className="mb-2">
         <label>Paiements :</label>

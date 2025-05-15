@@ -6,7 +6,7 @@ const db = require('../db');
 // Tous les tickets (liste)
 router.get('/', (req, res) => {
   try {
-    const tickets = db.prepare('SELECT * FROM ticketdecaisse ORDER BY date_achat_dt DESC').all();
+    const tickets = db.prepare('SELECT * FROM ticketdecaisse ORDER BY id_ticket DESC').all();
     res.json(tickets);
   } catch (err) {
     console.error('Erreur lecture tickets :', err);

@@ -1,3 +1,4 @@
+import { io } from 'socket.io-client';
 import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -6,6 +7,8 @@ import './BilanTickets.css';
 import TicketDetail from '../components/TicketDetail';
 import CorrectionModal from '../components/CorrectionModal';
 import { Button } from 'react-bootstrap';
+
+const socket = io('http://localhost:3001');
 
 const BilanTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -17,6 +20,7 @@ const BilanTickets = () => {
   const [ticketPourCorrection, setTicketPourCorrection] = useState(null);
 
   useEffect(() => {
+    const fetchBilan = () => {
     fetch('http://localhost:3001/api/bilan')
       .then(res => res.json())
       .then(data => {
@@ -27,6 +31,15 @@ const BilanTickets = () => {
         setDatesDisponibles(dates);
       })
       .catch(err => console.error('Erreur chargement tickets :', err));
+    }
+    fetchBilan();
+
+      socket.on('ticketsmisajour', () => {
+        fetchBilan();
+      });
+    
+      return () => socket.off('ticketsmisajour');
+
   }, []);
 
   const aReduction = (ticket) => {
@@ -100,9 +113,10 @@ const BilanTickets = () => {
                   <td>{ticket.moyen_paiement || '—'}</td>
                   <td>
                     {typeof ticket.prix_total === 'number'
-                      ? `${ticket.flag_correction ? '-' : ''}${(ticket.prix_total / 100).toFixed(2)} €`
+                      ? `${(ticket.prix_total / 100).toFixed(2)} €`
                       : '—'}
                   </td>
+
 
                   <td>{aReduction(ticket) ? '✅' : '—'}</td>
                   <td>
@@ -123,17 +137,20 @@ const BilanTickets = () => {
                   <tr>
                     <td colSpan="7">
                       <TicketDetail id_ticket={ticket.id_ticket} />
-                      <Button
-                        variant="outline-warning"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => {
-                          setTicketPourCorrection(details[ticket.id_ticket]);
-                          setShowCorrection(true);
-                        }}
-                      >
-                        Corriger
-                      </Button>
+                      {!ticket.flag_correction && (
+                        <Button
+                          variant="outline-warning"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => {
+                            setTicketPourCorrection(details[ticket.id_ticket]);
+                            setShowCorrection(true);
+                          }}
+                        >
+                          Corriger
+                        </Button>
+                      )}
+
                     </td>
                   </tr>
                 )}
