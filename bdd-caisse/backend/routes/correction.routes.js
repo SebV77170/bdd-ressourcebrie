@@ -1,4 +1,4 @@
-// ✅ Correction complète avec génération des tickets .txt
+// ✅ Correction complète avec gestion propre des réductions et génération des tickets .txt
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
@@ -26,22 +26,43 @@ router.post('/', (req, res) => {
   const utilisateur = user.nom;
   const id_vendeur = user.id;
 
-  let prixTotal = articles_correction.reduce((sum, a) => sum + a.prix * a.nbr, 0);
+  const articles_sans_reduction = articles_origine.filter(a => a.categorie !== 'Réduction');
+  const reductionOriginale = articles_origine.find(a => a.categorie === 'Réduction');
+  if (reductionOriginale) {
+    articles_sans_reduction.push(reductionOriginale);
+  }
+
+  let articles_correction_sans_reduction = articles_correction.filter(a => a.categorie !== 'Réduction');
+
+  let reductionArticle = null;
   let reducBene = 0, reducClient = 0, reducGrosPanierClient = 0, reducGrosPanierBene = 0;
 
   if (reductionType === 'trueClient') {
-    prixTotal -= 500; reducClient = 1;
+    reductionArticle = { nom: 'Réduction Fidélité Client', prix: -500, nbr: 1, categorie: 'Réduction' };
+    reducClient = 1;
   } else if (reductionType === 'trueBene') {
-    prixTotal -= 1000; reducBene = 1;
+    reductionArticle = { nom: 'Réduction Fidélité Bénévole', prix: -1000, nbr: 1, categorie: 'Réduction' };
+    reducBene = 1;
   } else if (reductionType === 'trueGrosPanierClient') {
-    prixTotal = Math.round(prixTotal * 0.9); reducGrosPanierClient = 1;
+    const montantAvantReduc = articles_correction_sans_reduction.reduce((sum, a) => sum + a.prix * a.nbr, 0);
+    const reducMontant = Math.round(montantAvantReduc * 0.1);
+    reductionArticle = { nom: 'Réduction Gros Panier Client (-10%)', prix: -reducMontant, nbr: 1, categorie: 'Réduction' };
+    reducGrosPanierClient = 1;
   } else if (reductionType === 'trueGrosPanierBene') {
-    prixTotal = Math.round(prixTotal * 0.8); reducGrosPanierBene = 1;
+    const montantAvantReduc = articles_correction_sans_reduction.reduce((sum, a) => sum + a.prix * a.nbr, 0);
+    const reducMontant = Math.round(montantAvantReduc * 0.2);
+    reductionArticle = { nom: 'Réduction Gros Panier Bénévole (-20%)', prix: -reducMontant, nbr: 1, categorie: 'Réduction' };
+    reducGrosPanierBene = 1;
   }
 
+  if (reductionArticle) {
+    articles_correction_sans_reduction.push(reductionArticle);
+  }
+
+  let prixTotal = articles_correction_sans_reduction.reduce((sum, a) => sum + a.prix * a.nbr, 0);
   if (prixTotal < 0) prixTotal = 0;
 
-  const totalAnnulation = articles_origine.reduce((sum, a) => sum + a.prix * (-(a.nbr)), 0);
+  const totalAnnulation = articles_sans_reduction.reduce((sum, a) => sum + a.prix * (-Math.abs(a.nbr)), 0);
 
   try {
     const annul = db.prepare(`
@@ -49,7 +70,7 @@ router.post('/', (req, res) => {
         date_achat_dt, correction_de, flag_correction, nom_vendeur, id_vendeur,
         nbr_objet, prix_total, moyen_paiement
       ) VALUES (?, ?, 1, ?, ?, ?, ?, ?)
-    `).run(now, id_ticket_original, utilisateur, id_vendeur, articles_origine.length, totalAnnulation, moyen_paiement);
+    `).run(now, id_ticket_original, utilisateur, id_vendeur, articles_sans_reduction.length, totalAnnulation, moyen_paiement);
     const id_annul = annul.lastInsertRowid;
 
     const insertArticle = db.prepare(`
@@ -59,7 +80,7 @@ router.post('/', (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    for (const art of articles_origine) {
+    for (const art of articles_sans_reduction) {
       insertArticle.run(id_annul, art.nom, art.prix, -Math.abs(art.nbr), art.categorie, utilisateur, id_vendeur, now, timestamp);
     }
 
@@ -68,15 +89,14 @@ router.post('/', (req, res) => {
         date_achat_dt, nom_vendeur, id_vendeur, nbr_objet, prix_total, moyen_paiement,
         reducbene, reducclient, reducgrospanierclient, reducgrospanierbene
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(now, utilisateur, id_vendeur, articles_correction.length, prixTotal, moyen_paiement,
+    `).run(now, utilisateur, id_vendeur, articles_correction_sans_reduction.length, prixTotal, moyen_paiement,
       reducBene, reducClient, reducGrosPanierClient, reducGrosPanierBene);
     const id_corrige = correc.lastInsertRowid;
 
     db.prepare('UPDATE ticketdecaisse SET corrige_le_ticket = ? WHERE id_ticket = ?')
-  .run(id_ticket_original, id_corrige);
+      .run(id_ticket_original, id_corrige);
 
-
-    for (const art of articles_correction) {
+    for (const art of articles_correction_sans_reduction) {
       insertArticle.run(id_corrige, art.nom, art.prix, art.nbr, art.categorie, utilisateur, id_vendeur, now, timestamp);
     }
 
@@ -107,7 +127,7 @@ router.post('/', (req, res) => {
     contenuAnnul += `⚠️ ANNULE LE TICKET #${id_ticket_original}\n`;
     contenuAnnul += `Date : ${now}\nVendeur : ${utilisateur}\n\n`;
 
-    articles_origine.forEach(a => {
+    articles_sans_reduction.forEach(a => {
       contenuAnnul += `${a.nbr} x ${a.nom} (${a.categorie}) - ${(a.prix * a.nbr / 100).toFixed(2)}€\n`;
     });
     contenuAnnul += `\nTOTAL ANNULÉ : ${(totalAnnulation / 100).toFixed(2)}€\n`;
@@ -123,7 +143,7 @@ router.post('/', (req, res) => {
     contenu += `⚠️ CE TICKET EST UNE MODIFICATION DU TICKET #${id_ticket_original}\n`;
     contenu += `Date : ${now}\nVendeur : ${utilisateur}\n\n`;
 
-    articles_correction.forEach(a => {
+    articles_correction_sans_reduction.forEach(a => {
       contenu += `${a.nbr} x ${a.nom} (${a.categorie}) - ${(a.prix * a.nbr / 100).toFixed(2)}€\n`;
     });
     contenu += `\nTOTAL : ${(prixTotal / 100).toFixed(2)}€\n`;
@@ -151,103 +171,99 @@ router.post('/', (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?)
     `).run(now, id_ticket_original, id_annul, id_corrige, utilisateur, motif || '');
 
-// 📊 MISE À JOUR DU BILAN : soustraction ticket original + ajout ticket corrigé
-const today = now.slice(0, 10);
-
-// 🧾 Récupérer ticket original (celui annulé)
-const ticketOriginal = db.prepare('SELECT * FROM ticketdecaisse WHERE id_ticket = ?').get(id_ticket_original);
-
-// 🔽 Paiements du ticket original à soustraire
-let pmAnnul = { espece: 0, carte: 0, cheque: 0, virement: 0 };
-
-if (ticketOriginal.moyen_paiement === 'mixte') {
-  const pmx = db.prepare('SELECT * FROM paiement_mixte WHERE id_ticket = ?').get(id_ticket_original);
-  if (pmx) {
-    pmAnnul = {
-      espece: pmx.espece || 0,
-      carte: pmx.carte || 0,
-      cheque: pmx.cheque || 0,
-      virement: pmx.virement || 0
-    };
-  }
-} else {
-  const champ = {
-    'espèce': 'espece', 'espèces': 'espece', 'carte': 'carte',
-    'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
-  }[ticketOriginal.moyen_paiement.toLowerCase()];
-  if (champ && pmAnnul.hasOwnProperty(champ)) {
-    pmAnnul[champ] = ticketOriginal.prix_total;
-  }
-}
-
-// 🔼 Paiements du ticket corrigé à ajouter
-const pmCorrige = { espece: 0, carte: 0, cheque: 0, virement: 0 };
-const normalisation = {
-  'espèce': 'espece', 'espèces': 'espece', 'carte': 'carte',
-  'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
-};
-
-if (moyen_paiement === 'mixte') {
-  for (const p of paiements) {
-    const champ = normalisation[p.moyen?.toLowerCase()] || null;
-    if (champ && pmCorrige.hasOwnProperty(champ)) {
-      pmCorrige[champ] += p.montant;
+    // 📊 Mise à jour du bilan
+    const today = now.slice(0, 10);
+    const ticketOriginal = db.prepare('SELECT * FROM ticketdecaisse WHERE id_ticket = ?').get(id_ticket_original);
+    if (!ticketOriginal) {
+      return res.status(400).json({ error: `Ticket original #${id_ticket_original} introuvable` });
     }
-  }
-} else {
-  const champ = normalisation[moyen_paiement.toLowerCase()] || null;
-  if (champ) pmCorrige[champ] = prixTotal;
-}
+    
+    let pmAnnul = { espece: 0, carte: 0, cheque: 0, virement: 0 };
 
-// 🧮 Mise à jour dans la table bilan
-const bilanExistant = db.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+    if (ticketOriginal.moyen_paiement === 'mixte') {
+      const pmx = db.prepare('SELECT * FROM paiement_mixte WHERE id_ticket = ?').get(id_ticket_original);
+      if (pmx) {
+        pmAnnul = {
+          espece: pmx.espece || 0,
+          carte: pmx.carte || 0,
+          cheque: pmx.cheque || 0,
+          virement: pmx.virement || 0
+        };
+      }
+    } else {
+      const champ = {
+        'espèce': 'espece', 'espèces': 'espece', 'carte': 'carte',
+        'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
+      }[ticketOriginal.moyen_paiement.toLowerCase()];
+      if (champ && pmAnnul.hasOwnProperty(champ)) {
+        pmAnnul[champ] = ticketOriginal.prix_total;
+      }
+    }
 
-if (bilanExistant) {
-  db.prepare(`
-    UPDATE bilan
-    SET prix_total = prix_total - ? + ?,
-        prix_total_espece = prix_total_espece - ? + ?,
-        prix_total_cheque = prix_total_cheque - ? + ?,
-        prix_total_carte = prix_total_carte - ? + ?,
-        prix_total_virement = prix_total_virement - ? + ?
-    WHERE date = ?
-  `).run(
-    Math.abs(ticketOriginal.prix_total), prixTotal,
-    Math.abs(pmAnnul.espece), pmCorrige.espece,
-    Math.abs(pmAnnul.cheque), pmCorrige.cheque,
-    Math.abs(pmAnnul.carte), pmCorrige.carte,
-    Math.abs(pmAnnul.virement), pmCorrige.virement,
-    today
-  );
-} else {
-  db.prepare(`
-    INSERT INTO bilan (
-      date, timestamp, nombre_vente, poids, prix_total,
-      prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    today, timestamp, 1, 0,
-    prixTotal - Math.abs(ticketOriginal.prix_total),
-    pmCorrige.espece - Math.abs(pmAnnul.espece),
-    pmCorrige.cheque - Math.abs(pmAnnul.cheque),
-    pmCorrige.carte - Math.abs(pmAnnul.carte),
-    pmCorrige.virement - Math.abs(pmAnnul.virement)
-  );
-}
+    const pmCorrige = { espece: 0, carte: 0, cheque: 0, virement: 0 };
+    const normalisation = {
+      'espèce': 'espece', 'espèces': 'espece', 'carte': 'carte',
+      'chèque': 'cheque', 'chéque': 'cheque', 'cheque': 'cheque', 'virement': 'virement'
+    };
+
+    if (moyen_paiement === 'mixte') {
+      for (const p of paiements) {
+        const champ = normalisation[p.moyen?.toLowerCase()] || null;
+        if (champ && pmCorrige.hasOwnProperty(champ)) {
+          pmCorrige[champ] += p.montant;
+        }
+      }
+    } else {
+      const champ = normalisation[moyen_paiement.toLowerCase()] || null;
+      if (champ) pmCorrige[champ] = prixTotal;
+    }
+
+    const bilanExistant = db.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+
+    if (bilanExistant) {
+      db.prepare(`
+        UPDATE bilan
+        SET prix_total = prix_total - ? + ?,
+            prix_total_espece = prix_total_espece - ? + ?,
+            prix_total_cheque = prix_total_cheque - ? + ?,
+            prix_total_carte = prix_total_carte - ? + ?,
+            prix_total_virement = prix_total_virement - ? + ?
+        WHERE date = ?
+      `).run(
+        Math.abs(ticketOriginal.prix_total), prixTotal,
+        Math.abs(pmAnnul.espece), pmCorrige.espece,
+        Math.abs(pmAnnul.cheque), pmCorrige.cheque,
+        Math.abs(pmAnnul.carte), pmCorrige.carte,
+        Math.abs(pmAnnul.virement), pmCorrige.virement,
+        today
+      );
+    } else {
+      db.prepare(`
+        INSERT INTO bilan (
+          date, timestamp, nombre_vente, poids, prix_total,
+          prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        today, timestamp, 1, 0,
+        prixTotal - Math.abs(ticketOriginal.prix_total),
+        pmCorrige.espece - Math.abs(pmAnnul.espece),
+        pmCorrige.cheque - Math.abs(pmAnnul.cheque),
+        pmCorrige.carte - Math.abs(pmAnnul.carte),
+        pmCorrige.virement - Math.abs(pmAnnul.virement)
+      );
+    }
 
     res.json({ success: true, id_annul, id_corrige });
-
   } catch (err) {
     console.error("Erreur correction :", err);
     res.status(500).json({ error: 'Erreur serveur lors de la correction' });
   }
 
   const io = req.app.get('socketio');
-if (io) {
-  io.emit('bilanUpdated');
-  io.emit('ticketsmisajour');
-}
-
+  if (io) {
+    io.emit('bilanUpdated');
+    io.emit('ticketsmisajour');
+  }
 });
 
 module.exports = router;

@@ -168,7 +168,8 @@ router.post('/', (req, res) => {
 
     res.json({ success: true, id_ticket });
   } catch (err) {
-    console.error('Erreur validation :', err);
+    console.error('Erreur validation :', err.message);
+
     res.status(500).json({ error: err.message });
   }
 
