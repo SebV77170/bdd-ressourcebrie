@@ -7,7 +7,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/users') // Tu dois exposer cette route dans ton backend
+    fetch('http://localhost:3001/api/users')
       .then(res => res.json())
       .then(setUsers)
       .catch(err => console.error('Erreur chargement utilisateurs:', err));
@@ -24,7 +24,7 @@ function LoginPage() {
       .then(data => {
         if (data.success) {
           localStorage.setItem('vendeur', JSON.stringify(data.user));
-          window.location.href = '/';
+          navigate('/'); // ✅ navigation propre pour Electron
         }
       })
       .catch(() => alert('Erreur de connexion'));
@@ -36,9 +36,7 @@ function LoginPage() {
       <select className="form-select my-3" onChange={e => setSelected(e.target.value)} value={selected}>
         <option value="">-- Choisir un vendeur --</option>
         {users.map(u => (
-          <option key={u.id} value={u.pseudo}>
-          {u.pseudo}
-        </option>        
+          <option key={u.id} value={u.pseudo}>{u.pseudo}</option>
         ))}
       </select>
       <button className="btn btn-primary" onClick={handleLogin}>Se connecter</button>

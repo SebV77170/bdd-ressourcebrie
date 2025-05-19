@@ -38,3 +38,10 @@ $theme-colors: map-merge(
 
 // 📦 Import complet de Bootstrap avec tes couleurs
 @import "~bootstrap/scss/bootstrap";
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+

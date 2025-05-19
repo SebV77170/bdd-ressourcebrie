@@ -3,4 +3,11 @@
     border-radius: 50%;
     color: #000;
   }
+
+  .bilan-scroll-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
   
