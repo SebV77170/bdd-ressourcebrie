@@ -9,8 +9,9 @@ node_modules/
 # Ignorer les fichiers de log
 *.log
 
-# Ignorer le build
+# Ignorer le build et le dist
 build/
+dist/
 
 # Ignorer les fichiers système
 .DS_Store
