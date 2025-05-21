@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const { sqlite } = require('../db');;
 
 // Route structurée pour React : catégories > sous-catégories > boutons
 router.get('/organises', (req, res) => {
@@ -21,7 +21,7 @@ router.get('/organises', (req, res) => {
       ORDER BY cat1.category, cat2.category, bv.nom
     `;
 
-    const stmt = db.prepare(query);
+    const stmt = sqlite.prepare(query);
     const results = stmt.all();
 
     console.log("Résultats SQL : ", results);

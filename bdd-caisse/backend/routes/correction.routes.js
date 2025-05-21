@@ -1,7 +1,7 @@
 // ✅ Correction complète avec gestion propre des réductions et génération des tickets .txt
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const { sqlite } = require('../db');;
 const session = require('../session');
 const fs = require('fs');
 const path = require('path');
@@ -63,7 +63,7 @@ router.post('/', (req, res) => {
   if (totalAnnulation > 0) totalAnnulation = 0;
 
   try {
-    const annul = db.prepare(`
+    const annul = sqlite.prepare(`
       INSERT INTO ticketdecaisse (
         date_achat_dt, correction_de, flag_correction, nom_vendeur, id_vendeur,
         nbr_objet, prix_total, moyen_paiement
@@ -71,7 +71,7 @@ router.post('/', (req, res) => {
     `).run(now, id_ticket_original, utilisateur, id_vendeur, articles_sans_reduction.length, totalAnnulation, moyen_paiement);
     const id_annul = annul.lastInsertRowid;
 
-    const insertArticle = db.prepare(`
+    const insertArticle = sqlite.prepare(`
       INSERT INTO objets_vendus (
         id_ticket, nom, prix, nbr, categorie,
         nom_vendeur, id_vendeur, date_achat, timestamp
@@ -82,7 +82,7 @@ router.post('/', (req, res) => {
       insertArticle.run(id_annul, art.nom, art.prix, -(art.nbr), art.categorie, utilisateur, id_vendeur, now, timestamp);
     }
 
-    const correc = db.prepare(`
+    const correc = sqlite.prepare(`
       INSERT INTO ticketdecaisse (
         date_achat_dt, nom_vendeur, id_vendeur, nbr_objet, prix_total, moyen_paiement,
         reducbene, reducclient, reducgrospanierclient, reducgrospanierbene
@@ -91,7 +91,7 @@ router.post('/', (req, res) => {
       reducBene, reducClient, reducGrosPanierClient, reducGrosPanierBene);
     const id_corrige = correc.lastInsertRowid;
 
-    db.prepare('UPDATE ticketdecaisse SET corrige_le_ticket = ? WHERE id_ticket = ?')
+    sqlite.prepare('UPDATE ticketdecaisse SET corrige_le_ticket = ? WHERE id_ticket = ?')
       .run(id_ticket_original, id_corrige);
 
     for (const art of articles_correction_sans_reduction) {
@@ -112,7 +112,7 @@ router.post('/', (req, res) => {
         }
       }
 
-      db.prepare(`
+      sqlite.prepare(`
         INSERT INTO paiement_mixte (id_ticket, espece, carte, cheque, virement)
         VALUES (?, ?, ?, ?, ?)
       `).run(id_corrige, pm.espece, pm.carte, pm.cheque, pm.virement);
@@ -132,7 +132,7 @@ router.post('/', (req, res) => {
     contenuAnnul += `Paiement initial : ${moyen_paiement}\n\n`;
     contenuAnnul += `Motif de correction : ${motif || '—'}\nMerci de votre compréhension.\n`;
     fs.writeFileSync(pathAnnul, contenuAnnul, 'utf8');
-    db.prepare('UPDATE ticketdecaisse SET lien = ? WHERE id_ticket = ?').run(`tickets/Ticket${id_annul}.txt`, id_annul);
+    sqlite.prepare('UPDATE ticketdecaisse SET lien = ? WHERE id_ticket = ?').run(`tickets/Ticket${id_annul}.txt`, id_annul);
 
     // 🧾 Générer le ticket corrigé
     const ticketPath = path.join(__dirname, `../../tickets/Ticket${id_corrige}.txt`);
@@ -160,9 +160,9 @@ router.post('/', (req, res) => {
     contenu += `Motif de la correction : ${motif || '—'}\n`;
     contenu += `\nMerci de votre visite !\n`;
     fs.writeFileSync(ticketPath, contenu, 'utf8');
-    db.prepare('UPDATE ticketdecaisse SET lien = ? WHERE id_ticket = ?').run(`tickets/Ticket${id_corrige}.txt`, id_corrige);
+    sqlite.prepare('UPDATE ticketdecaisse SET lien = ? WHERE id_ticket = ?').run(`tickets/Ticket${id_corrige}.txt`, id_corrige);
 
-    db.prepare(`
+    sqlite.prepare(`
       INSERT INTO journal_corrections (
         date_correction, id_ticket_original, id_ticket_annulation,
         id_ticket_correction, utilisateur, motif
@@ -171,7 +171,7 @@ router.post('/', (req, res) => {
 
     // 📊 Mise à jour du bilan
     const today = now.slice(0, 10);
-    const ticketOriginal = db.prepare('SELECT * FROM ticketdecaisse WHERE id_ticket = ?').get(id_ticket_original);
+    const ticketOriginal = sqlite.prepare('SELECT * FROM ticketdecaisse WHERE id_ticket = ?').get(id_ticket_original);
     if (!ticketOriginal) {
       return res.status(400).json({ error: `Ticket original #${id_ticket_original} introuvable` });
     }
@@ -179,7 +179,7 @@ router.post('/', (req, res) => {
     let pmAnnul = { espece: 0, carte: 0, cheque: 0, virement: 0 };
 
     if (ticketOriginal.moyen_paiement === 'mixte') {
-      const pmx = db.prepare('SELECT * FROM paiement_mixte WHERE id_ticket = ?').get(id_ticket_original);
+      const pmx = sqlite.prepare('SELECT * FROM paiement_mixte WHERE id_ticket = ?').get(id_ticket_original);
       if (pmx) {
         pmAnnul = {
           espece: pmx.espece || 0,
@@ -216,10 +216,10 @@ router.post('/', (req, res) => {
       if (champ) pmCorrige[champ] = prixTotal;
     }
 
-    const bilanExistant = db.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+    const bilanExistant = sqlite.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
 
     if (bilanExistant) {
-      db.prepare(`
+      sqlite.prepare(`
         UPDATE bilan
         SET prix_total = prix_total - ? + ?,
             prix_total_espece = prix_total_espece - ? + ?,
@@ -236,7 +236,7 @@ router.post('/', (req, res) => {
         today
       );
     } else {
-      db.prepare(`
+      sqlite.prepare(`
         INSERT INTO bilan (
           date, timestamp, nombre_vente, poids, prix_total,
           prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement

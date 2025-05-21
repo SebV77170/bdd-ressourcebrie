@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const { sqlite } = require('../db');;
 
 // Ajouter un article au ticket
 router.post('/', (req, res) => {
@@ -9,7 +9,7 @@ router.post('/', (req, res) => {
 console.log('🧾 Corps de requête :', req.body);
 
   try {
-    const produit = db.prepare(`
+    const produit = sqlite.prepare(`
       SELECT bv.nom, cat1.category AS categorie, cat2.category AS souscat, bv.prix
       FROM boutons_ventes bv
       LEFT JOIN categories cat1 ON bv.id_cat = cat1.id
@@ -19,7 +19,7 @@ console.log('🧾 Corps de requête :', req.body);
 
     if (!produit) return res.status(404).json({ error: 'Produit introuvable' });
 
-    db.prepare(`
+    sqlite.prepare(`
       INSERT INTO ticketdecaissetemp (id_temp_vente, nom, categorie, souscat, prix, nbr, prixt)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -41,7 +41,7 @@ console.log('🧾 Corps de requête :', req.body);
 // Lire les articles d'un ticket
 router.get('/:id_temp_vente', (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?').all(req.params.id_temp_vente);
+    const rows = sqlite.prepare('SELECT * FROM ticketdecaissetemp WHERE id_temp_vente = ?').all(req.params.id_temp_vente);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -51,7 +51,7 @@ router.get('/:id_temp_vente', (req, res) => {
 // Supprimer un article
 router.delete('/:id', (req, res) => {
   try {
-    db.prepare('DELETE FROM ticketdecaissetemp WHERE id = ?').run(req.params.id);
+    sqlite.prepare('DELETE FROM ticketdecaissetemp WHERE id = ?').run(req.params.id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -69,14 +69,14 @@ router.put('/:id', (req, res) => {
     return res.status(400).json({ error: 'Aucun champ modifiable fourni' });
   }
 
-  const dbUpdate = db.transaction(() => {
+  const dbUpdate = sqlite.transaction(() => {
     champs.forEach(champ => {
       const valeur = modifications[champ];
-      db.prepare(`UPDATE ticketdecaissetemp SET ${champ} = ? WHERE id = ?`).run(valeur, id);
+      sqlite.prepare(`UPDATE ticketdecaissetemp SET ${champ} = ? WHERE id = ?`).run(valeur, id);
     });
 
     // Recalcul du prixt
-    db.prepare(`UPDATE ticketdecaissetemp SET prixt = prix * nbr WHERE id = ?`).run(id);
+    sqlite.prepare(`UPDATE ticketdecaissetemp SET prixt = prix * nbr WHERE id = ?`).run(id);
   });
 
   try {

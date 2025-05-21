@@ -2,9 +2,9 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const router = express.Router();
-const db = require('../db');
+const { sqlite, mysql } = require('../db');
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const tables = [
       'bilan',
@@ -13,16 +13,32 @@ router.post('/', (req, res) => {
       'objets_vendus',
       'paiement_mixte',
       'ticketdecaisse',
+      'ticketdecaissetemp',
+      'sync_log'
+    ];
+
+    const tablesMysql = [
+      'bilan',
+      'modifticketdecaisse',
+      'objets_vendus',
+      'paiement_mixte',
+      'ticketdecaisse',
       'ticketdecaissetemp'
     ];
 
-    // ⚙️ Suppression des données + reset auto-incrément
-    db.transaction(() => {
+    // ⚙️ Suppression des données SQLite + reset auto-incrément
+    sqlite.transaction(() => {
       for (const table of tables) {
-        db.prepare(`DELETE FROM ${table}`).run();
-        db.prepare(`DELETE FROM sqlite_sequence WHERE name = ?`).run(table);
+        sqlite.prepare(`DELETE FROM ${table}`).run();
+        sqlite.prepare(`DELETE FROM sqlite_sequence WHERE name = ?`).run(table);
       }
     })();
+
+    // ⚙️ Suppression des données MySQL + reset auto-incrément
+    for (const table of tablesMysql) {
+      await mysql.query(`DELETE FROM ${table}`);
+      await mysql.query(`ALTER TABLE ${table} AUTO_INCREMENT = 1`);
+    }
 
     // 🧹 Suppression des fichiers de tickets
     const ticketDir = path.join(__dirname, '../../tickets');
@@ -35,7 +51,7 @@ router.post('/', (req, res) => {
       });
     }
 
-    res.json({ success: true, message: 'Base et fichiers tickets réinitialisés.' });
+    res.json({ success: true, message: 'Base locale et distante + fichiers tickets réinitialisés.' });
   } catch (err) {
     console.error('Erreur reset :', err);
     res.status(500).json({ error: 'Erreur lors de la réinitialisation.' });

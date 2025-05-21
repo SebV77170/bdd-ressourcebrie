@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
+const mysql = require('mysql2/promise');
 
 let db;
 
@@ -19,4 +20,16 @@ if (process.env.NODE_ENV === 'test') {
   console.log('Connecté à SQLite :', dbPath);
 }
 
-module.exports = db;
+const pool = mysql.createPool({
+  host: 'localhost',     // ou l'IP du serveur
+  user: 'root',
+  password: '',
+  database: 'objets',
+  waitForConnections: true,
+  connectionLimit: 10
+});
+
+module.exports = {
+  sqlite: db,
+  mysql: pool
+};

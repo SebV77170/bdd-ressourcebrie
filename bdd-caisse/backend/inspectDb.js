@@ -8,7 +8,7 @@ const db = new Database(dbPath);
 console.log('✅ Connexion à la base SQLite :', dbPath);
 
 // Obtenir toutes les tables (hors tables système)
-const tables = db.prepare(`
+const tables = sqlite.prepare(`
   SELECT name FROM sqlite_master
   WHERE type='table' AND name NOT LIKE 'sqlite_%'
   ORDER BY name
@@ -23,13 +23,13 @@ tables.forEach(({ name }) => {
   console.log(`\n📦 Table : ${name}`);
 
   // Récupérer les colonnes
-  const columns = db.prepare(`PRAGMA table_info(${name})`).all();
+  const columns = sqlite.prepare(`PRAGMA table_info(${name})`).all();
   console.log('   Colonnes :');
   columns.forEach(col => {
     console.log(`   • ${col.name} (${col.type})`);
   });
 
   // Compter les lignes
-  const { count } = db.prepare(`SELECT COUNT(*) AS count FROM ${name}`).get();
+  const { count } = sqlite.prepare(`SELECT COUNT(*) AS count FROM ${name}`).get();
   console.log(`   Nombre de lignes : ${count}`);
 });

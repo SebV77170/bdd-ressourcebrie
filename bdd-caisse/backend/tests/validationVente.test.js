@@ -5,14 +5,14 @@ jest.mock('../session', () => ({
   
   const request = require('supertest');
   const app = require('../app');
-  const db = require('../db');
+  const { sqlite } = require('../db');;
   const fs = require('fs');
   const path = require('path');
   
   function initTables() {
     const schemaPath = path.join(__dirname, '../schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
-    db.exec(schema);
+    sqlite.exec(schema);
   }
   
   describe('Tests de la validation de vente', () => {
@@ -28,7 +28,7 @@ jest.mock('../session', () => ({
       const resVente = await request(app).post('/api/ventes/').send();
       id_temp_vente = resVente.body.id_temp_vente.toString();
   
-      const insert = db.prepare(`
+      const insert = sqlite.prepare(`
         INSERT INTO ticketdecaissetemp (id_temp_vente, nom, prix, prixt, nbr, categorie, souscat, poids)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
@@ -45,7 +45,7 @@ jest.mock('../session', () => ({
       });
   
       expect(res.body.success).toBe(true);
-      const bilan = db.prepare('SELECT * FROM bilan').get();
+      const bilan = sqlite.prepare('SELECT * FROM bilan').get();
       expect(bilan.prix_total_carte).toBe(2000);
     });
   
@@ -57,7 +57,7 @@ jest.mock('../session', () => ({
       });
   
       expect(res.body.success).toBe(true);
-      const bilan = db.prepare('SELECT * FROM bilan').get();
+      const bilan = sqlite.prepare('SELECT * FROM bilan').get();
       expect(bilan.prix_total).toBe(3000);
       expect(bilan.prix_total_espece).toBe(1000);
     });
@@ -70,7 +70,7 @@ jest.mock('../session', () => ({
       });
   
       expect(res.body.success).toBe(true);
-      const bilan = db.prepare('SELECT * FROM bilan').get();
+      const bilan = sqlite.prepare('SELECT * FROM bilan').get();
       expect(bilan.prix_total).toBe(4600);
       expect(bilan.prix_total_cheque).toBe(1600);
     });
@@ -83,7 +83,7 @@ jest.mock('../session', () => ({
       const resVente = await request(app).post('/api/ventes/').send();
       id_temp_vente = resVente.body.id_temp_vente.toString();
   
-      db.prepare(`
+      sqlite.prepare(`
         INSERT INTO ticketdecaissetemp (id_temp_vente, nom, prix, prixt, nbr, categorie, souscat, poids)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(id_temp_vente, 'Petit article', 800, 800, 1, 'Divers', 'Test', 1);
@@ -95,12 +95,12 @@ jest.mock('../session', () => ({
       });
   
       expect(res.body.success).toBe(true);
-      const bilan = db.prepare('SELECT * FROM bilan').get();
+      const bilan = sqlite.prepare('SELECT * FROM bilan').get();
       expect(bilan.prix_total).toBe(4600);
     });
   
     test('5. Erreur : ticket vide', async () => {
-      db.prepare('DELETE FROM ticketdecaissetemp WHERE id_temp_vente = ?').run(id_temp_vente);
+      sqlite.prepare('DELETE FROM ticketdecaissetemp WHERE id_temp_vente = ?').run(id_temp_vente);
   
       const res = await request(app).post('/api/valider').send({
         id_temp_vente,

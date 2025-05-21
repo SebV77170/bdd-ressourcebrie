@@ -102,6 +102,28 @@ function App() {
               </>
             )}
             <button
+              className="btn btn-sm btn-outline-success me-2"
+              onClick={async () => {
+                try {
+                  const res = await fetch('http://localhost:3001/api/sync/', {
+                    method: 'POST'
+                  });
+                  const result = await res.json();
+                  if (result.success) {
+                    alert('✅ Synchronisation réussie !');
+                  } else {
+                    alert('❌ Échec de la synchronisation : ' + (result.message || result.error));
+                  }
+                } catch (err) {
+                  console.error(err);
+                  alert('❌ Erreur lors de la synchronisation.');
+                }
+              }}
+            >
+              🔄 Synchroniser
+            </button>
+
+            <button
               className="btn btn-sm btn-outline-light"
               onClick={() => {
                 localStorage.removeItem('vendeur');

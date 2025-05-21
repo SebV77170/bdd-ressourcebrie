@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const db = require('../db');
+const { sqlite } = require('../db');;
 const path = require('path');
 const fs = require('fs');
 
@@ -14,7 +14,7 @@ const { getUser } = require('../session');
 function initTables() {
   const schemaPath = path.join(__dirname, '../schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf8');
-  db.exec(schema);
+  sqlite.exec(schema);
 }
 
 beforeEach(() => {
@@ -27,7 +27,7 @@ test('Correction avec prix inférieur à la réduction (prix stoppé à 0€)', 
   const resVente = await request(app).post('/api/ventes/').send();
   const id_temp_vente = resVente.body.id_temp_vente.toString();
 
-  db.prepare(`
+  sqlite.prepare(`
     INSERT INTO ticketdecaissetemp (id_temp_vente, nom, prix, prixt, nbr, categorie, souscat, poids)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(id_temp_vente, 'Produit X', 1200, 1200, 1, 'TestCat', 'TestSub', 1);
@@ -60,19 +60,19 @@ test('Correction avec prix inférieur à la réduction (prix stoppé à 0€)', 
   expect(correction.body.success).toBe(true);
 
   // Étape 3 : Vérifier le ticket d’annulation (-700)
-  const ticketAnnulation = db.prepare(`
+  const ticketAnnulation = sqlite.prepare(`
     SELECT * FROM ticketdecaisse WHERE id_ticket = ?
   `).get(correction.body.id_ticket_annulation);
   expect(ticketAnnulation.prix_total).toBe(-700);
 
   // Étape 4 : Vérifier le ticket de correction (0€)
-  const ticketCorrection = db.prepare(`
+  const ticketCorrection = sqlite.prepare(`
     SELECT * FROM ticketdecaisse WHERE id_ticket = ?
   `).get(correction.body.id_ticket_correction);
   expect(ticketCorrection.prix_total).toBe(0);
 
   // Étape 5 : Vérifier le bilan final
-  const bilan = db.prepare(`SELECT * FROM bilan`).get();
+  const bilan = sqlite.prepare(`SELECT * FROM bilan`).get();
   expect(bilan.prix_total).toBe(0); // 700 - 700 annulé + 0
   expect(bilan.prix_total_carte).toBe(0);
 });

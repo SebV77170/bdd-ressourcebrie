@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const { sqlite } = require('../db');;
 const session = require('../session');
 
 
 // Connexion par pseudo simple
 router.post('/', (req, res) => {
   const { pseudo } = req.body;
-  const user = db.prepare('SELECT * FROM users WHERE pseudo = ?').get(pseudo);
+  const user = sqlite.prepare('SELECT * FROM users WHERE pseudo = ?').get(pseudo);
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
   session.setUser({ id: user.id, nom: user.nom });

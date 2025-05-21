@@ -1,14 +1,14 @@
 jest.mock('../session');
 const request = require('supertest');
 const app = require('../app');
-const db = require('../db');
+const { sqlite } = require('../db');;
 const path = require('path');
 const fs = require('fs');
 
 function initTables() {
     const schemaPath = path.join(__dirname, '../schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
-    db.exec(schema);
+    sqlite.exec(schema);
   }
   
   beforeEach(() => {
@@ -34,22 +34,22 @@ describe('Test modification des moyens de paiement et mise à jour du bilan', ()
   };
 
   beforeEach(() => {
-    db.prepare('DELETE FROM ticketdecaisse').run();
-    db.prepare('DELETE FROM objets_vendus').run();
-    db.prepare('DELETE FROM bilan').run();
-    db.prepare('DELETE FROM journal_corrections').run();
-    db.prepare('DELETE FROM paiement_mixte').run();
+    sqlite.prepare('DELETE FROM ticketdecaisse').run();
+    sqlite.prepare('DELETE FROM objets_vendus').run();
+    sqlite.prepare('DELETE FROM bilan').run();
+    sqlite.prepare('DELETE FROM journal_corrections').run();
+    sqlite.prepare('DELETE FROM paiement_mixte').run();
   });
 
   for (const moyen of moyens) {
     it(`Corrige le moyen de paiement vers ${moyen}`, async () => {
-      const result = db.prepare(`
+      const result = sqlite.prepare(`
         INSERT INTO ticketdecaisse (date_achat_dt, nom_vendeur, id_vendeur, nbr_objet, prix_total, moyen_paiement)
         VALUES (?, ?, ?, ?, ?, ?)
       `).run(now, vendeur.nom, vendeur.id, 2, prixTotal, 'carte');
       const idTicket = result.lastInsertRowid;
 
-      const insertArticle = db.prepare(`
+      const insertArticle = sqlite.prepare(`
         INSERT INTO objets_vendus (id_ticket, nom, prix, nbr, categorie, nom_vendeur, id_vendeur, date_achat, timestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
@@ -57,12 +57,12 @@ describe('Test modification des moyens de paiement et mise à jour du bilan', ()
         insertArticle.run(idTicket, a.nom, a.prix, a.nbr, a.categorie, vendeur.nom, vendeur.id, now, timestamp);
       }
 
-      db.prepare(`
+      sqlite.prepare(`
         INSERT INTO bilan (date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(date, timestamp, 1, 0, prixTotal, 0, 0, prixTotal, 0);
 
-      const objets = db.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(idTicket);
+      const objets = sqlite.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(idTicket);
 
       const res = await request(app).post('/api/correction').send({
         id_ticket_original: idTicket,
@@ -76,7 +76,7 @@ describe('Test modification des moyens de paiement et mise à jour du bilan', ()
       console.log(`RESPONSE ${moyen}:`, res.body);
       expect(res.body.success).toBe(true);
 
-      const bilan = db.prepare('SELECT * FROM bilan').get();
+      const bilan = sqlite.prepare('SELECT * FROM bilan').get();
       expect(bilan.prix_total).toBe(2000);
       expect(bilan[champs[moyen]]).toBe(2000);
       for (const m of Object.keys(champs)) {
@@ -86,13 +86,13 @@ describe('Test modification des moyens de paiement et mise à jour du bilan', ()
   }
 
   it('Corrige vers un paiement mixte', async () => {
-    const result = db.prepare(`
+    const result = sqlite.prepare(`
       INSERT INTO ticketdecaisse (date_achat_dt, nom_vendeur, id_vendeur, nbr_objet, prix_total, moyen_paiement)
       VALUES (?, ?, ?, ?, ?, ?)
     `).run(now, vendeur.nom, vendeur.id, 2, prixTotal, 'carte');
     const idTicket = result.lastInsertRowid;
 
-    const insertArticle = db.prepare(`
+    const insertArticle = sqlite.prepare(`
       INSERT INTO objets_vendus (id_ticket, nom, prix, nbr, categorie, nom_vendeur, id_vendeur, date_achat, timestamp)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
@@ -100,12 +100,12 @@ describe('Test modification des moyens de paiement et mise à jour du bilan', ()
       insertArticle.run(idTicket, a.nom, a.prix, a.nbr, a.categorie, vendeur.nom, vendeur.id, now, timestamp);
     }
 
-    db.prepare(`
+    sqlite.prepare(`
       INSERT INTO bilan (date, timestamp, nombre_vente, poids, prix_total, prix_total_espece, prix_total_cheque, prix_total_carte, prix_total_virement)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(date, timestamp, 1, 0, prixTotal, 0, 0, prixTotal, 0);
 
-    const objets = db.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(idTicket);
+    const objets = sqlite.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(idTicket);
 
     const paiements = [
       { moyen: 'espèce', montant: 500 },
@@ -127,7 +127,7 @@ describe('Test modification des moyens de paiement et mise à jour du bilan', ()
     console.log('RESPONSE mixte:', res.body);
     expect(res.body.success).toBe(true);
 
-    const bilan = db.prepare('SELECT * FROM bilan').get();
+    const bilan = sqlite.prepare('SELECT * FROM bilan').get();
     expect(bilan.prix_total).toBe(2000);
     expect(bilan.prix_total_espece).toBe(500);
     expect(bilan.prix_total_cheque).toBe(500);

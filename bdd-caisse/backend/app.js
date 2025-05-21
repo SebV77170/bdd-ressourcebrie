@@ -17,6 +17,7 @@ const correctionRoutes = require('./routes/correction.routes');
 const sessionRoutes = require('./routes/session.routes');
 const usersRoutes = require('./routes/users.routes');
 const resetRoutes = require('./routes/reset.routes');
+const syncRoutes = require('./routes/sync.routes');
 
 // Montage des routes API
 app.use('/api/produits', produitsRoutes);
@@ -28,5 +29,6 @@ app.use('/api/correction', correctionRoutes);
 app.use('/api/session', sessionRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/reset', resetRoutes);
+app.use('/api/sync', syncRoutes);
 
 module.exports = app;
