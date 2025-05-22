@@ -24,8 +24,6 @@ router.get('/organises', (req, res) => {
     const stmt = sqlite.prepare(query);
     const results = stmt.all();
 
-    console.log("Résultats SQL : ", results);
-
     const regroupement = {};
     results.forEach(b => {
       const categorie = b.categorie || 'Autre';

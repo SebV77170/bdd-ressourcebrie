@@ -1,15 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
   const [corrections, setCorrections] = useState(
     (ticketOriginal.objets || []).map(obj => ({ ...obj }))
   );
-  
+  const [correctionsInitiales] = useState((ticketOriginal.objets || []).map(obj => ({ ...obj })));
+  const [articlesSupprimes, setArticlesSupprimes] = useState([]);
+
   const [motif, setMotif] = useState('');
   const [loading, setLoading] = useState(false);
   const [moyenPaiement, setMoyenPaiement] = useState(ticketOriginal.ticket.moyen_paiement || '');
+  const totalAvant = correctionsInitiales.reduce((sum, a) => sum + a.prix * a.nbr, 0);
+
+  console.log('totalAvant', totalAvant);
+  console.log('correctionsInitiales', correctionsInitiales);
+
+  const [reductionOriginale] = useState(() => {
+    const reducs = ticketOriginal.objets?.filter(o => o.nom.toLowerCase().includes('réduction'));
+    if (reducs && reducs.length === 1) {
+      const nom = reducs[0].nom.toLowerCase();
+      if (nom.includes('gros panier bénévole')) return 'trueGrosPanierBene';
+      if (nom.includes('gros panier client')) return 'trueGrosPanierClient';
+      if (nom.includes('fidélité bénévole')) return 'trueBene';
+      if (nom.includes('fidélité client')) return 'trueClient';
+    }
+    return '';
+  });
+
   const [reductionType, setReductionType] = useState('');
+
+  useEffect(() => {
+    if (reductionOriginale) setReductionType(reductionOriginale);
+  }, [reductionOriginale]);
+
   const [paiements, setPaiements] = useState({
     "espèces": 0,
     "carte": 0,
@@ -22,28 +46,73 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
     if (field === 'nbr') {
       updated[index][field] = parseInt(value);
     } else if (field === 'prix') {
-      updated[index][field] = Math.round(parseFloat(value.replace(',', '.')) * 100); // euros -> centimes
+      updated[index][field] = Math.round(parseFloat(value.replace(',', '.')) * 100);
     } else {
       updated[index][field] = value;
     }
     setCorrections(updated);
   };
-  
 
-  const calculerTotalCorrige = () => {
-    let total = corrections.reduce((sum, art) => sum + art.prix * art.nbr, 0);
-    if (reductionType === 'trueClient') total -= 500;
-    else if (reductionType === 'trueBene') total -= 1000;
-    else if (reductionType === 'trueGrosPanierClient') total = Math.round(total * 0.9);
-    else if (reductionType === 'trueGrosPanierBene') total = Math.round(total * 0.8);
-    return total < 0 ? 0 : total;
+  const supprimerArticle = (index) => {
+    const updated = [...corrections];
+    const removed = updated.splice(index, 1);
+    setCorrections(updated);
+    setArticlesSupprimes([...articlesSupprimes, removed[0]]);
   };
+
+  const restaurerDernierArticle = () => {
+    if (articlesSupprimes.length === 0) return;
+    const last = articlesSupprimes[articlesSupprimes.length - 1];
+    setCorrections([...corrections, last]);
+    setArticlesSupprimes(articlesSupprimes.slice(0, -1));
+  };
+
+  const totalAvantReductionInitiale = () => {
+    if (!reductionOriginale) return totalAvant;
+    if (reductionOriginale === 'trueClient') return totalAvant + 500;
+    if (reductionOriginale === 'trueBene') return totalAvant + 1000;
+    if (reductionOriginale === 'trueGrosPanierClient') return Math.round(totalAvant / 0.9);
+    if (reductionOriginale === 'trueGrosPanierBene') return Math.round(totalAvant / 0.8);
+    return totalAvant;
+  };
+
+const totalApresReduction = () => {
+  const articlesIdentiques = ticketOriginal.objets
+    .filter(o => !o.nom.toLowerCase().includes('réduction'))
+    .every((orig) => {
+      const match = corrections.find(c =>
+        c.nom === orig.nom &&
+        c.prix === orig.prix &&
+        c.nbr === orig.nbr
+      );
+      return !!match;
+    });
+
+  if (reductionType === reductionOriginale && articlesIdentiques) {
+    return totalAvant;
+  }
+
+  // On calcule le total sans réduction
+  const totalSansReduction = corrections
+    .filter(c => !c.nom.toLowerCase().includes('réduction'))
+    .reduce((sum, a) => sum + a.prix * a.nbr, 0);
+
+  let total = totalSansReduction;
+  if (reductionType === 'trueClient') total -= 500;
+  else if (reductionType === 'trueBene') total -= 1000;
+  else if (reductionType === 'trueGrosPanierClient') total = Math.round(total * 0.9);
+  else if (reductionType === 'trueGrosPanierBene') total = Math.round(total * 0.8);
+  return total < 0 ? 0 : total;
+};
+
+
+
 
   const envoyerCorrection = async () => {
     if (!motif.trim()) return alert('Merci de préciser un motif.');
     if (!moyenPaiement) return alert('Merci de choisir un mode de paiement.');
 
-    const totalCorrige = calculerTotalCorrige();
+    const totalCorrige = totalApresReduction();
 
     if (moyenPaiement === 'mixte') {
       const totalMixte = Object.values(paiements).reduce((sum, val) => sum + (parseInt(val) || 0), 0);
@@ -56,7 +125,7 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
 
     const body = {
       id_ticket_original: ticketOriginal.ticket.id_ticket,
-      articles_origine: ticketOriginal.objets, // <- version intacte
+      articles_origine: ticketOriginal.objets,
       articles_correction: corrections,
       motif,
       moyen_paiement: moyenPaiement,
@@ -93,10 +162,7 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
     }
   };
 
-  const estUneReduction = (article) => {
-    return article.nom.toLowerCase().includes('réduction');
-  };
-  
+  const estUneReduction = (article) => article.nom.toLowerCase().includes('réduction');
 
   return (
     <Modal show={show} onHide={onHide} size="lg" backdrop="static">
@@ -104,29 +170,42 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
         <Modal.Title>Corriger le ticket #{ticketOriginal.ticket.id_ticket}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-      {corrections.map((art, i) => {
-  const isReduction = estUneReduction(art);
-  return (
-    <div className="d-flex gap-2 mb-2" key={i}>
-      <Form.Control value={art.nom} disabled />
-      <Form.Control
-        type="number"
-        value={art.nbr}
-        onChange={(e) => handleChange(i, 'nbr', e.target.value)}
-        disabled={isReduction}
-      />
-      <Form.Control
-        type="number"
-        step="0.01"
-        value={(art.prix / 100).toFixed(2)}
-        onChange={(e) => handleChange(i, 'prix', e.target.value)}
-        disabled={isReduction}
-      />
-      <Form.Control value={art.categorie} disabled />
-    </div>
-  );
-})}
+        {corrections.map((art, i) => {
+          const isReduction = estUneReduction(art);
+          return (
+            <div className="d-flex gap-2 mb-2" key={i}>
+              <Form.Control value={art.nom} disabled />
+              <Form.Control
+                type="number"
+                value={art.nbr}
+                onChange={(e) => handleChange(i, 'nbr', e.target.value)}
+                disabled={isReduction}
+              />
+              <Form.Control
+                type="number"
+                step="0.01"
+                value={(art.prix / 100).toFixed(2)}
+                onChange={(e) => handleChange(i, 'prix', e.target.value)}
+                disabled={isReduction}
+              />
+              <Form.Control value={art.categorie} disabled />
+              <Button variant="danger" onClick={() => supprimerArticle(i)} disabled={isReduction}>✖</Button>
+            </div>
+          );
+        })}
 
+        {articlesSupprimes.length > 0 && (
+          <div className="text-end">
+            <Button size="sm" variant="secondary" onClick={restaurerDernierArticle}>
+              ↺ Annuler la dernière suppression
+            </Button>
+          </div>
+        )}
+
+        <div className="mt-3">
+          <strong>Total avant correction :</strong> {(totalAvant / 100).toFixed(2)} €<br />
+          <strong>Total après correction :</strong> {(totalApresReduction() / 100).toFixed(2)} €
+        </div>
 
         <Form.Group className="mt-3">
           <Form.Label>Mode de paiement</Form.Label>
@@ -146,6 +225,7 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
             <div className="d-flex flex-wrap gap-2">
               {['espèces', 'carte', 'chèque', 'virement'].map((moyen) => (
                 <Form.Control
+                  key={moyen}
                   type="number"
                   min={0}
                   step="0.01"
@@ -157,7 +237,6 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
                     })
                   }
                 />
-              
               ))}
             </div>
           </div>
@@ -186,9 +265,7 @@ function CorrectionModal({ show, onHide, ticketOriginal, onSuccess }) {
         </Form.Group>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Annuler
-        </Button>
+        <Button variant="secondary" onClick={onHide}>Annuler</Button>
         <Button variant="warning" onClick={envoyerCorrection} disabled={loading}>
           {loading ? 'Correction en cours...' : 'Valider la correction'}
         </Button>

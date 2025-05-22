@@ -26,19 +26,29 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
     return Math.max(t, 0);
   }, [total, reduction]);
 
-  useEffect(() => {
-    if (total < 5000) {
-      setReductionsDisponibles([
-        { value: 'trueClient', label: 'Fidélité Client (-5€)' },
-        { value: 'trueBene', label: 'Fidélité Bénévole (-10€)' },
-      ]);
-    } else {
-      setReductionsDisponibles([
-        { value: 'trueGrosPanierClient', label: 'Gros Panier Client (-10%)' },
-        { value: 'trueGrosPanierBene', label: 'Gros Panier Bénévole (-20%)' },
-      ]);
+useEffect(() => {
+  if (total < 5000) {
+    setReductionsDisponibles([
+      { value: 'trueClient', label: 'Fidélité Client (-5€)' },
+      { value: 'trueBene', label: 'Fidélité Bénévole (-10€)' },
+    ]);
+    if (reduction === 'trueGrosPanierClient' || reduction === 'trueGrosPanierBene') {
+      setReduction(''); // réinitialiser si on repasse sous les 5000
     }
-  }, [total]);
+  } else {
+    const grosPanier = [
+      { value: 'trueGrosPanierClient', label: 'Gros Panier Client (-10%)' },
+      { value: 'trueGrosPanierBene', label: 'Gros Panier Bénévole (-20%)' },
+    ];
+    setReductionsDisponibles(grosPanier);
+
+    // Auto-sélection "Gros Panier Client" si aucune sélection faite
+    if (!reduction) {
+      setReduction('trueGrosPanierClient');
+    }
+  }
+}, [total]);
+
 
   useEffect(() => {
     if (paiements.length === 1) {

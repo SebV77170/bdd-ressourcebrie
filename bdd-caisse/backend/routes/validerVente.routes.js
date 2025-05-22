@@ -116,7 +116,7 @@ router.post('/', (req, res) => {
     if (reductionValeurReelle > 0) {
       const uuid_objet = uuidv4();
       insertArticle.run(
-        id_ticket, uuid_objet, 'Réduction', vendeur, id_vendeur,
+        id_ticket, uuid_objet, `Réduction ${mapReductions[reductionType].label}`, vendeur, id_vendeur,
         'Réduction', `${reductionType} (valeur théorique ${(reductionValeurTheorique / 100).toFixed(2)}€, réelle ${(reductionValeurReelle / 100).toFixed(2)}€)`,
         date_achat, Math.floor(Date.now() / 1000), reductionValeurReelle, -1
       );

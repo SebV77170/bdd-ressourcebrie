@@ -70,6 +70,7 @@ const BilanTickets = () => {
       .catch(err => console.error('Erreur chargement détails ticket:', err));
   };
 
+
   return (
     <div className="bilan-scroll-container">
       <div className="container">

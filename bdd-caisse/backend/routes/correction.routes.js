@@ -19,6 +19,8 @@ router.post('/', (req, res) => {
     reductionType,
     paiements = []
   } = req.body;
+console.log(req.body);
+
 
   const now = new Date().toISOString();
   const timestamp = Math.floor(Date.now() / 1000);
@@ -285,6 +287,21 @@ router.post('/', (req, res) => {
      }
 
     res.json({ success: true, id_ticket_annulation: id_annul, id_ticket_correction: id_corrige });
+
+    sqlite.prepare(`
+    INSERT INTO journal_corrections (date_correction, id_ticket_original,id_ticket_annulation, id_ticket_correction, utilisateur , motif)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(now, id_ticket_original, id_annul, id_corrige, utilisateur, motif);
+   
+
+    logSync('journal_corrections', 'INSERT', {
+      id_ticket_original,
+      id_ticket_correction: id_corrige,
+      id_ticket_annulation: id_annul,
+      date_correction: now,
+      utilisateur,
+      motif
+    });
 
   }
   catch (err) {

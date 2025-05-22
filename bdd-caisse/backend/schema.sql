@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS ticketdecaisse (
   id_ticket INTEGER PRIMARY KEY AUTOINCREMENT,
+  uuid_ticket TEXT,  -- ✅ Ajout UUID obligatoire
   date_achat_dt TEXT,
   correction_de INTEGER,
   flag_correction INTEGER DEFAULT 0,
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS ticketdecaisse (
 
 CREATE TABLE IF NOT EXISTS objets_vendus (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  uuid_objet TEXT,  -- ✅ Ajout de la colonne uuid_ticket
   id_ticket INTEGER,
   nom TEXT,
   prix INTEGER,
@@ -44,6 +46,7 @@ CREATE TABLE IF NOT EXISTS bilan (
 
 CREATE TABLE IF NOT EXISTS paiement_mixte (
   id_ticket INTEGER PRIMARY KEY,
+  uuid_ticket TEXT,  -- ✅ Ajout de la colonne uuid_ticket
   espece INTEGER,
   carte INTEGER,
   cheque INTEGER,
@@ -65,7 +68,6 @@ CREATE TABLE IF NOT EXISTS vente (
   dateheure TEXT
 );
 
-
 CREATE TABLE IF NOT EXISTS ticketdecaissetemp (
   id_temp_vente TEXT,
   nom TEXT,
@@ -75,4 +77,12 @@ CREATE TABLE IF NOT EXISTS ticketdecaissetemp (
   categorie TEXT,
   souscat TEXT,
   poids INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS sync_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT,
+    operation TEXT,
+    payload TEXT,
+    synced INTEGER DEFAULT 0
 );

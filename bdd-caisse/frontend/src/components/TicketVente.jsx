@@ -146,8 +146,6 @@ function TicketVente({ ticket, onChange, onDelete, onSave }) {
         })}
       </ul>
 
-      <h5 className="mt-2 mb-2">Total : {(total / 100).toFixed(2)} €</h5>
-
       <div className="mt-2">
         <ClavierNumeriqueModal
           show={modal.show}
