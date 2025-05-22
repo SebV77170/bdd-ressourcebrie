@@ -316,4 +316,95 @@ console.log(req.body);
   }
 });
 
+// Nouvelle route pour suppression via ticket d'annulation
+// Nouvelle route pour suppression via ticket d'annulation
+router.post('/:id/supprimer', (req, res) => {
+  const id = parseInt(req.params.id);
+  const now = new Date().toISOString();
+  const ticket = sqlite.prepare('SELECT * FROM ticketdecaisse WHERE id_ticket = ?').get(id);
+
+  if (!ticket) return res.status(404).json({ error: 'Ticket introuvable' });
+
+  try {
+    const objets = sqlite.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(id);
+
+    const totalAnnulation = -Math.abs(ticket.prix_total);
+    const annul = sqlite.prepare(`
+      INSERT INTO ticketdecaisse (
+        date_achat_dt, correction_de, flag_correction, nom_vendeur, id_vendeur,
+        nbr_objet, prix_total, moyen_paiement, uuid_ticket
+      ) VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?)
+    `).run(
+      now, ticket.id_ticket, ticket.nom_vendeur, ticket.id_vendeur,
+      objets.length, totalAnnulation, ticket.moyen_paiement, require('uuid').v4()
+    );
+    const id_annul = annul.lastInsertRowid;
+
+    const insertArticle = sqlite.prepare(`
+      INSERT INTO objets_vendus (
+        id_ticket, nom, prix, nbr, categorie,
+        nom_vendeur, id_vendeur, date_achat, timestamp, uuid_objet
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    for (const obj of objets) {
+      insertArticle.run(
+        id_annul,
+        obj.nom,
+        obj.prix,
+        -obj.nbr,
+        obj.categorie,
+        ticket.nom_vendeur,
+        ticket.id_vendeur,
+        now,
+        timestamp,
+        require('uuid').v4()
+      );
+    }
+
+    // Mise à jour bilan
+    const today = now.slice(0, 10);
+    const bilan = sqlite.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+    if (bilan) {
+      sqlite.prepare(`
+        UPDATE bilan SET
+          prix_total = prix_total + ?,
+          prix_total_espece = prix_total_espece + ?,
+          prix_total_carte = prix_total_carte + ?,
+          prix_total_cheque = prix_total_cheque + ?,
+          prix_total_virement = prix_total_virement + ?
+        WHERE date = ?
+      `).run(
+        totalAnnulation,
+        ticket.moyen_paiement === 'espèces' ? totalAnnulation : 0,
+        ticket.moyen_paiement === 'carte' ? totalAnnulation : 0,
+        ticket.moyen_paiement === 'chèque' ? totalAnnulation : 0,
+        ticket.moyen_paiement === 'virement' ? totalAnnulation : 0,
+        today
+      );
+    }
+
+    // ✅ Journalisation de la suppression
+    sqlite.prepare(`
+      INSERT INTO journal_corrections (date_correction, id_ticket_original, id_ticket_annulation, id_ticket_correction, utilisateur, motif)
+      VALUES (?, ?, ?, NULL, ?, 'Suppression demandée')
+    `).run(now, ticket.id_ticket, id_annul, ticket.nom_vendeur);
+
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('bilanUpdated');
+      io.emit('ticketsmisajour');
+    }
+
+    return res.json({ success: true, id_annul });
+  } catch (err) {
+    console.error('Erreur suppression/annulation :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
+
+
 module.exports = router;

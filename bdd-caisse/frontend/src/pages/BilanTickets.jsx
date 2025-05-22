@@ -21,25 +21,21 @@ const BilanTickets = () => {
 
   useEffect(() => {
     const fetchBilan = () => {
-    fetch('http://localhost:3001/api/bilan')
-      .then(res => res.json())
-      .then(data => {
-        setTickets(data);
-        const dates = Array.from(
-          new Set(data.map(ticket => new Date(ticket.date_achat_dt).toDateString()))
-        ).map(d => new Date(d));
-        setDatesDisponibles(dates);
-      })
-      .catch(err => console.error('Erreur chargement tickets :', err));
-    }
+      fetch('http://localhost:3001/api/bilan')
+        .then(res => res.json())
+        .then(data => {
+          setTickets(data);
+          const dates = Array.from(
+            new Set(data.map(ticket => new Date(ticket.date_achat_dt).toDateString()))
+          ).map(d => new Date(d));
+          setDatesDisponibles(dates);
+        })
+        .catch(err => console.error('Erreur chargement tickets :', err));
+    };
     fetchBilan();
 
-      socket.on('ticketsmisajour', () => {
-        fetchBilan();
-      });
-    
-      return () => socket.off('ticketsmisajour');
-
+    socket.on('ticketsmisajour', fetchBilan);
+    return () => socket.off('ticketsmisajour');
   }, []);
 
   const aReduction = (ticket) => {
@@ -70,6 +66,19 @@ const BilanTickets = () => {
       .catch(err => console.error('Erreur chargement détails ticket:', err));
   };
 
+  const supprimerTicket = async (id_ticket) => {
+    if (!window.confirm("Confirmer la suppression de ce ticket ?")) return;
+    try {
+      const res = await fetch(`http://localhost:3001/api/correction/${id_ticket}/supprimer`, {
+        method: 'POST'
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error('Échec suppression');
+    } catch (err) {
+      alert('Erreur lors de la suppression.');
+      console.error(err);
+    }
+  };
 
   return (
     <div className="bilan-scroll-container">
@@ -99,6 +108,7 @@ const BilanTickets = () => {
                 <th>Total</th>
                 <th>Réduction</th>
                 <th>Type</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -118,8 +128,6 @@ const BilanTickets = () => {
                         ? `${(ticket.prix_total / 100).toFixed(2)} €`
                         : '—'}
                     </td>
-
-
                     <td>{aReduction(ticket) ? '✅' : '—'}</td>
                     <td>
                       {ticket.flag_correction ? (
@@ -132,12 +140,25 @@ const BilanTickets = () => {
                         <span className="text-muted">—</span>
                       )}
                     </td>
-
+                    <td>
+                      {!ticket.flag_correction && !ticket.ticket_corrige &&  (
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            supprimerTicket(ticket.id_ticket);
+                          }}
+                        >
+                          ✖
+                        </Button>
+                      )}
+                    </td>
                   </tr>
 
                   {ticketActif === ticket.id_ticket && details[ticket.id_ticket] && (
                     <tr>
-                      <td colSpan="7">
+                      <td colSpan="8">
                         <TicketDetail id_ticket={ticket.id_ticket} />
                         {!ticket.flag_correction && !ticket.ticket_corrige && (
                           <Button
@@ -152,7 +173,6 @@ const BilanTickets = () => {
                             Corriger
                           </Button>
                         )}
-
                       </td>
                     </tr>
                   )}
