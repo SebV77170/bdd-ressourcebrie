@@ -81,6 +81,7 @@ router.post('/', (req, res) => {
       reducgrospanierbene: reducGrosPanierBene
     });
 
+
     const insertArticle = sqlite.prepare(`
       INSERT INTO objets_vendus (
         id_ticket, uuid_objet, nom, nom_vendeur, id_vendeur,
@@ -183,6 +184,19 @@ router.post('/', (req, res) => {
     const today = date_achat.slice(0, 10);
     const poids = articles.reduce((s, a) => s + (a.poids || 0), 0);
     const bilanExistant = sqlite.prepare('SELECT * FROM bilan WHERE date = ?').get(today);
+
+    if (req.body.code_postal && /^\d{4,5}$/.test(req.body.code_postal)) {
+      sqlite.prepare(`
+        INSERT INTO code_postal (code, date)
+        VALUES (?, ?)
+      `).run(req.body.code_postal, today);
+
+      logSync('code_postal', 'INSERT', {
+        code: req.body.code_postal,
+        date: today,
+        id_ticket
+      });
+    }
 
     const totalPaiement = pm.espece + pm.carte + pm.cheque + pm.virement;
 

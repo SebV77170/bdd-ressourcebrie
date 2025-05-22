@@ -4,6 +4,8 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
   const [reduction, setReduction] = useState('');
   const [reductionsDisponibles, setReductionsDisponibles] = useState([]);
   const [paiements, setPaiements] = useState([{ moyen: 'carte', montant: (total / 100).toFixed(2).replace('.', ',') }]);
+  const [codePostal, setCodePostal] = useState('');
+  const [email, setEmail] = useState('');
 
   const totalAvecReduction = React.useMemo(() => {
     let t = total;
@@ -26,29 +28,26 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
     return Math.max(t, 0);
   }, [total, reduction]);
 
-useEffect(() => {
-  if (total < 5000) {
-    setReductionsDisponibles([
-      { value: 'trueClient', label: 'Fidélité Client (-5€)' },
-      { value: 'trueBene', label: 'Fidélité Bénévole (-10€)' },
-    ]);
-    if (reduction === 'trueGrosPanierClient' || reduction === 'trueGrosPanierBene') {
-      setReduction(''); // réinitialiser si on repasse sous les 5000
+  useEffect(() => {
+    if (total < 5000) {
+      setReductionsDisponibles([
+        { value: 'trueClient', label: 'Fidélité Client (-5€)' },
+        { value: 'trueBene', label: 'Fidélité Bénévole (-10€)' },
+      ]);
+      if (reduction === 'trueGrosPanierClient' || reduction === 'trueGrosPanierBene') {
+        setReduction('');
+      }
+    } else {
+      const grosPanier = [
+        { value: 'trueGrosPanierClient', label: 'Gros Panier Client (-10%)' },
+        { value: 'trueGrosPanierBene', label: 'Gros Panier Bénévole (-20%)' },
+      ];
+      setReductionsDisponibles(grosPanier);
+      if (!reduction) {
+        setReduction('trueGrosPanierClient');
+      }
     }
-  } else {
-    const grosPanier = [
-      { value: 'trueGrosPanierClient', label: 'Gros Panier Client (-10%)' },
-      { value: 'trueGrosPanierBene', label: 'Gros Panier Bénévole (-20%)' },
-    ];
-    setReductionsDisponibles(grosPanier);
-
-    // Auto-sélection "Gros Panier Client" si aucune sélection faite
-    if (!reduction) {
-      setReduction('trueGrosPanierClient');
-    }
-  }
-}, [total]);
-
+  }, [total]);
 
   useEffect(() => {
     if (paiements.length === 1) {
@@ -117,7 +116,8 @@ useEffect(() => {
     const data = {
       id_temp_vente,
       reductionType: reduction || null,
-      paiements: paiementsCentimes
+      paiements: paiementsCentimes,
+      code_postal: codePostal || null
     };
 
     fetch('http://localhost:3001/api/valider', {
@@ -129,6 +129,9 @@ useEffect(() => {
       .then(result => {
         if (result.success) {
           alert('Vente validée avec succès');
+          if (email) {
+            alert(`Un ticket sera envoyé à : ${email}`);
+          }
           onValide();
         } else {
           alert('Erreur pendant validation');
@@ -142,7 +145,27 @@ useEffect(() => {
 
   return (
     <div className="p-3 bg-white border rounded shadow-sm">
-      <h5>Finaliser la vente</h5>
+      <div className="d-flex justify-content-between align-items-start mb-2">
+        <h5 className="me-3">Finaliser la vente</h5>
+        <div className="d-flex gap-2">
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            style={{ maxWidth: '100px' }}
+            placeholder="Code postal"
+            value={codePostal}
+            onChange={e => setCodePostal(e.target.value)}
+          />
+          <input
+            type="email"
+            className="form-control form-control-sm"
+            style={{ maxWidth: '180px' }}
+            placeholder="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
+        </div>
+      </div>
 
       <div className="mb-2">
         <label>Réduction :</label>
