@@ -8,6 +8,7 @@ import TicketDetail from '../components/TicketDetail';
 import CorrectionModal from '../components/CorrectionModal';
 import { Button } from 'react-bootstrap';
 
+
 const socket = io('http://localhost:3001');
 
 const BilanTickets = () => {
@@ -18,6 +19,10 @@ const BilanTickets = () => {
   const [ticketActif, setTicketActif] = useState(null);
   const [showCorrection, setShowCorrection] = useState(false);
   const [ticketPourCorrection, setTicketPourCorrection] = useState(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+const [ticketPourEmail, setTicketPourEmail] = useState(null);
+const [emailDestinataire, setEmailDestinataire] = useState('');
+
 
   useEffect(() => {
     const fetchBilan = () => {
@@ -151,8 +156,19 @@ const BilanTickets = () => {
                           }}
                         >
                           ✖
-                        </Button>
+                        </Button>                     
                       )}
+                      <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTicketPourEmail(ticket);
+                        setShowEmailModal(true);
+                      }}
+                    >
+                      ✉️
+                    </Button>
                     </td>
                   </tr>
 
@@ -194,6 +210,54 @@ const BilanTickets = () => {
           />
         )}
       </div>
+      {ticketPourEmail && (
+  <div className={`modal fade ${showEmailModal ? 'show d-block' : ''}`} tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div className="modal-dialog">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Envoyer le ticket #{ticketPourEmail.id_ticket}</h5>
+          <button type="button" className="btn-close" onClick={() => setShowEmailModal(false)}></button>
+        </div>
+        <div className="modal-body">
+          <label className="form-label">Adresse e-mail :</label>
+          <input
+            type="email"
+            className="form-control"
+            value={emailDestinataire}
+            onChange={(e) => setEmailDestinataire(e.target.value)}
+            placeholder="exemple@domaine.com"
+          />
+        </div>
+        <div className="modal-footer">
+          <Button variant="secondary" onClick={() => setShowEmailModal(false)}>
+            Annuler
+          </Button>
+          <Button variant="primary" onClick={async () => {
+            try {
+              const res = await fetch(`http://localhost:3001/api/ticket/${ticketPourEmail.id_ticket}/envoyer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailDestinataire })
+              });
+              const result = await res.json();
+              if (result.success) {
+                alert('Ticket envoyé !');
+                setShowEmailModal(false);
+              } else {
+                alert('Échec de l\'envoi');
+              }
+            } catch (err) {
+              alert('Erreur de communication');
+              console.error(err);
+            }
+          }}>
+            Envoyer
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

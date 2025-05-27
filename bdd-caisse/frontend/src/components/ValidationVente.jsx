@@ -117,7 +117,8 @@ function ValidationVente({ total, id_temp_vente, onValide }) {
       id_temp_vente,
       reductionType: reduction || null,
       paiements: paiementsCentimes,
-      code_postal: codePostal || null
+      code_postal: codePostal || null,
+      email: email || null
     };
 
     fetch('http://localhost:3001/api/valider', {

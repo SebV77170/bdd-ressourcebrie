@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const logSync = require('../logsync');
 const { v4: uuidv4 } = require('uuid');
+const genererTicketPdf = require('../utils/genererTicketPdf');
 
 router.post('/', (req, res) => {
   const {
@@ -74,6 +75,9 @@ console.log(req.body);
       ) VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?)
     `).run(now, id_ticket_original, utilisateur, id_vendeur, articles_sans_reduction.length, totalAnnulation, moyen_paiement, uuid_ticket_annul);
     const id_annul = annul.lastInsertRowid;
+
+   genererTicketPdf(uuid_ticket_annul);
+
     logSync('ticketdecaisse', 'INSERT', {
       uuid_ticket: uuid_ticket_annul,
       id_annul,
@@ -122,6 +126,8 @@ console.log(req.body);
     `).run(now, utilisateur, id_vendeur, articles_correction_sans_reduction.length, prixTotal, moyen_paiement,
       reducBene, reducClient, reducGrosPanierClient, reducGrosPanierBene, uuid_ticket_corrige);
     const id_corrige = correc.lastInsertRowid;
+
+    genererTicketPdf(uuid_ticket_corrige);
 
     logSync('ticketdecaisse', 'INSERT', {
       uuid_ticket: uuid_ticket_corrige,
@@ -317,7 +323,6 @@ console.log(req.body);
 });
 
 // Nouvelle route pour suppression via ticket d'annulation
-// Nouvelle route pour suppression via ticket d'annulation
 router.post('/:id/supprimer', (req, res) => {
   const id = parseInt(req.params.id);
   const now = new Date().toISOString();
@@ -329,6 +334,7 @@ router.post('/:id/supprimer', (req, res) => {
     const objets = sqlite.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(id);
 
     const totalAnnulation = -Math.abs(ticket.prix_total);
+    const uuid_ticket_annul = require('uuid').v4();
     const annul = sqlite.prepare(`
       INSERT INTO ticketdecaisse (
         date_achat_dt, correction_de, flag_correction, nom_vendeur, id_vendeur,
@@ -336,9 +342,11 @@ router.post('/:id/supprimer', (req, res) => {
       ) VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?)
     `).run(
       now, ticket.id_ticket, ticket.nom_vendeur, ticket.id_vendeur,
-      objets.length, totalAnnulation, ticket.moyen_paiement, require('uuid').v4()
+      objets.length, totalAnnulation, ticket.moyen_paiement, uuid_ticket_annul
     );
     const id_annul = annul.lastInsertRowid;
+
+    genererTicketPdf(uuid_ticket_annul);
 
     const insertArticle = sqlite.prepare(`
       INSERT INTO objets_vendus (

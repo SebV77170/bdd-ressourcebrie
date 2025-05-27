@@ -7,6 +7,7 @@ import BoutonsCaisse from '../components/BoutonsCaisse';
 import TicketVente from '../components/TicketVente';
 import ValidationVente from '../components/ValidationVente';
 
+
 function Caisse() {
   const [boutons, setBoutons] = useState({});
   const [categorieActive, setCategorieActive] = useState('');
@@ -14,6 +15,7 @@ function Caisse() {
   const [modifs, setModifs] = useState({});
   const [ventes, setVentes] = useState([]);
   const [venteActive, setVenteActive] = useState(null);
+  const [ouvert, setOuvert] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/produits/organises')
@@ -145,8 +147,8 @@ function Caisse() {
           />
         </div>
 
-        <div className="col-md-6 d-flex flex-column bg-light h-100 p-0">
-          <div className="pt-3 px-3 overflow-auto" style={{ flex: 1, minHeight: 0 }}>
+          <div className="col-md-6 d-flex flex-column bg-light h-100 p-0">
+            <div className="flex-grow-1 overflow-auto pt-3 px-3">
             <h4>{categorieActive}</h4>
             {venteActive ? (
               categorieActive && boutons[categorieActive] && (
@@ -159,18 +161,40 @@ function Caisse() {
             )}
           </div>
 
-          <div className="border-top p-3 bg-white shadow-sm rounded-top">
-            {venteActive && (
-              <ValidationVente
-                total={totalTicket}
-                id_temp_vente={venteActive}
-                onValide={() => {
-                  setVenteActive(null);
-                  chargerVentes();
-                  setTicketModif([]);
-                }}
-              />
-            )}
+          {/* Ce menu est contenu dans le div, et pas en position fixe */}
+          <div className="border-top bg-white shadow-sm">
+            <div className="d-flex justify-content-center">
+              <button
+                onClick={() => setOuvert(!ouvert)}
+                className="btn btn-outline-secondary my-2"
+              >
+                {ouvert ? '↓ Fermer' : '↑ Valider la vente'}
+              </button>
+            </div>
+
+            <div
+              className="transition-custom overflow-hidden"
+              style={{
+                maxHeight: ouvert ? '1000px' : '0px', // Suffisamment grand
+                transition: 'max-height 0.3s ease-in-out'
+              }}
+            >
+
+              {venteActive && (
+                <div className="p-3">
+                  <ValidationVente
+                    total={totalTicket}
+                    id_temp_vente={venteActive}
+                    onValide={() => {
+                      setVenteActive(null);
+                      chargerVentes();
+                      setTicketModif([]);
+                      setOuvert(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

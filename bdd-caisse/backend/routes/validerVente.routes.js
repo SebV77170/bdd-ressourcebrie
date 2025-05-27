@@ -7,6 +7,28 @@ const path = require('path');
 const session = require('../session');
 const logSync = require('../logsync');
 const { v4: uuidv4 } = require('uuid');
+const nodemailer = require('nodemailer');
+const PDFDocument = require('pdfkit');
+
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.ouvaton.coop',
+  port: 587,
+  secure: false, // STARTTLS => false ici (secure = false + tls.enabled = true)
+  auth: {
+    user: 'magasin@ressourcebrie.fr',
+    pass: 'Magasin7#'
+  },
+  tls: {
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false // à mettre à true en production si certifié valide
+  },
+  logger: true,
+  debug: true
+});
+
+
+
 
 router.post('/', (req, res) => {
   const { id_temp_vente, reductionType, paiements } = req.body;
@@ -160,22 +182,65 @@ router.post('/', (req, res) => {
         virement: pm.virement
       });
     }
-
-    const ticketPath = path.join(__dirname, `../../tickets/Ticket-${uuid_ticket}.txt`);
-    let contenu = `RESSOURCE'BRIE\nAssociation loi 1901\nTicket de caisse #${uuid_ticket}\nDate : ${date_achat}\nVendeur : ${vendeur}\n\n`;
     const lignesTicket = sqlite.prepare('SELECT * FROM objets_vendus WHERE id_ticket = ?').all(id_ticket);
+
+    const pdfPath = path.join(__dirname, `../../tickets/Ticket-${uuid_ticket}.pdf`);
+    const doc = new PDFDocument();
+    doc.pipe(fs.createWriteStream(pdfPath));
+
+    // En-tête
+    doc.fontSize(16).text("RESSOURCE'BRIE", { align: 'center' });
+    doc.fontSize(10).text("Association loi 1901", { align: 'center' });
+    doc.moveDown();
+    doc.text(`Ticket de caisse #${uuid_ticket}`);
+    doc.text(`Date : ${date_achat}`);
+    doc.text(`Vendeur : ${vendeur}`);
+    doc.moveDown();
+
+    // Lignes du ticket
     lignesTicket.forEach(a => {
       const ligne = a.nbr > 0
-        ? `${a.nbr} x ${a.nom} (${a.categorie}) - ${(a.prix * a.nbr / 100).toFixed(2)}€\n`
-        : `${a.nom} (${a.souscat}) : -${(a.prix / 100).toFixed(2)}€\n`;
-      contenu += ligne;
+        ? `${a.nbr} x ${a.nom} (${a.categorie}) - ${(a.prix * a.nbr / 100).toFixed(2)} €`
+        : `${a.nom} (${a.souscat}) : -${(a.prix / 100).toFixed(2)} €`;
+      doc.text(ligne);
     });
-    contenu += `\nTOTAL : ${(prixTotal / 100).toFixed(2)}€\nPaiement : ${moyenGlobal}\n`;
+
+    doc.moveDown();
+    doc.text(`TOTAL : ${(prixTotal / 100).toFixed(2)} €`);
+    doc.text(`Paiement : ${moyenGlobal}`);
+
     if (reductionValeurReelle > 0) {
-      contenu += `Réduction appliquée : ${reductionType}\nValeur théorique : ${(reductionValeurTheorique / 100).toFixed(2)}€, réelle : ${(reductionValeurReelle / 100).toFixed(2)}€\n`;
+      doc.text(`Réduction appliquée : ${reductionType}`);
+      doc.text(`Valeur théorique : ${(reductionValeurTheorique / 100).toFixed(2)} €, réelle : ${(reductionValeurReelle / 100).toFixed(2)} €`);
     }
-    contenu += `Merci de votre visite !\n`;
-    fs.writeFileSync(ticketPath, contenu, 'utf8');
+
+    doc.moveDown();
+    doc.text('Merci de votre visite !', { align: 'center' });
+    doc.end();
+
+    if (req.body.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
+      transporter.sendMail({
+        from: '"Ressource\'Brie" <magasin@ressourcebrie.fr>',
+        to: req.body.email,
+        subject: "Votre ticket de caisse - Ressource'Brie",
+        text: "Veuillez trouver ci-joint votre ticket de caisse en PDF.",
+        attachments: [
+          {
+            filename: `Ticket-${uuid_ticket}.pdf`,
+            path: pdfPath,
+            contentType: 'application/pdf'
+          }
+        ]
+      }, (error, info) => {
+        if (error) {
+          console.error('Erreur lors de l\'envoi du mail :', error);
+        } else {
+          console.log(`Ticket PDF envoyé à ${req.body.email}`);
+        }
+      });
+    }
+
+
 
     sqlite.prepare('UPDATE ticketdecaisse SET lien = ? WHERE id_ticket = ?').run(`tickets/Ticket-${uuid_ticket}.txt`, id_ticket);
     sqlite.prepare('DELETE FROM vente WHERE id_temp_vente = ?').run(id_temp_vente);
