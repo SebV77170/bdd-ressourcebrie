@@ -4,6 +4,7 @@ const { sqlite } = require('../db');
 const bcrypt = require('bcrypt');
 const session = require('../session');
 const logSync = require('../logsync');
+const genererTicketCloturePdf = require('../utils/genererTicketCloturePdf');
 
 router.post('/', (req, res) => {
   const { montant_reel, commentaire, responsable_pseudo, mot_de_passe, montant_reel_carte, montant_reel_cheque, montant_reel_virement } = req.body;
@@ -52,7 +53,7 @@ router.post('/', (req, res) => {
   const attendu_carte = ventesJour.prix_total_carte ?? 0;
   const attendu_cheque = ventesJour.prix_total_cheque ?? 0;
   const attendu_virement = ventesJour.prix_total_virement ?? 0;
-  const ecart_espece = montant_reel - attendu_espece - fond_de_caisse;
+  const ecart_espece = montant_reel - attendu_espece - fond_de_caisse/100;
   const ecart_carte = montant_reel_carte - attendu_carte;
   const ecart_cheque = montant_reel_cheque - attendu_cheque;
   const ecart_virement = montant_reel_virement - attendu_virement;
@@ -102,10 +103,33 @@ router.post('/', (req, res) => {
     montant_reel_virement
   });
 
+  genererTicketCloturePdf(sessionCaisse.id_session)
+  .then(() => console.log('✅ PDF de clôture généré'))
+  .catch(err => console.error('❌ Erreur PDF clôture :', err));
+
   const io = req.app.get('socketio');
   if (io) io.emit('etatCaisseUpdated', { ouverte: false }); 
 
   res.json({ success: true });
+});
+
+
+router.get('/fond_initial', (req, res) => {
+  try {
+    const sessionCaisse = sqlite.prepare(`
+      SELECT fond_initial FROM session_caisse 
+      WHERE date_fermeture IS NULL
+    `).get();
+
+    if (!sessionCaisse) {
+      return res.status(404).json({ error: 'Aucune session caisse ouverte' });
+    }
+
+    res.json({ fond_initial: sessionCaisse.fond_initial });
+  } catch (err) {
+    console.error('❌ Erreur récupération fond_initial :', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 module.exports = router;

@@ -4,7 +4,7 @@ function formatEuros(valeur) {
   return `${(valeur / 100).toFixed(2).replace('.', ',')} €`;
 }
 
-function AffichageEcarts({ attendu, reel }) {
+function AffichageEcarts({ attendu, reel, fondInitial }) {
   const ecart = {
     espece: (reel?.espece ?? 0) - (attendu?.espece ?? 0),
     carte: (reel?.carte ?? 0) - (attendu?.carte ?? 0),

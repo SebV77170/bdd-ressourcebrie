@@ -26,7 +26,7 @@ function OuvertureCaisse() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fond_initial: parseFloat(fondInitial),
+          fond_initial: parseFloat(fondInitial)*100,
           responsable_pseudo: responsablePseudo,
           mot_de_passe: motDePasse
         })

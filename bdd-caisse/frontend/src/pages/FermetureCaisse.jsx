@@ -5,6 +5,7 @@ import CompteEspeces from '../components/compteEspeces';
 import AffichageEcarts from '../components/AffichageEcarts';
 
 function FermetureCaisse() {
+  const [fondInitial, setFondInitial] = useState(null);
   const [montantReel, setMontantReel] = useState('');
   const [attendu, setAttendu] = useState(null);
   const [montantReelCarte, setMontantReelCarte] = useState('');
@@ -54,6 +55,22 @@ function FermetureCaisse() {
     }
   };
 
+ useEffect(() => {
+    fetch('http://localhost:3001/api/caisse/fermeture/fond_initial')
+      .then(res => res.json())
+      .then(data => {
+        if (data.fond_initial !== undefined) {
+          setFondInitial(data.fond_initial/100);
+        } else {
+          console.error('Fond initial introuvable');
+        }
+      })
+      .catch(err => {
+        console.error('Erreur de récupération du fond initial :', err);
+      });
+  }, []);
+
+
    useEffect(() => {
     // Récupération des montants attendus depuis la table "bilan"
     fetch('http://localhost:3001/api/bilan/jour')
@@ -80,6 +97,12 @@ function FermetureCaisse() {
   return (
     <div style={{ padding: 20, maxWidth: 500, margin: 'auto' }}>
       <h2>Fermeture de caisse</h2>
+       <div>
+          <label>Fond Initial déclaré (€) :</label><br />
+          <div> 
+           {fondInitial}
+          </div>
+        </div>
       <form onSubmit={handleSubmit}>
         {/* ✅ Intégration du tableau des espèces */}
         <CompteEspeces onChangeTotal={(total) => setMontantReel(total)} />
@@ -122,7 +145,7 @@ function FermetureCaisse() {
         </div>
         <AffichageEcarts
             attendu={{
-                espece: (attendu?.espece ?? 0),
+                espece: (attendu?.espece + fondInitial*100 ?? 0),
                 carte: (attendu?.carte ?? 0),
                 cheque: (attendu?.cheque ?? 0),
                 virement: (attendu?.virement ?? 0),
@@ -133,6 +156,7 @@ function FermetureCaisse() {
                 cheque: montantReelCheque*100,
                 virement: montantReelVirement*100
             }}
+            fondInitial={fondInitial*100}
             />
         <div>
           <label>Commentaire (facultatif) :</label><br />
