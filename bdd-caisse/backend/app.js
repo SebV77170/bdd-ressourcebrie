@@ -22,6 +22,7 @@ const envoiTicket = require('./routes/envoiTicket.routes');
 
 
 
+
 // Montage des routes API
 app.use('/api/produits', produitsRoutes);
 app.use('/api/ticket', ticketRoutes);
@@ -34,6 +35,9 @@ app.use('/api/users', usersRoutes);
 app.use('/api/reset', resetRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/ticket', envoiTicket);
+app.use('/api/caisse', require('./routes/ouvertureCaisse.routes'));
+app.use('/api/caisse/fermeture', require('./routes/FermetureCaisse.routes'));
+
 
 
 module.exports = app;

@@ -4,8 +4,12 @@ import { Routes, Route, Link, useNavigate } from 'react-router-dom'; // ✅ ajou
 import Caisse from './pages/Caisse';
 import BilanTickets from './pages/BilanTickets';
 import LoginPage from './pages/LoginPage';
+import OuvertureCaisse from './pages/ouvertureCaisse';
+import FermetureCaisse from './pages/FermetureCaisse';
 import RequireSession from './components/RequireSession';
 import './styles/App.scss';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const socket = io('http://localhost:3001');
 export const ModeTactileContext = createContext();
@@ -18,6 +22,7 @@ function App() {
     const saved = localStorage.getItem('modeTactile');
     return saved ? JSON.parse(saved) : false;
   });
+  const [caisseOuverte, setCaisseOuverte] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('modeTactile', JSON.stringify(modeTactile));
@@ -38,12 +43,36 @@ function App() {
     return () => socket.off('bilanUpdated');
   }, []);
 
+  useEffect(() => {
+    const fetchEtat = () => {
+      fetch('http://localhost:3001/api/session/etat-caisse')
+        .then(res => res.json())
+        .then(data => setCaisseOuverte(data.ouverte))
+        .catch(() => setCaisseOuverte(false));
+    };
+
+    fetchEtat(); // premier chargement
+
+    socket.on('etatCaisseUpdated', fetchEtat); // écoute socket
+
+    return () => {
+      socket.off('etatCaisseUpdated', fetchEtat); // nettoyage à la sortie
+    };
+  }, []);
+
+
   return (
     <ModeTactileContext.Provider value={{ modeTactile, setModeTactile }}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <nav className="navbar navbar-expand navbar-dark bg-dark px-3">
           <Link className="navbar-brand" to="/">Caisse</Link>
           <Link className="nav-link text-white" to="/bilan">Bilan tickets</Link>
+          {caisseOuverte ? (
+            <Link className="nav-link text-white" to="/fermeture-caisse">Fermeture Caisse</Link>
+          ) : (
+            <Link className="nav-link text-white" to="/ouverture-caisse">Ouverture Caisse</Link>
+          )}
+
 
           {bilanJour && (
             <div className="container-fluid d-flex justify-content-center mt-2">
@@ -155,8 +184,13 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<RequireSession><Caisse /></RequireSession>} />
             <Route path="/bilan" element={<RequireSession><BilanTickets /></RequireSession>} />
+            <Route path="/ouverture-caisse" element={<OuvertureCaisse />} />
+            <Route path="/fermeture-caisse" element={<FermetureCaisse />} />
+
           </Routes>
         </div>
+        <ToastContainer position="top-center" autoClose={3000} /> {/* ✅ Ici */}
+
       </div>
     </ModeTactileContext.Provider>
   );

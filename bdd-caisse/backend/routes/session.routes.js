@@ -25,4 +25,14 @@ router.delete('/', (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/etat-caisse', (req, res) => {
+  const session = sqlite.prepare(`SELECT * FROM session_caisse WHERE date_fermeture IS NULL`).get();
+  if (session) {
+    res.json({ ouverte: true });
+  } else {
+    res.json({ ouverte: false });
+  }
+});
+
+
 module.exports = router;

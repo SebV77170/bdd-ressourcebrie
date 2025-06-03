@@ -6,10 +6,18 @@ const { sqlite } = require('../db');;
 // Créer une nouvelle vente (retourne un id_temp_vente auto-incrémenté)
 router.post('/', (req, res) => {
   try {
-    console.log('📥 Requête POST /api/ventes reçue');
+    // ✅ Vérifier qu'une session caisse est ouverte
+    const session = sqlite.prepare(`
+      SELECT * FROM session_caisse WHERE date_fermeture IS NULL
+    `).get();
+
+    if (!session) {
+      return res.status(403).json({ error: 'Aucune session caisse ouverte. Impossible de commencer une vente.' });
+    }
+
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const result = sqlite.prepare('INSERT INTO vente (dateheure) VALUES (?)').run(now);
-    console.log('✅ Vente créée avec ID :', result.lastInsertRowid);
+   
     res.json({ id_temp_vente: result.lastInsertRowid });
   } catch (err) {
     console.error('❌ Erreur SQLite (POST /vente) :', err);
