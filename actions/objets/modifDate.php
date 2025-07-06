@@ -38,7 +38,7 @@ if(isset($_POST['modifierDate'])):
         
         //On réinsert les objets dans la db objets_vendus et on supprime de la table objets_vendus_modif
         foreach($objets as $v):
-            $sql1='INSERT INTO objets_vendus (id_ticket,nom_vendeur,id_vendeur,nom,categorie,souscat,date_achat,timestamp,prix) VALUES (?,?,?,?,?,?,?,?,?)';
+            $sql1='INSERT INTO objets_vendus (uuid_ticket,nom_vendeur,id_vendeur,nom,categorie,souscat,date_achat,timestamp,prix) VALUES (?,?,?,?,?,?,?,?,?)';
             $sth1=$db->prepare($sql1);
             $sth1->execute(array($v['id_ticket'],$_SESSION['nom'],$v['id_vendeur'],$v['nom'],$v['categorie'],$v['souscat'],$v['date_achat'],$v['timestamp'],$v['prix']));
 

@@ -15,6 +15,12 @@ if ($host === 'bdd' || $host === '127.0.0.1') {
     $serveur = "sql01.ouvaton.coop";
     $login = "09007_ressourceb";
     $pass = "LaRessourcerieDeBrie77170!";
+
+    /* $dbname = "ressourcebrie_bdd";
+    $serveur = "mysql-ressourcebrie.alwaysdata.net";
+    $login = "418153";
+    $pass = "geMsos-wunxoc-1fucbu"; */
+
 }
 
 try {

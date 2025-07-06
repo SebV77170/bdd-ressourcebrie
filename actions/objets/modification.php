@@ -61,7 +61,7 @@ if (isset($_GET['id_ticket'])):
         $id_modif = $id_modif[0];
 
         // Sélection des objets de ce ticket de caisse à modifier
-        $sql1 = 'SELECT * FROM objets_vendus WHERE id_ticket =' . $idTicket;
+        $sql1 = 'SELECT * FROM objets_vendus WHERE uuid_ticket =' . $idTicket;
         $sth1 = $db->query($sql1);
         $objets = $sth1->fetchAll();
 
@@ -101,7 +101,7 @@ if (isset($_GET['id_ticket'])):
             $sth7 = $db->prepare($sql7);
             $sth7->execute(array($id_modif, $id, $v['id_ticket'], $_SESSION['nom'], $idvendeur, $v['nom'], $v['categorie'], $v['souscat'], $v['date_achat'], $v['timestamp'], $v['prix'], $v['nbr']));
 
-            $sql3 = 'DELETE FROM objets_vendus WHERE id_ticket=' . $idTicket;
+            $sql3 = 'DELETE FROM objets_vendus WHERE uuid_ticket=' . $idTicket;
             $sth3 = $db->query($sql3);
         endforeach;
 

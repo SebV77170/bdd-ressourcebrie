@@ -18,7 +18,7 @@ if(isset($_GET['id_ticket'])):
     
     //  On supprime de la db objets_vendus les objets liés au TC.
     
-    $sql1 = 'DELETE FROM objets_vendus WHERE id_ticket = ?';
+    $sql1 = 'DELETE FROM objets_vendus WHERE uuid_ticket = ?';
     $sth1 = $db->prepare($sql1);
     $sth1->execute(array($id_ticket));
     
