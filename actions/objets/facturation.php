@@ -20,7 +20,7 @@
 
             //On insère dans le table facture
             $lien_facture = "factures/facture$numfacture.txt";
-            $insert_param_facture = $db -> prepare('INSERT INTO facture (id_ticket,lien) VALUES (?,?)');
+            $insert_param_facture = $db -> prepare('INSERT INTO facture (uuid_ticket,lien) VALUES (?,?)');
             $insert_param_facture -> execute(array($numfacture,$lien_facture));
 
             //On définit du coup la nouvelle variable $lien qui va s'afficher sur la page
