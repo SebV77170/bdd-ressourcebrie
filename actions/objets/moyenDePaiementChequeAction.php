@@ -1,5 +1,6 @@
 <?php 
 require('actions/db.php');
+require("actions/uuid.php");
 
 ?>
 
@@ -38,6 +39,7 @@ if(isset($_POST['validatecheque'])):
     $prenomVendeur = $_SESSION['prenom'];
 
     
+    $uuidTicket = generate_uuidv4();
     
     //pour cela on récupère le prix total
     $getPrixTotal = $db->prepare('SELECT SUM(prixt) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
@@ -120,10 +122,14 @@ endif;
     if($_GET['modif']==0):
         $idOfThisTicket = $infoOfTicket[0];
         $prixOfThisTicket = $infoOfTicket[1]/100;
+    $updateUuid = $db->prepare("UPDATE ticketdecaisse SET uuid_ticket = ? WHERE id_ticket = ?");
+    $updateUuid->execute(array($uuidTicket,$idOfThisTicket));
 
     elseif($_GET['modif']==1):
         $idOfThisTicket = $ticketmodif['id_ticket'];
         $prixOfThisTicket = $getTotalEnEuros/100;
+    $updateUuid = $db->prepare("UPDATE ticketdecaisse SET uuid_ticket = ? WHERE id_ticket = ?");
+    $updateUuid->execute(array($uuidTicket,$idOfThisTicket));
     endif;
     
         //On update le lien de la db ticketdecaisse.
@@ -161,7 +167,7 @@ endif;
         //On insère l'objet dans la db objets vendus
     
             $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(uuid_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?)');
-            $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
+            $insertObjetInDB -> execute(array($uuidTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
         
         //On insère dans le fichier texte.
         
@@ -199,7 +205,7 @@ endif;
     require('actions/objets/update_db_bilan.php');
     
     //On redirige vers la page objets collectés.
-    header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
+    header("location: ticketdecaisseapresvente.php?id_ticket=$uuidTicket");
 
             
    
