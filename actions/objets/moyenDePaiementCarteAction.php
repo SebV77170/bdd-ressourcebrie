@@ -1,6 +1,5 @@
 <?php 
 require('actions/db.php');
-require("actions/uuid.php");
 
 
 
@@ -37,7 +36,7 @@ if(isset($_POST['validatecarte'])):
     $moyenDePaiement = "carte";
     $nbrObjet = $_GET['nbrObjet'];
     $nomVendeur = $_SESSION['nom'];
-    $idVendeur = $_SESSION['id'];
+    $idVendeur = $_SESSION['uuid_user'];
     $prenomVendeur = $_SESSION['prenom'];
     $transac= $nouveau_compte['compte'];
     $uuidTicket = generate_uuidv4();

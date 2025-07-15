@@ -1,5 +1,6 @@
 <?php
 require('actions/users/securityAction.php');
+require("actions/uuid.php");
 require('actions/objets/currencyToDecimalFct.php');
 require('actions/objets/moyenDePaiementAction.php');
 require('actions/objets/moyenDePaiementCarteAction.php');
@@ -7,6 +8,7 @@ require('actions/objets/moyenDePaiementVirementAction.php');
 require('actions/objets/moyenDePaiementChequeAction.php');
 require('actions/objets/moyenDePaiementMixteAction.php');
 require('app/bootstrap.php');
+
 
 //On insert dans le ticket de caisse temporaire la réduction de -5 ou -10€ lorsqu'on clique sur le bouton valider avec reduction
 //Pour ce faire, on s'assure que ce script ne s'appliquera que lorsqu'on cliquera sur le bouton valider avec réduction, mais pas lorsqu'on appuiera sur le bouton valider final.
@@ -48,11 +50,11 @@ if(isset($_GET['ra']) AND !isset($_POST['final-validation'])):
         //On récupère les données du vendeur
         
         $nomVendeur = $_SESSION['nom'];
-        $idVendeur = $_SESSION['id'];
+        $idVendeur = $_SESSION['uuid_user'];
         
         $date_achat = date('d/m/Y');
-        $insertObjetInTicket = $db -> prepare('INSERT INTO ticketdecaissetemp(id_temp_vente, nom_vendeur, id_vendeur, nom, categorie, souscat, prix, nbr, prixt) VALUES(?,?,?,?,?,?,?,?,?)');
-        $insertObjetInTicket -> execute(array($id_temp_vente, $nomVendeur, $idVendeur, $nom_objet, $categorie_objet, $souscat, $prixOfObjet, $nbr, $prixt));
+        $insertObjetInTicket = $db -> prepare('INSERT INTO ticketdecaissetemp(id_temp_vente, nom, categorie, souscat, prix, nbr, prixt) VALUES(?,?,?,?,?,?,?)');
+        $insertObjetInTicket -> execute(array($id_temp_vente, $nom_objet, $categorie_objet, $souscat, $prixOfObjet, $nbr, $prixt));
 
 endif;
 ?>

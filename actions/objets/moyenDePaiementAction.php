@@ -1,6 +1,6 @@
 <?php 
 require('actions/db.php');
-require("actions/uuid.php");
+
 
 ?>
 
@@ -35,7 +35,7 @@ if(isset($_POST['validateespece'])):
         $moyenDePaiement = "espèces";
         $nbrObjet = $_GET['nbrObjet'];
         $nomVendeur = $_SESSION['nom'];
-        $idVendeur = $_SESSION['id'];
+        $idVendeur = $_SESSION['uuid_user'];
         $prenomVendeur = $_SESSION['prenom'];
             
             
@@ -152,8 +152,8 @@ if(isset($_POST['validateespece'])):
         foreach($getObjets as $v):
             
             $id_objet = $v['id'];
-            $nom_vendeur = $v['nom_vendeur'];
-            $id_vendeur = $v['id_vendeur'];
+            $nom_vendeur = $_SESSION['nom'];
+            $id_vendeur = $_SESSION['uuid_user'];
             $nom_objet = $v['nom'];
             $categorie_objet = $v['categorie'];
             $souscat_objet = $v['souscat'];

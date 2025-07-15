@@ -1,6 +1,6 @@
 <?php 
 require('actions/db.php');
-require("actions/uuid.php");
+
 
 
 
@@ -33,7 +33,7 @@ if(isset($_POST['validatevirement'])):
     $moyenDePaiement = "virement";
     $nbrObjet = $_GET['nbrObjet'];
     $nomVendeur = $_SESSION['nom'];
-    $idVendeur = $_SESSION['id'];
+    $idVendeur = $_SESSION['uuid_user'];
     $prenomVendeur = $_SESSION['prenom'];
     
     

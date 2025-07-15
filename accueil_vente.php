@@ -3,7 +3,7 @@
 require('actions/users/securityAction.php');
 require('actions/objets/getDBVenteTemp.php');
 $limitation='LIMIT 3';
-$where3="WHERE id_vendeur='".$_SESSION['id']."'";
+$where3="WHERE id_vendeur='".$_SESSION['uuid_user']."'";
 $order='date_achat_dt DESC';
 require('actions/objets/bilanticketDeCaisseAction.php');
 

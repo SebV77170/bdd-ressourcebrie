@@ -18,7 +18,7 @@ endif;
 $moyenDePaiement = "mixte";
 $nbrObjet = $_GET['nbrObjet'];
 $nomVendeur = $_SESSION['nom'];
-$idVendeur = $_SESSION['id'];
+$idVendeur = $_SESSION['uuid_user'];
 $prenomVendeur = $_SESSION['prenom'];
 $transac= $compte['compte'];
 $uuidTicket = generate_uuidv4();
