@@ -113,7 +113,7 @@ endif;
 
 //On insère dans la db paiement_mixte
 
-$sql = 'INSERT INTO paiement_mixte (id_ticket, espece, carte, cheque) VALUES (?,?,?,?)';
+$sql = 'INSERT INTO paiement_mixte (uuid_ticket, espece, carte, cheque) VALUES (?,?,?,?)';
 $sth = $db->prepare($sql);
 $sth->execute(array($idOfThisTicket,$espece,$carte,$cheque));
 

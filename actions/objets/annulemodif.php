@@ -25,7 +25,7 @@ if(isset($_GET['id_modif'])):
     $sth3=$db->query($sql3);
     $ticket=$sth3->fetch();
 
-    $sql4='INSERT INTO ticketdecaisse (id_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUE (?,?,?,?,?,?,?,?,?,?,?)';
+    $sql4='INSERT INTO ticketdecaisse (uuid_ticket, nom_vendeur, id_vendeur, date_achat_dt, nbr_objet, moyen_paiement, num_cheque, banque, num_transac, prix_total, lien) VALUE (?,?,?,?,?,?,?,?,?,?,?)';
     $sth4=$db->prepare($sql4);
     $sth4->execute(array(
         $ticket['id_ticket'],
@@ -73,7 +73,7 @@ if(isset($_GET['id_modif'])):
         $sth8=$db->query($sql8);
         $vente=$sth8->fetch();
 
-        $sql9='INSERT INTO paiement_mixte (id_paiement_mixte, id_ticket, espece, carte, cheque) VALUES (?,?,?,?,?)';
+        $sql9='INSERT INTO paiement_mixte (id_paiement_mixte, uuid_ticket, espece, carte, cheque) VALUES (?,?,?,?,?)';
         $sth9=$db->prepare($sql9);
         $sth9->execute(array(
             $vente['id_paiement_mixte'],

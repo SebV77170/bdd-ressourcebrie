@@ -113,7 +113,7 @@ if(isset($_POST['modifierDate'])):
             $sth8=$db->query($sql8);
             $vente=$sth8->fetch();
 
-            $sql9='INSERT INTO paiement_mixte (id_paiement_mixte, id_ticket, espece, carte, cheque) VALUES (?,?,?,?,?)';
+            $sql9='INSERT INTO paiement_mixte (id_paiement_mixte, uuid_ticket, espece, carte, cheque) VALUES (?,?,?,?,?)';
             $sth9=$db->prepare($sql9);
             $sth9->execute(array(
                 $vente['id_paiement_mixte'],

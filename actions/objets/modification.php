@@ -35,7 +35,7 @@ if (isset($_GET['id_ticket'])):
 
         // S'occuper du paiement mixte pour stocker temporairement les données de la table paiement_mixte s'il s'agissait d'un paiement mixte
         if ($results['moyen_paiement'] == 'mixte'):
-            $sql8 = 'SELECT * FROM paiement_mixte WHERE id_ticket =' . $idTicket;
+            $sql8 = 'SELECT * FROM paiement_mixte WHERE uuid_ticket =' . $idTicket;
             $sth8 = $db->query($sql8);
             $vente = $sth8->fetch();
 
@@ -50,7 +50,7 @@ if (isset($_GET['id_ticket'])):
                 $vente['virement'],
             ));
 
-            $sql10 = 'DELETE FROM paiement_mixte WHERE id_ticket =' . $idTicket;
+            $sql10 = 'DELETE FROM paiement_mixte WHERE uuid_ticket =' . $idTicket;
             $sth10 = $db->query($sql10);
         endif;
 

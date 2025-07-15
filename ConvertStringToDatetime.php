@@ -25,7 +25,7 @@ foreach($results as $v):
     $dateheure=new DateTime($format_us, new DateTimeZone('Europe/Paris'));
     $dateheure=$dateheure->format('Y-m-d G:i');
     
-    $sql2 = 'UPDATE ticketdecaisse SET date_achat_dt = "'.$dateheure.'" WHERE id_ticket = '.$v['id_ticket'].'';
+    $sql2 = 'UPDATE ticketdecaisse SET date_achat_dt = "'.$dateheure.'" WHERE uuid_ticket = '.$v['uuid_ticket'].'';
     $sth2 = $db->query($sql2);
 
 endforeach;
