@@ -203,7 +203,7 @@ if(isset($_POST['validateespece'])):
         
 //On redirige vers la page ticket de caisse.
 
-        header("location: ticketdecaisseapresvente.php?id_ticket=$uuidTicket");
+        header("location: ticketdecaisseapresvente.php?uuid_ticket=$uuidTicket");
             
             
    

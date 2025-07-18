@@ -157,8 +157,8 @@ endif;
     foreach($getObjets as $v):
         
         $id_objet = $v['id'];
-        $nom_vendeur = $v['nom_vendeur'];
-        $id_vendeur = $v['id_vendeur'];
+        $nom_vendeur = $_SESSION['nom'];
+        $id_vendeur = $_SESSION['uuid_user'];
         $nom_objet = $v['nom'];
         $categorie_objet = $v['categorie'];
         $souscat_objet = $v['souscat'];
@@ -209,7 +209,7 @@ endif;
     require('actions/objets/update_db_bilan.php');
     
     //On redirige vers la page objets collectés.
-    header("location: ticketdecaisseapresvente.php?id_ticket=$uuidTicket");
+    header("location: ticketdecaisseapresvente.php?uuid_ticket=$uuidTicket");
         
         
 

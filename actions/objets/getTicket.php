@@ -3,10 +3,10 @@
 <?php
 
 $getTicket = $db->prepare('SELECT lien FROM ticketdecaisse WHERE uuid_ticket = ?');
-$getTicket->execute(array($_GET['id_ticket']));
+$getTicket->execute(array($_GET['uuid_ticket']));
 
 $getFacture = $db->prepare('SELECT lien FROM facture WHERE uuid_ticket = ?');
-$getFacture->execute(array($_GET['id_ticket']));
+$getFacture->execute(array($_GET['uuid_ticket']));
 
 $ticket = $getTicket->fetch();
 $facture = $getFacture->fetch();

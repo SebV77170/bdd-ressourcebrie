@@ -1,6 +1,6 @@
 <?php
 // En haut du fichier ou dans config.php
-$mode_dev = true; // Toggle ici
+$mode_dev = false; // Toggle ici
 ?>
 
 <nav class="navforum">
