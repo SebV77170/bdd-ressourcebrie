@@ -11,15 +11,15 @@ if ($host === 'bdd' || $host === '127.0.0.1') {
     $pass = "";
 } else {
     // Mode production (à adapter selon ton hébergement)
-    $dbname = "09007_ressourceb";
+    /* $dbname = "09007_ressourceb";
     $serveur = "sql01.ouvaton.coop";
     $login = "09007_ressourceb";
-    $pass = "LaRessourcerieDeBrie77170!";
+    $pass = "LaRessourcerieDeBrie77170!"; */
 
-    /* $dbname = "ressourcebrie_bdd";
+    $dbname = "ressourcebrie_bdd";
     $serveur = "mysql-ressourcebrie.alwaysdata.net";
     $login = "418153";
-    $pass = "geMsos-wunxoc-1fucbu"; */
+    $pass = "geMsos-wunxoc-1fucbu";
 
 }
 

@@ -31,7 +31,6 @@
                 
             </form>
             
-            <a class="doc_lien" href="signup.php" style="color: black"><p class="paraphdoc">Je n'ai pas encore de compte, je m'inscris ici !</p></a>
             
         </article>
         
