@@ -8,7 +8,7 @@ $supprFromDbVente = $db -> prepare('DELETE FROM vente WHERE id_temp_vente = ?');
 $supprFromDbVente -> execute(array($_GET['id_temp_vente']));
 
 $getDBvente = $db -> prepare('SELECT * FROM vente WHERE id_vendeur = ?');
-$getDBvente -> execute(array($_SESSION['id']));
+$getDBvente -> execute(array($_SESSION['uuid_user']));
 
 $DBvente = $getDBvente -> fetch(PDO::FETCH_ASSOC);
 

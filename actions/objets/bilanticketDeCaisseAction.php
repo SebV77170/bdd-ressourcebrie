@@ -5,7 +5,8 @@
 $getAllObjets = $db->prepare('SELECT * FROM ticketdecaisse '.$where3.' ORDER BY '.$order.' '.$limitation.'');
 $getAllObjets->execute();
 
-$getObjets = $getAllObjets->fetchAll();
+$getObjets = $getAllObjets->fetchAll(PDO::FETCH_ASSOC);
+
 
 $getPrixTotal = $db->prepare('SELECT SUM(prix_total) AS prix_total FROM ticketdecaisse');
 $getPrixTotal -> execute();

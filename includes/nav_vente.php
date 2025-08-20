@@ -3,7 +3,7 @@
 <?php
 
 $recupDBvente = $db -> prepare('SELECT * FROM vente WHERE id_vendeur = ?');
-$recupDBvente -> execute(array($_SESSION['id']));
+$recupDBvente -> execute(array($_SESSION['uuid_user']));
 
 $id_vente = $recupDBvente->fetchAll(PDO::FETCH_ASSOC);
 

@@ -35,7 +35,7 @@ require('actions/db.php');
                 
                     $_SESSION['auth'] = true;
                     $_SESSION['admin']=$usersInfos['admin'];
-                    $_SESSION['id'] = $usersInfos['id'];
+                    $_SESSION['uuid_user'] = $usersInfos['uuid_user'];
                     $_SESSION['nom'] = $usersInfos['nom'];
                     $_SESSION['prenom'] = $usersInfos['prenom'];
                     $_SESSION['ucprenom'] = ucwords($usersInfos['prenom']);

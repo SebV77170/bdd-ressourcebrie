@@ -79,7 +79,7 @@ if (isset($_GET['id_ticket'])):
         $date_heure_debutvente_Date = $date_heure_debutvente->format('d-m G:i:s');
 
         // Obtenir le nom du vendeur
-        $idvendeur = $_SESSION['id'];
+        $idvendeur = $_SESSION['uuid_user'];
 
         // Insérer la nouvelle vente dans la db vente
         $insertDate = $db->prepare('INSERT INTO vente(date, dateheure, id_vendeur, modif, id_modif) VALUE (?,?,?,1,?)');

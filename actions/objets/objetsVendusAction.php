@@ -34,7 +34,7 @@
                 //On récupère les données du vendeur
                 
                 $nomVendeur = $_SESSION['nom'];
-                $idVendeur = $_SESSION['id'];
+                $idVendeur = $_SESSION['uuid_user'];
                 
                 $date_achat = date('d/m/Y');
                 

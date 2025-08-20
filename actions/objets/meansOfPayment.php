@@ -1,4 +1,5 @@
 <?php
+require("actions/uuid.php");
 
 
 if($_GET['modif']==0):
@@ -17,9 +18,10 @@ endif;
 $moyenDePaiement = "mixte";
 $nbrObjet = $_GET['nbrObjet'];
 $nomVendeur = $_SESSION['nom'];
-$idVendeur = $_SESSION['id'];
+$idVendeur = $_SESSION['uuid_user'];
 $prenomVendeur = $_SESSION['prenom'];
 $transac= $compte['compte'];
+$uuidTicket = generate_uuidv4();
 
 
 
@@ -105,17 +107,21 @@ $infoOfTicket = $recupInfoTc->fetch();
 if($_GET['modif']==0):
     $idOfThisTicket = $infoOfTicket[0];
     $prixOfThisTicket = $infoOfTicket[1]/100;
+$updateUuid = $db->prepare("UPDATE ticketdecaisse SET uuid_ticket = ? WHERE id_ticket = ?");
+$updateUuid->execute(array($uuidTicket,$idOfThisTicket));
 
 elseif($_GET['modif']==1):
     $idOfThisTicket = $ticketmodif['id_ticket'];
     $prixOfThisTicket = $getTotalEnEuros/100;
+$updateUuid = $db->prepare("UPDATE ticketdecaisse SET uuid_ticket = ? WHERE id_ticket = ?");
+$updateUuid->execute(array($uuidTicket,$idOfThisTicket));
 endif;
 
 //On insère dans la db paiement_mixte
 
-$sql = 'INSERT INTO paiement_mixte (uuid_ticket, espece, carte, cheque) VALUES (?,?,?,?)';
+$sql = 'INSERT INTO paiement_mixte (id_ticket, espece, carte, cheque, uuid_ticket) VALUES (?,?,?,?,?)';
 $sth = $db->prepare($sql);
-$sth->execute(array($idOfThisTicket,$espece,$carte,$cheque));
+$sth->execute(array($idOfThisTicket,$espece,$carte,$cheque,$uuidTicket));
 
 //On update le lien de la db ticketdecaisse.
 $updatelien = $db->prepare('UPDATE ticketdecaisse SET lien = "tickets/Ticket'.$idOfThisTicket.'.txt" WHERE id_ticket = ?');
@@ -137,8 +143,8 @@ $getObjets = $getAllObjetOfTicket -> fetchAll(PDO::FETCH_ASSOC);
 foreach($getObjets as $v):
     
     $id_objet = $v['id'];
-    $nom_vendeur = $v['nom_vendeur'];
-    $id_vendeur = $v['id_vendeur'];
+    $nom_vendeur = $_SESSION['nom'];
+    $id_vendeur = $_SESSION['uuid_user'];
     $nom_objet = $v['nom'];
     $categorie_objet = $v['categorie'];
     $souscat_objet = $v['souscat'];
@@ -151,7 +157,7 @@ foreach($getObjets as $v):
     //On insère l'objet dans la db objets vendus
 
     $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(uuid_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?)');
-    $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
+    $insertObjetInDB -> execute(array($uuidTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
     
     //On insère dans le fichier texte.
     
@@ -190,6 +196,6 @@ require('actions/objets/update_db_bilan.php');
 
 //On redirige vers la page ticket de caisse.
 
-header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
+header("location: ticketdecaisseapresvente.php?uuid_ticket=$uuidTicket");
    
 ?>

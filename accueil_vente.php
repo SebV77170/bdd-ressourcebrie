@@ -3,7 +3,7 @@
 require('actions/users/securityAction.php');
 require('actions/objets/getDBVenteTemp.php');
 $limitation='LIMIT 3';
-$where3="WHERE id_vendeur='".$_SESSION['id']."'";
+$where3="WHERE id_vendeur='".$_SESSION['uuid_user']."'";
 $order='date_achat_dt DESC';
 require('actions/objets/bilanticketDeCaisseAction.php');
 
@@ -52,31 +52,30 @@ require('actions/objets/bilanticketDeCaisseAction.php');
                 
             </tr>
         
-        <?php foreach($getObjets as list($id, $nom, $idvendeur, $date, $nbr, $moyen, $numcheque, $banque, $transac, $prix, $lien)){
-            
-                        $prixeuro = $prix/100;
-        
-                        echo '<tr class="ligne">
-                        
-                            
-                            <td class="colonne">'.$id.'</td>
-                            <td class="colonne">'.$nom.'</td>
-                            <td class="colonne">'.$date.'</td>
-                            <td class="colonne">'.$nbr.'</td>
-                            <td class="colonne">'.$moyen.'</td>
-                            <td class="colonne">'.$numcheque.'</td>
-                            <td class="colonne">'.$banque.'</td>
-                            <td class="colonne">'.$transac.'</td>
-                            <td class="colonne">'.$prixeuro.'€</td>
-                            <td class="colonne"><a href="ticketdecaisseapresvente.php?id_ticket='.$id.'">Voir le ticket</a></td>
-                            ';
-                            if($_SESSION['admin'] >1){
-                            echo '<td class="colonne"><a href="confirmation.php?id_ticket='.$id.'">Supprimer</a></td>';
-                            }
-                            echo '</tr>';
-                          
-        }
-        ?>
+       <?php foreach ($getObjets as $objet) {
+    $prixeuro = $objet['prix_total'] / 100;
+
+    echo '<tr class="ligne">
+        <td class="colonne">' . $objet['id_ticket'] . '</td>
+        <td class="colonne">' . htmlspecialchars($objet['nom_vendeur']) . '</td>
+        <td class="colonne">' . $objet['date_achat_dt'] . '</td>
+        <td class="colonne">' . $objet['nbr_objet'] . '</td>
+        <td class="colonne">' . $objet['moyen_paiement'] . '</td>
+        <td class="colonne">' . $objet['num_cheque'] . '</td>
+        <td class="colonne">' . $objet['banque'] . '</td>
+        <td class="colonne">' . $objet['num_transac'] . '</td>
+        <td class="colonne">' . $prixeuro . '€</td>
+        <td class="colonne"><a href="ticketdecaisseapresvente.php?uuid_ticket=' . $objet['uuid_ticket'] . '">Voir le ticket</a></td>';
+
+    if ($_SESSION['admin'] > 1) {
+        echo '<td class="colonne"><a href="confirmation.php?uuid_ticket=' . $objet['uuid_ticket'] . '">Supprimer</a></td>';
+    }
+
+    echo '</tr>';
+}
+?>
+
+
         </table>
         
         <?php

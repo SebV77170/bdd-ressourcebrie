@@ -14,6 +14,8 @@ require('actions/objets/modifDate.php');
 require('actions/objets/recupBoutonsCaisse.php');
 require('app/bootstrap.php');
 
+var_dump($_SESSION);
+
 ?>
 
 <!DOCTYPE HTML>

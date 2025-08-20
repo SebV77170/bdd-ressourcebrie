@@ -3,6 +3,7 @@ require('actions/db.php');
 
 
 
+
     //on récupère les données du ticket de caisse modifié s'il existe
     if($_GET['modif']==1):
         $sql='SELECT * FROM modifticketdecaisse WHERE id_modif = '.$_GET['id_modif'].'';
@@ -32,10 +33,11 @@ if(isset($_POST['validatevirement'])):
     $moyenDePaiement = "virement";
     $nbrObjet = $_GET['nbrObjet'];
     $nomVendeur = $_SESSION['nom'];
-    $idVendeur = $_SESSION['id'];
+    $idVendeur = $_SESSION['uuid_user'];
     $prenomVendeur = $_SESSION['prenom'];
     
     
+    $uuidTicket = generate_uuidv4();
     //pour cela on récupère le prix total
     $getPrixTotal = $db->prepare('SELECT SUM(prixt) AS prix_total FROM ticketdecaissetemp WHERE id_temp_vente = ?');
     $getPrixTotal -> execute(array($_GET['id_temp_vente']));
@@ -118,10 +120,14 @@ endif;
     if($_GET['modif']==0):
         $idOfThisTicket = $infoOfTicket[0];
         $prixOfThisTicket = $infoOfTicket[1]/100;
+    $updateUuid = $db->prepare("UPDATE ticketdecaisse SET uuid_ticket = ? WHERE id_ticket = ?");
+    $updateUuid->execute(array($uuidTicket,$idOfThisTicket));
 
     elseif($_GET['modif']==1):
         $idOfThisTicket = $ticketmodif['id_ticket'];
         $prixOfThisTicket = $getTotalEnEuros/100;
+    $updateUuid = $db->prepare("UPDATE ticketdecaisse SET uuid_ticket = ? WHERE id_ticket = ?");
+    $updateUuid->execute(array($uuidTicket,$idOfThisTicket));
     endif;
     
     //On update le lien de la db ticketdecaisse.
@@ -145,8 +151,8 @@ endif;
     foreach($getObjets as $v):
         
         $id_objet = $v['id'];
-        $nom_vendeur = $v['nom_vendeur'];
-        $id_vendeur = $v['id_vendeur'];
+        $nom_vendeur = $_SESSION['nom'];
+        $id_vendeur = $_SESSION['uuid_user'];
         $nom_objet = $v['nom'];
         $categorie_objet = $v['categorie'];
         $souscat_objet = $v['souscat'];
@@ -159,7 +165,7 @@ endif;
         //On insère l'objet dans la db objets vendus
     
         $insertObjetInDB = $db -> prepare('INSERT INTO objets_vendus(uuid_ticket, nom, nom_vendeur, id_vendeur, categorie, souscat, date_achat, timestamp, prix,nbr) VALUES (?,?,?,?,?,?,?,?,?,?)');
-        $insertObjetInDB -> execute(array($idOfThisTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
+        $insertObjetInDB -> execute(array($uuidTicket, $nom_objet, $nom_vendeur, $id_vendeur, $categorie_objet, $souscat_objet, $date_achat, $timestamp, $prix_objet, $nbr));
         
         //On insère dans le fichier texte.
         
@@ -197,7 +203,7 @@ endif;
     require('actions/objets/update_db_bilan.php');
     
     //On redirige vers la page ticketdecaisseapresvente.
-    header("location: ticketdecaisseapresvente.php?id_ticket=$idOfThisTicket");
+    header("location: ticketdecaisseapresvente.php?uuid_ticket=$uuidTicket");
         
         
 

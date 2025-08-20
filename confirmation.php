@@ -30,7 +30,7 @@ require('actions/users/securityAction.php');
           <p style="text-align: center;">Voulez-vous vraiment supprimer cette vente ?</p>
           
           
-            <a class="stdbouton" href="actions/objets/supprVente.php?id_ticket=<?=$_GET['id_ticket']?>">Supprimer</a>
+            <a class="stdbouton" href="actions/objets/supprVente.php?uuid_ticket=<?=$_GET['uuid_ticket']?>">Supprimer</a>
                             
                             
         
