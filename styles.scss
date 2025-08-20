@@ -292,10 +292,25 @@ $theme-colors: map-merge($theme-colors, $custom-theme-colors);
 
 @import "vendor/twbs/bootstrap/scss/bootstrap.scss";
 
+alerte-logiciel {
+  display: block;
+  padding: 2em;
+  margin: 2em auto;
+  text-align: center;
+  font-size: 2em;
+  font-weight: bold;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  line-height: 1.5em;
+  background-color: #FF9966;
+}
 
-
-
-
+a.disabled-link {
+  pointer-events: none;      /* bloque les clics souris/tactile */
+  color: #999;               /* aspect grisé */
+  text-decoration: none;
+  cursor: not-allowed;
+}
 
 
 

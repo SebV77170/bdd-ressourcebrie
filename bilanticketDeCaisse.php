@@ -51,6 +51,9 @@ if (isset($_GET['date'])) {
     $query->execute([$date]);
     $tickets = $query->fetchAll(PDO::FETCH_ASSOC);
 
+    $actionsEnabled = false; // passe à true pour réactiver
+    $disabledAttr = $actionsEnabled ? '' : 'class="disabled-link" aria-disabled="true" tabindex="-1" onclick="return false;"';
+
     if ($tickets) {
         echo '<table>';
         echo '<tr>
@@ -64,18 +67,19 @@ if (isset($_GET['date'])) {
               </tr>';
         foreach ($tickets as $ticket) {
             $prixEuro = $ticket['prix_total'] / 100;
-            echo '<tr>
-                    <td>' . $ticket['id_ticket'] . '</td>
-                    <td>' . $ticket['nom_vendeur'] . '</td>
-                    <td>' . $ticket['date_achat_dt'] . '</td>
-                    <td>' . $ticket['nbr_objet'] . '</td>
-                    <td>' . $ticket['moyen_paiement'] . '</td>
-                    <td>' . $prixEuro . '€</td>
-                    <td><a href="ticketdecaisseapresvente.php?id_ticket=' . $ticket['id_ticket'] . '">Voir le ticket</a></td>
-                    <td class="colonne"><a href="confirmation.php?id_ticket='.$ticket['id_ticket'].'">Supprimer</a></td>
-                    <td class="colonne"><a href="actions/objets/modification.php?id_ticket='.$ticket['id_ticket'].'">Modifier</a></td>
-                  </tr>';
-        }
+
+        echo '<tr>
+                <td>' . $ticket['id_ticket'] . '</td>
+                <td>' . $ticket['nom_vendeur'] . '</td>
+                <td>' . $ticket['date_achat_dt'] . '</td>
+                <td>' . $ticket['nbr_objet'] . '</td>
+                <td>' . $ticket['moyen_paiement'] . '</td>
+                <td>' . $prixEuro . '€</td>
+                <td><a href="ticketdecaisseapresvente.php?uuid_ticket=' . $ticket['uuid_ticket'] . '">Voir le ticket</a></td>
+                <td class="colonne"><a ' . $disabledAttr . ' href="confirmation.php?id_ticket=' . $ticket['id_ticket'] . '">Supprimer</a></td>
+                <td class="colonne"><a ' . $disabledAttr . ' href="actions/objets/modification.php?id_ticket=' . $ticket['id_ticket'] . '">Modifier</a></td>
+            </tr>';
+            }
         echo '</table>';
     } else {
         echo '<p>Aucun ticket de caisse trouvé pour cette date.</p>';

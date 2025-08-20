@@ -1,4 +1,6 @@
 <?php
+
+
 require('actions/db.php');
 
 if (isset($_POST['ajout'])) {

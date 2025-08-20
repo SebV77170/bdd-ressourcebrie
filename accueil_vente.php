@@ -1,5 +1,4 @@
 <?php
-
 require('actions/users/securityAction.php');
 require('actions/objets/getDBVenteTemp.php');
 $limitation='LIMIT 3';
@@ -29,6 +28,10 @@ require('actions/objets/bilanticketDeCaisseAction.php');
             <?php
             if($_SESSION['admin'] >= 1){
             ?>
+
+            <alerte-logiciel>
+            Attention ! Partie vente à n'utiliser qu'en cas de dysfonctionnement du logiciel de caisse installé sur l'ordinateur de caisse. Toutes les fonctions ne sont pas actives ici.
+            </alerte-logiciel>
           
           
           <p style="text-align: center;">Cliquez sur + dans le menu pour créer votre première vente.</br></br>
