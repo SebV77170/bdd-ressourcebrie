@@ -10,6 +10,10 @@ $date_actuelle = $_GET['date'];
 $format_us = implode('-',array_reverse  (explode('/',$date_actuelle)));
 //transforme en timestamp
 $timestamp = strtotime($format_us);
+
+
+// Découper la date
+list($jour, $mois, $annee) = explode('/', $date_actuelle);
     
 $where2 = 'WHERE date LIKE "'.$format_us.'%"';
 require('getPoidsBilan.php');
@@ -62,10 +66,10 @@ if(isset($prix_total_ticket['prix_total'])){
 
 require('Bilan_paiement_mixte.php');
 
-$prix_total_journee_carte = $prix_total_journee_carte+$carte;
-$prix_total_journee_virement = $prix_total_journee_virement+$virement;
-$prix_total_journee_espece = $prix_total_journee_espece+$espece;
-$prix_total_journee_cheque = $prix_total_journee_cheque+$cheque;
+$prix_total_journee_carte = $carte;
+$prix_total_journee_virement = $virement;
+$prix_total_journee_espece = $espece;
+$prix_total_journee_cheque = $cheque;
     
 $sth2 = $db -> prepare('SELECT id_ticket FROM ticketdecaisse WHERE (date_achat_dt LIKE "'.$format_us.'%")');
 $sth2 -> execute();
@@ -93,6 +97,6 @@ if($activite == 0){
     
     $sth1 -> execute();
 }
-header('location:../../bilanJournalier.php');
+header('location:../../bilanJournalier.php?month='.$mois.'&year='.$annee.'');
 endif;
 ?>
