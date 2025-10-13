@@ -4,6 +4,7 @@ require('actions/objets/insertObjetDsDb.php');
 require('actions/objets/recupDb.php');
 require('actions/objets/getSommePoids.php');
 require('actions/objets/miseAJourDb.php');
+$annee = date('Y');
 
 ?>
 
@@ -35,7 +36,7 @@ require('actions/objets/miseAJourDb.php');
                 <a class="doc_lien" href="dashboard_bilan.php"><li class="doc_li" id="bleu">Tableau de bord</li></a>
                 <a class="doc_lien" href="bilanJournalier.php"><li class="doc_li" id="bleu">Bilan Journalier</li></a>
                 <a class="doc_lien" href="bilanticketDeCaisse.php"><li class="doc_li" id="bleu">Tickets de Caisse</li></a>
-                <a class="doc_lien" href="prixoeuvre.php"><li class="doc_li" id="bleu">Oeuvres</li></a>
+                <a class="doc_lien" href="prixoeuvre.php?annee=<?php echo $annee ?>"><li class="doc_li" id="bleu">Oeuvres</li></a>
                 <a class="doc_lien" href="BilanObjetsCollectes.php"><li class="doc_li" id="bleu">Objets Collectés</li></a>
                 <a class="doc_lien" href="BilanObjetsVendus.php"><li class="doc_li" id="bleu">Objets Vendus</li></a>
                 <a class="doc_lien" href="bilanticketDeCaisse.php"><li class="doc_li" id="bleu">Tickets de Caisse</li></a>             
