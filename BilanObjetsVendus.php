@@ -73,7 +73,7 @@ function extractYear(?string $rawDate): ?int
     return null;
 }
 
-$statement = $db->query('SELECT nom, nom_vendeur, categorie, souscat, date_achat, prix FROM objets_vendus');
+$statement = $db->query('SELECT nom, nom_vendeur, categorie, souscat, date_achat, prix, nbr FROM objets_vendus');
 $objetsVendus = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 $years = [];
@@ -108,7 +108,7 @@ $totalPriceCents = 0;
 $categories = [];
 
 foreach ($filteredVentes as $vente) {
-    $prix = (float) $vente['prix'];
+    $prix = (float) $vente['prix'] * (int)$vente['nbr'];
     $totalPriceCents += $prix;
 
     $categoryKey = normalizeCategoryKey($vente['categorie'] ?? '');
