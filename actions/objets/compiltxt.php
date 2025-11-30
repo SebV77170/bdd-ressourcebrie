@@ -1,16 +1,16 @@
 <?php
-require('../../config.php');
-require '../../app/bootstrap.php';
-require '../../app/models/compil_tickets.php';
-require '../../app/models/fpdf/fpdf/src/Fpdf/Fpdf.php';
-require '../../app/models/fpdf/fpdf/src/Fpdf/pdf.php';
+require('../../app/models/compil_tickets.php');
 
+if (!isset($_GET['date'])) {
+    die('Date manquante (format attendu : YYYY-MM-DD)');
+}
 
-$pdo = get_pdo();
+$date = $_GET['date'];
 
-$compil = new compil_tickets($_GET['date']);
-
-$file = $compil->compilFile();
-
-
-?>
+try {
+    $compil = new compil_tickets($date);
+    $compil->compile();
+} catch (Throwable $e) {
+    // Pour éviter le 500 silencieux et voir l’erreur pendant les tests
+    echo "Erreur : " . htmlspecialchars($e->getMessage());
+}

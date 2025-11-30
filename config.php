@@ -9,6 +9,13 @@ if ((($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '') === $de
 } else {
     ini_set('display_errors', '0');          // rien à l'écran pour les visiteurs
     ini_set('log_errors', '1');              // log actifs
-    ini_set('error_log', __DIR__.'/../logs/php-errors.log'); // ajuste le chemin
+    ini_set('error_log', __DIR__.'/logs/php-errors.log'); // ajuste le chemin
     error_reporting(E_ALL);                  // on logge tout
 }
+
+define('WEBDAV_BASE_URL', 'https://webdav-ressourcebrie.alwaysdata.net');
+define('WEBDAV_TICKETS_BASEPATH', '/tickets'); // racine WebDAV des tickets
+define('WEBDAV_USER', 'ressourcebrie_localBCR'); // ou ressourcebrie_test en dev
+define('WEBDAV_PASS', '2345');
+
+error_log("WEBDAV CONFIG LOADED - USER = ".WEBDAV_USER);

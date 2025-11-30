@@ -16,6 +16,7 @@ dist/
 # Ignorer les fichiers système
 .DS_Store
 Thumbs.db
+vendor/
 
 
 
