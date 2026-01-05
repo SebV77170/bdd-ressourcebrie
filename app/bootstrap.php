@@ -2,6 +2,10 @@
 
 
 
+if (function_exists('date_default_timezone_set') && !ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
+
 function get_pdo (): PDO {
     /* $dbname = "09007_ressourceb";
     $serveur = "sql01.ouvaton.coop";
@@ -12,7 +16,9 @@ function get_pdo (): PDO {
     $login = "418153";
     $pass = "geMsos-wunxoc-1fucbu";
 
-    if($_SERVER['HTTP_HOST']=='localhost:8888'):
+    $httpHost = $_SERVER['HTTP_HOST'] ?? '';
+
+    if($httpHost=='localhost:8888'):
 
         return new PDO("mysql:host=localhost;dbname=objets;charset=utf8;", "root", "root", [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

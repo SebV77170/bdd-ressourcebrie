@@ -1,5 +1,6 @@
 {
     "require": {
+        "php": "^8.2 || ^8.3 || ^8.4",
         "twbs/bootstrap": "5.3.0-alpha2",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6"

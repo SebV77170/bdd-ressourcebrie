@@ -1,7 +1,7 @@
 <?php
 
 // Détection automatique de l'environnement
-$host = $_SERVER['HTTP_HOST'];
+$host = $_SERVER['HTTP_HOST'] ?? '';
 
 if ($host === 'bdd' || $host === '127.0.0.1') {
     // Mode développement
