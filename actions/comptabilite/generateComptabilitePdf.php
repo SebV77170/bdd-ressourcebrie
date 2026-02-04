@@ -2,7 +2,8 @@
 require('../users/securityAction.php');
 require('../db.php');
 require('sessionCaisseHelpers.php');
-require __DIR__ . '/../../vendor/autoload.php';
+require(__DIR__ . '/../../vendor/autoload.php');
+
 if ($_SESSION['admin'] < 1) {
     echo 'Vous n\'êtes pas administrateur, veuillez contacter le webmaster svp.';
     exit;
@@ -85,8 +86,8 @@ function pdfText(string $text): string
 }
 
 $pdf = new FPDF('P', 'mm', 'A4');
-$pdf->SetTitle(pdfText('Bilan des sessions de caisse'));
-$pdf->SetAuthor(pdfText("La Ressourcerie de Brie"));
+$pdf->SetTitle(pdfText('Bilan des sessions de caisse'), false);
+$pdf->SetAuthor(pdfText("La Ressourcerie de Brie"), false);
 $pdf->AddPage();
 
 $pdf->SetFont('Arial', 'B', 16);
@@ -197,4 +198,7 @@ $pdf->Cell(90, 20, pdfText('Signature Trésorier'), 1, 0, 'L');
 $pdf->Cell(90, 20, pdfText('Signature Président'), 1, 1, 'L');
 
 $filename = 'bilan_sessions_caisse_' . $selectedYear . '.pdf';
+if (ob_get_length()) {
+    ob_end_clean();
+}
 $pdf->Output('D', $filename);
