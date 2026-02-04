@@ -64,6 +64,21 @@ $recap = buildEcartRecap($rowsWithEcart, $ecartColumn);
 $recapNet = $recap['positive'] + $recap['negative'];
 $sessionCount = count($rows);
 $sessionCountWithEcart = count($rowsWithEcart);
+$totals = [
+    'fond_initial' => 0,
+    'montant_reel' => 0,
+    'montant_reel_carte' => 0,
+    'montant_reel_cheque' => 0,
+    'montant_reel_virement' => 0,
+];
+
+foreach ($rowsWithEcart as $row) {
+    foreach ($totals as $key => $value) {
+        if (isset($row[$key])) {
+            $totals[$key] += (float) $row[$key];
+        }
+    }
+}
 
 function pdfText(string $text): string
 {
@@ -101,7 +116,16 @@ $pdf->Cell(70, 8, pdfText(formatEcartValue($recapNet)), 1, 0, 'L');
 $pdf->Cell(60, 8, pdfText((string) $sessionCount), 1, 0, 'L');
 $pdf->Cell(60, 8, pdfText((string) ($sessionCount - $sessionCountWithEcart)), 1, 1, 'L');
 
-$pdf->Ln(8);
+$pdf->Ln(6);
+$pdf->SetFont('Arial', '', 10);
+$pdf->Cell(70, 7, pdfText('Total fond initial'), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText('Total montant réel'), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText('Total carte / chèque / virement'), 1, 1, 'L');
+$pdf->Cell(70, 7, pdfText(formatEcartValue($totals['fond_initial'])), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText(formatEcartValue($totals['montant_reel'])), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText(formatEcartValue($totals['montant_reel_carte']) . ' / ' . formatEcartValue($totals['montant_reel_cheque']) . ' / ' . formatEcartValue($totals['montant_reel_virement'])), 1, 1, 'L');
+
+$pdf->Ln(6);
 
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->Cell(0, 8, pdfText('Détail des sessions avec écart'), 0, 1, 'L');
@@ -109,29 +133,47 @@ $pdf->SetFont('Arial', 'B', 10);
 
 $columnNames = array_column($columns, 'Field');
 $displayColumns = [];
-foreach (['id_session', 'id', 'uuid_session'] as $possibleIdColumn) {
+foreach (['id_session'] as $possibleIdColumn) {
     if (in_array($possibleIdColumn, $columnNames, true)) {
         $displayColumns[] = $possibleIdColumn;
         break;
     }
 }
-$displayColumns[] = $dateColumn;
-$displayColumns[] = $ecartColumn;
-foreach (['caisse', 'utilisateur', 'nom_utilisateur', 'responsable'] as $possibleExtraColumn) {
-    if (in_array($possibleExtraColumn, $columnNames, true)) {
-        $displayColumns[] = $possibleExtraColumn;
+foreach (['opened_at_utc', $dateColumn] as $possibleDateColumn) {
+    if ($possibleDateColumn && in_array($possibleDateColumn, $columnNames, true)) {
+        $displayColumns[] = $possibleDateColumn;
         break;
     }
 }
+foreach (['closed_at_utc', 'closed_at'] as $possibleCloseColumn) {
+    if (in_array($possibleCloseColumn, $columnNames, true)) {
+        $displayColumns[] = $possibleCloseColumn;
+        break;
+    }
+}
+foreach (['utilisateur_ouverture', 'responsable_ouverture', 'utilisateur_fermeture', 'responsable_fermeture'] as $personColumn) {
+    if (in_array($personColumn, $columnNames, true)) {
+        $displayColumns[] = $personColumn;
+    }
+}
+foreach (['fond_initial', 'montant_reel', 'montant_reel_carte', 'montant_reel_cheque', 'montant_reel_virement', $ecartColumn] as $moneyColumn) {
+    if ($moneyColumn && in_array($moneyColumn, $columnNames, true)) {
+        $displayColumns[] = $moneyColumn;
+    }
+}
+foreach (['commentaire', 'cashiers', 'poste', 'issecondaire'] as $metaColumn) {
+    if (in_array($metaColumn, $columnNames, true)) {
+        $displayColumns[] = $metaColumn;
+    }
+}
 
-$columnWidths = [30, 45, 35, 60];
 $columnLabels = [];
 foreach ($displayColumns as $index => $columnName) {
     $columnLabels[] = ucwords(str_replace('_', ' ', $columnName));
 }
 
 foreach ($displayColumns as $index => $columnName) {
-    $width = $columnWidths[$index] ?? 40;
+    $width = 190 / max(count($displayColumns), 1);
     $pdf->Cell($width, 7, pdfText($columnLabels[$index]), 1, 0, 'L');
 }
 $pdf->Ln();
@@ -142,7 +184,7 @@ if (empty($rowsWithEcart)) {
 } else {
     foreach ($rowsWithEcart as $row) {
         foreach ($displayColumns as $index => $columnName) {
-            $width = $columnWidths[$index] ?? 40;
+            $width = 190 / max(count($displayColumns), 1);
             $value = $row[$columnName] ?? '';
             $pdf->Cell($width, 6, pdfText((string) $value), 1, 0, 'L');
         }

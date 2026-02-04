@@ -7,7 +7,11 @@ function getSessionCaisseColumns(PDO $db): array
 
 function findSessionCaisseDateColumn(array $columnNames): ?string
 {
-    $possibleDateColumns = ['date_session', 'date_fermeture', 'date_ouverture', 'date', 'created_at', 'updated_at'];
+    if (in_array('opened_at_utc', $columnNames, true)) {
+        return 'opened_at_utc';
+    }
+
+    $possibleDateColumns = ['opened_at_utc', 'date_session', 'date_fermeture', 'date_ouverture', 'date', 'created_at', 'updated_at'];
     foreach ($possibleDateColumns as $possibleDateColumn) {
         if (in_array($possibleDateColumn, $columnNames, true)) {
             return $possibleDateColumn;
