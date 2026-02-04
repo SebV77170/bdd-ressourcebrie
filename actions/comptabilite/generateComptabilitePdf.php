@@ -2,8 +2,7 @@
 require('../users/securityAction.php');
 require('../db.php');
 require('sessionCaisseHelpers.php');
-require(__DIR__ . '/../../app/models/fpdf/fpdf/src/Fpdf/Fpdf.php');
-
+require __DIR__ . '/../../vendor/autoload.php';
 if ($_SESSION['admin'] < 1) {
     echo 'Vous n\'êtes pas administrateur, veuillez contacter le webmaster svp.';
     exit;
