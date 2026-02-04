@@ -9,10 +9,6 @@ if ($_SESSION['admin'] < 1) {
     exit;
 }
 
-/* ============================================================
-   RÉCUPÉRATION DES DONNÉES (INCHANGÉ)
-============================================================ */
-
 $columns = [];
 $dateColumn = null;
 $ecartColumn = null;
@@ -61,21 +57,13 @@ if (!$ecartColumn || !$dateColumn) {
     exit;
 }
 
-/* ============================================================
-   CALCULS (INCHANGÉ)
-============================================================ */
-
-$rowsWithEcart = array_values(array_filter(
-    $rows,
-    fn($row) => (float)($row[$ecartColumn] ?? 0) !== 0.0
-));
+$rowsWithEcart = array_filter($rows, fn($row) => (float) ($row[$ecartColumn] ?? 0) !== 0.0);
+$rowsWithEcart = array_values($rowsWithEcart);
 
 $recap = buildEcartRecap($rowsWithEcart, $ecartColumn);
 $recapNet = $recap['positive'] + $recap['negative'];
-
 $sessionCount = count($rows);
 $sessionCountWithEcart = count($rowsWithEcart);
-
 $totals = [
     'fond_initial' => 0,
     'montant_reel' => 0,
@@ -87,19 +75,27 @@ $totals = [
 foreach ($rowsWithEcart as $row) {
     foreach ($totals as $key => $value) {
         if (isset($row[$key])) {
-            $totals[$key] += (float)$row[$key];
+            $totals[$key] += (float) $row[$key];
         }
     }
 }
 
-/* ============================================================
-   OUTILS PDF
-============================================================ */
+function formatEuro(int|float $centimes): string
+{
+    $euros = $centimes / 100;
+
+    return number_format($euros, 2, ',', ' ') . ' €';
+}
+
 
 function pdfText(string $text): string
 {
     return iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
 }
+
+/* ============================================================
+   OUTILS TABLEAU (MultiCell + hauteurs auto + saut de page)
+============================================================ */
 
 class PDF_Table extends FPDF
 {
@@ -132,19 +128,71 @@ class PDF_Table extends FPDF
         }
         return $nl;
     }
+
+    /**
+     * Largeur réellement imprimable (page - marges)
+     */
+    public function getPrintableWidth(): float
+    {
+        return $this->w - $this->lMargin - $this->rMargin;
+    }
+
+    /**
+     * Calcule des largeurs mises à l'échelle pour tenir dans la page
+     */
+    public function buildScaledWidths(array $displayColumns, array $baseWidthMap): array
+    {
+        $printable = $this->getPrintableWidth();
+
+        $baseWidths = [];
+        $sum = 0.0;
+
+        foreach ($displayColumns as $col) {
+            $w = $baseWidthMap[$col] ?? 18;
+            $baseWidths[] = $w;
+            $sum += $w;
+        }
+
+        if ($sum <= 0) {
+            return array_fill(0, count($displayColumns), $printable / max(count($displayColumns), 1));
+        }
+
+        $scale = $printable / $sum;
+        $scaled = [];
+
+        foreach ($baseWidths as $w) {
+            $scaled[] = max(10, $w * $scale); // min 10 mm
+        }
+
+        // Ajustement final
+        $diff = $printable - array_sum($scaled);
+        if (abs($diff) > 0.01) {
+            $scaled[count($scaled) - 1] += $diff;
+        }
+
+        return $scaled;
+    }
 }
 
-function pdfRow(PDF_Table $pdf, array $cells, array $widths, int $lineHeight = 5)
+
+function pdfTableHeader(PDF_Table $pdf, array $headers, array $widths, int $lineHeight = 6): void
+{
+    $pdf->SetFont('Arial', 'B', 8);
+    $cells = [];
+    foreach ($headers as $h) {
+        $cells[] = pdfText($h);
+    }
+    pdfRow($pdf, $cells, $widths, $lineHeight);
+    $pdf->SetFont('Arial', '', 7);
+}
+
+function pdfRow(PDF_Table $pdf, array $cells, array $widths, int $lineHeight = 5): float
 {
     $maxLines = 1;
     foreach ($cells as $i => $txt) {
         $maxLines = max($maxLines, $pdf->NbLines($widths[$i], $txt));
     }
     $rowHeight = $lineHeight * $maxLines;
-
-    if ($pdf->GetY() + $rowHeight > $pdf->GetPageHeight() - 15) {
-        $pdf->AddPage();
-    }
 
     foreach ($cells as $i => $txt) {
         $x = $pdf->GetX();
@@ -154,77 +202,198 @@ function pdfRow(PDF_Table $pdf, array $cells, array $widths, int $lineHeight = 5
         $pdf->SetXY($x + $widths[$i], $y);
     }
     $pdf->Ln($rowHeight);
+
+    return $rowHeight;
 }
 
 /* ============================================================
-   PDF – CONTENU (IDENTIQUE + TABLEAU CORRIGÉ)
+   PDF (portrait) : EN-TÊTE + RÉCAP (INCHANGÉ)
 ============================================================ */
 
 $pdf = new PDF_Table('P', 'mm', 'A4');
-$pdf->SetTitle(pdfText('Bilan des sessions de caisse'), false);
-$pdf->SetAuthor(pdfText('La Ressourcerie de Brie'), false);
+$pdf->SetTitle('Bilan des sessions de caisse', true);
+$pdf->SetAuthor('La Ressourcerie de Brie', true);
 $pdf->AddPage();
 
-/* === En-tête === */
 $pdf->SetFont('Arial', 'B', 16);
 $pdf->Cell(0, 10, pdfText('Bilan des sessions de caisse'), 0, 1, 'C');
 $pdf->SetFont('Arial', '', 11);
 $pdf->Cell(0, 6, pdfText('Année : ' . $selectedYear), 0, 1, 'C');
 $pdf->Cell(0, 6, pdfText('Date de génération : ' . date('d/m/Y')), 0, 1, 'C');
-$pdf->Ln(6);
+$pdf->Ln(4);
 
-/* === Récap === (inchangé) */
 $pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0, 8, pdfText('Détail des sessions avec écart'), 0, 1, 'L');
+$pdf->Cell(0, 8, pdfText('Récapitulatif des écarts (sessions avec écart uniquement)'), 0, 1, 'L');
+
+$pdf->SetFont('Arial', '', 11);
+$pdf->Cell(70, 8, pdfText('Total des écarts négatifs'), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText('Total des écarts positifs'), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText('Nombre de sessions'), 1, 1, 'L');
+$pdf->Cell(70, 8, pdfText(formatEuro($recap['negative'])), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText(formatEuro($recap['positive'])), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText((string) $sessionCountWithEcart), 1, 1, 'L');
+
+$pdf->Ln(4);
+$pdf->Cell(70, 8, pdfText('Écart net'), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText('Total sessions année'), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText('Sessions sans écart'), 1, 1, 'L');
+$pdf->Cell(70, 8, pdfText(formatEuro($recapNet)), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText((string) $sessionCount), 1, 0, 'L');
+$pdf->Cell(60, 8, pdfText((string) ($sessionCount - $sessionCountWithEcart)), 1, 1, 'L');
+
+$pdf->Ln(6);
+$pdf->SetFont('Arial', '', 10);
+$pdf->Cell(70, 7, pdfText('Total fond initial'), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText('Total montant réel'), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText('Total carte / chèque / virement'), 1, 1, 'L');
+$pdf->Cell(70, 7, pdfText(formatEuro($totals['fond_initial'])), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText(formatEuro($totals['montant_reel'])), 1, 0, 'L');
+$pdf->Cell(60, 7, pdfText(
+    formatEuro($totals['montant_reel_carte']) . ' / ' .
+    formatEuro($totals['montant_reel_cheque']) . ' / ' .
+    formatEuro($totals['montant_reel_virement'])
+), 1, 1, 'L');
 
 /* ============================================================
-   TABLEAU DÉTAIL – VERSION LISIBLE
+   PDF (landscape) : TABLEAU DÉTAIL LISIBLE
 ============================================================ */
 
-$displayColumns = [];
-foreach (['id_session'] as $c) if (in_array($c, $columnNames, true)) $displayColumns[] = $c;
-foreach ([$dateColumn] as $c) if ($c && in_array($c, $columnNames, true)) $displayColumns[] = $c;
-foreach (['utilisateur_ouverture','utilisateur_fermeture'] as $c) if (in_array($c, $columnNames, true)) $displayColumns[] = $c;
-foreach (['fond_initial','montant_reel',$ecartColumn] as $c) if ($c && in_array($c, $columnNames, true)) $displayColumns[] = $c;
-foreach (['commentaire'] as $c) if (in_array($c, $columnNames, true)) $displayColumns[] = $c;
-
-$widthMap = [
-    'id_session' => 22,
-    $dateColumn => 22,
-    'utilisateur_ouverture' => 30,
-    'utilisateur_fermeture' => 30,
-    'fond_initial' => 18,
-    'montant_reel' => 18,
-    $ecartColumn => 18,
-    'commentaire' => 32,
-];
+$pdf->AddPage('L');
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->Cell(0, 8, pdfText('Détail des sessions avec écart'), 0, 1, 'L');
+$pdf->Ln(2);
 
 $pdf->SetFont('Arial', 'B', 9);
 
-$headers = [];
-$widths = [];
-foreach ($displayColumns as $col) {
-    $headers[] = pdfText(ucwords(str_replace('_',' ', $col)));
-    $widths[] = $widthMap[$col];
-}
-pdfRow($pdf, $headers, $widths, 6);
+$columnNames = array_column($columns, 'Field');
+$displayColumns = [];
 
-$pdf->SetFont('Arial', '', 8);
-
-foreach ($rowsWithEcart as $row) {
-    $cells = [];
-    foreach ($displayColumns as $col) {
-        $cells[] = pdfText((string)($row[$col] ?? ''));
+// Id
+foreach (['id_session'] as $possibleIdColumn) {
+    if (in_array($possibleIdColumn, $columnNames, true)) {
+        $displayColumns[] = $possibleIdColumn;
+        break;
     }
-    pdfRow($pdf, $cells, $widths, 5);
+}
+// Date ouverture (priorité opened_at_utc puis dateColumn)
+foreach (['opened_at_utc', $dateColumn] as $possibleDateColumn) {
+    if ($possibleDateColumn && in_array($possibleDateColumn, $columnNames, true)) {
+        $displayColumns[] = $possibleDateColumn;
+        break;
+    }
+}
+// Date fermeture
+foreach (['closed_at_utc', 'closed_at'] as $possibleCloseColumn) {
+    if (in_array($possibleCloseColumn, $columnNames, true)) {
+        $displayColumns[] = $possibleCloseColumn;
+        break;
+    }
+}
+// Personnes
+foreach (['utilisateur_ouverture', 'responsable_ouverture', 'utilisateur_fermeture', 'responsable_fermeture'] as $personColumn) {
+    if (in_array($personColumn, $columnNames, true)) {
+        $displayColumns[] = $personColumn;
+    }
+}
+// Montants
+foreach (['fond_initial', 'montant_reel', 'montant_reel_carte', 'montant_reel_cheque', 'montant_reel_virement', $ecartColumn] as $moneyColumn) {
+    if ($moneyColumn && in_array($moneyColumn, $columnNames, true)) {
+        $displayColumns[] = $moneyColumn;
+    }
+}
+// Meta
+foreach (['commentaire', 'cashiers', 'poste', 'issecondaire'] as $metaColumn) {
+    if (in_array($metaColumn, $columnNames, true)) {
+        $displayColumns[] = $metaColumn;
+    }
 }
 
-/* === Signatures === */
-$pdf->Ln(10);
-$pdf->SetFont('Arial', '', 11);
-$pdf->Cell(90, 20, pdfText('Signature Trésorier'), 1);
-$pdf->Cell(90, 20, pdfText('Signature Président'), 1);
+// Labels
+$columnLabels = [];
+foreach ($displayColumns as $columnName) {
+    $columnLabels[] = ucwords(str_replace('_', ' ', $columnName));
+}
 
-/* === Sortie === */
-if (ob_get_length()) ob_end_clean();
-$pdf->Output('D', 'bilan_sessions_caisse_' . $selectedYear . '.pdf');
+// Largeurs “de base” (avant scaling) : adaptées à tes types de colonnes
+$baseWidthMap = [
+    'id_session' => 26,
+    'opened_at_utc' => 26,
+    'closed_at_utc' => 26,
+    'closed_at' => 26,
+    $dateColumn => 26,
+
+    'utilisateur_ouverture' => 30,
+    'responsable_ouverture' => 30,
+    'utilisateur_fermeture' => 30,
+    'responsable_fermeture' => 30,
+
+    'fond_initial' => 20,
+    'montant_reel' => 20,
+    'montant_reel_carte' => 20,
+    'montant_reel_cheque' => 20,
+    'montant_reel_virement' => 20,
+    $ecartColumn => 20,
+
+    'commentaire' => 45,
+    'cashiers' => 28,
+    'poste' => 16,
+    'issecondaire' => 16,
+];
+
+// On scale automatiquement pour tenir en A4 landscape
+$widths = $pdf->buildScaledWidths($displayColumns, $baseWidthMap);
+
+// En-tête du tableau
+pdfTableHeader($pdf, $columnLabels, $widths, 6);
+
+// Lignes
+$pdf->SetFont('Arial', '', 7);
+
+if (empty($rowsWithEcart)) {
+    $pdf->SetFont('Arial', '', 9);
+    $pdf->Cell(0, 6, pdfText('Aucune session avec écart pour cette année.'), 1, 1, 'L');
+} else {
+    foreach ($rowsWithEcart as $row) {
+        // Calcul hauteur de ligne et saut de page + répétition en-tête
+        $cells = [];
+        foreach ($displayColumns as $col) {
+            $cells[] = pdfText((string)($row[$col] ?? ''));
+        }
+
+        // Estimation hauteur
+        $maxLines = 1;
+        foreach ($cells as $i => $txt) {
+            $maxLines = max($maxLines, $pdf->NbLines($widths[$i], $txt));
+        }
+        $rowHeight = 5 * $maxLines;
+
+        if ($pdf->GetY() + $rowHeight > $pdf->GetPageHeight() - 15) {
+            $pdf->AddPage('L');
+            $pdf->Cell(0, 8, pdfText('Détail des sessions avec écart (suite)'), 0, 1, 'L');
+            $pdf->Ln(2);
+            pdfTableHeader($pdf, $columnLabels, $widths, 6);
+            $pdf->SetFont('Arial', '', 7);
+        }
+
+        pdfRow($pdf, $cells, $widths, 5);
+    }
+}
+
+/* ============================================================
+   SIGNATURES (sur la page landscape, en bas)
+============================================================ */
+
+$pdf->Ln(8);
+$pdf->SetFont('Arial', '', 11);
+$pdf->Cell(135, 18, pdfText('Signature Trésorier'), 1, 0, 'L');
+$pdf->Cell(135, 18, pdfText('Signature Président'), 1, 1, 'L');
+
+/* ============================================================
+   SORTIE
+============================================================ */
+
+$filename = 'bilan_sessions_caisse_' . $selectedYear . '.pdf';
+if (ob_get_length()) {
+    ob_end_clean();
+}
+$pdf->Output('D', $filename);
