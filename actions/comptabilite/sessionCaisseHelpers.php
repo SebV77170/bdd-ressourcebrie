@@ -78,5 +78,5 @@ function buildEcartRecap(array $rows, string $ecartColumn): array
 
 function formatEcartValue(float $value): string
 {
-    return number_format($value, 2, ',', ' ');
+    return number_format($value/100, 2, ',', ' ') . ' €';
 }

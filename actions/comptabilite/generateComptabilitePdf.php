@@ -72,7 +72,7 @@ $totals = [
     'montant_reel_virement' => 0,
 ];
 
-foreach ($rowsWithEcart as $row) {
+foreach ($rows as $row) {
     foreach ($totals as $key => $value) {
         if (isset($row[$key])) {
             $totals[$key] += (float) $row[$key];
@@ -357,8 +357,25 @@ if (empty($rowsWithEcart)) {
         // Calcul hauteur de ligne et saut de page + répétition en-tête
         $cells = [];
         foreach ($displayColumns as $col) {
-            $cells[] = pdfText((string)($row[$col] ?? ''));
-        }
+    $value = $row[$col] ?? '';
+
+    $moneyColumns = [
+    'fond_initial',
+    'montant_reel',
+    'montant_reel_carte',
+    'montant_reel_cheque',
+    'montant_reel_virement',
+    $ecartColumn
+];
+
+    if (in_array($col, $moneyColumns, true) && is_numeric($value)) {
+        // Montant en centimes → format euro
+        $cells[] = pdfText(formatEuro((float)$value));
+    } else {
+        // Texte / date / autre
+        $cells[] = pdfText((string)$value);
+    }
+}
 
         // Estimation hauteur
         $maxLines = 1;
