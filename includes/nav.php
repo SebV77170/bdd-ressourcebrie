@@ -9,6 +9,9 @@ $mode_dev = false; // Toggle ici
         <li class="navforum_li <?php echo ($page == 2) ? 'vert' : 'bleu'; ?>"><a class="lien_li" href="accueil_vente.php">Vente</a></li>
         <li class="navforum_li <?php echo ($page == 3) ? 'vert' : 'bleu'; ?>"><a class="lien_li" href="bilan.php">Bilans</a></li>
         <li class="navforum_li <?php echo ($page == 4) ? 'vert' : 'bleu'; ?>"><a class="lien_li" href="reparation.php">Reparation</a></li>
+        <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] >= 1): ?>
+            <li class="navforum_li <?php echo ($page == 5) ? 'vert' : 'bleu'; ?>"><a class="lien_li" href="administration.php">Administration</a></li>
+        <?php endif; ?>
         
         <?php if ($mode_dev): ?>
             <li class="navforum_li orange"><a class="lien_li" href="test_debug.php">🧪 Tests</a></li>
