@@ -1,13 +1,17 @@
 <?php
 require('actions/users/securityAction.php');
 require('actions/db.php');
+require('actions/comptabilite/bilanHelpers.php');
 require('actions/comptabilite/sessionCaisseHelpers.php');
 
 $columns = [];
 $dateColumn = null;
 $ecartColumn = null;
+$montantReelColumn = null;
 $errors = [];
 $results = [];
+$combinedRows = [];
+$bilanTotals = [];
 $years = [];
 $selectedYear = null;
 
@@ -16,9 +20,14 @@ try {
     $columnNames = array_column($columns, 'Field');
     $dateColumn = findSessionCaisseDateColumn($columnNames);
     $ecartColumn = findSessionCaisseEcartColumn($columnNames);
+    $montantReelColumn = findSessionCaisseMontantReelColumn($columnNames);
 
     if (!$ecartColumn) {
         $errors[] = "La colonne 'ecart' est introuvable dans la table session_caisse.";
+    }
+
+    if (!$montantReelColumn) {
+        $errors[] = "La colonne 'montant_reel' est introuvable dans la table session_caisse.";
     }
 
     if ($dateColumn) {
@@ -34,6 +43,7 @@ try {
 
         if ($selectedYear) {
             $results = getSessionCaisseRowsForYear($db, $dateColumn, $selectedYear);
+            $bilanTotals = getBilanTotalsForYear($db, $selectedYear);
         }
     } else {
         $errors[] = "Aucune colonne de date n'a été trouvée pour filtrer par année.";
@@ -47,6 +57,58 @@ $recap = $ecartColumn ? buildEcartRecap($results, $ecartColumn) : [
     'positive' => 0,
     'count' => 0,
 ];
+
+if ($selectedYear) {
+    foreach ($bilanTotals as $bilan) {
+        $dateKey = $bilan['date_key'] ?? null;
+        if (!$dateKey) {
+            continue;
+        }
+
+        $combinedRows[$dateKey] = [
+            'date' => $bilan['date_label'] ?? $dateKey,
+            'montant_reel' => null,
+            'montant_encaisse' => $bilan['montant_encaisse'] ?? null,
+            'ecart' => null,
+            'date_key' => $dateKey,
+        ];
+    }
+
+    foreach ($results as $row) {
+        $sessionDate = parseDateValueToDateTime($row[$dateColumn] ?? null);
+        if (!$sessionDate) {
+            continue;
+        }
+
+        $dateKey = $sessionDate->format('Y-m-d');
+        if (!isset($combinedRows[$dateKey])) {
+            $combinedRows[$dateKey] = [
+                'date' => $sessionDate->format('d/m/Y'),
+                'montant_reel' => null,
+                'montant_encaisse' => null,
+                'ecart' => null,
+                'date_key' => $dateKey,
+            ];
+        }
+
+        $combinedRows[$dateKey]['montant_reel'] = $row[$montantReelColumn] ?? null;
+        $combinedRows[$dateKey]['ecart'] = $row[$ecartColumn] ?? null;
+    }
+
+    $combinedRows = array_values($combinedRows);
+    usort($combinedRows, function (array $a, array $b): int {
+        return strcmp($b['date_key'], $a['date_key']);
+    });
+}
+
+function formatMontantValue($value): string
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    return number_format(((float) $value) / 100, 2, ',', ' ') . ' €';
+}
 ?>
 
 <!DOCTYPE HTML>
@@ -119,24 +181,27 @@ $recap = $ecartColumn ? buildEcartRecap($results, $ecartColumn) : [
                 </div>
             <?php endif; ?>
 
-            <?php if (!empty($results) && !empty($columns)): ?>
+            <?php if (!empty($combinedRows)): ?>
                 <table class="tableau">
                     <tr class="ligne">
-                        <?php foreach ($columns as $column): ?>
-                            <th class="cellule_tete"><?= htmlspecialchars(getSessionCaisseColumnLabel($column['Field'])) ?></th>
-                        <?php endforeach; ?>
+                        <th class="cellule_tete">Date</th>
+                        <th class="cellule_tete">Montant réel</th>
+                        <th class="cellule_tete">Montant encaissé</th>
+                        <th class="cellule_tete">Écart</th>
                     </tr>
-                    <?php foreach ($results as $row): ?>
+                    <?php foreach ($combinedRows as $row): ?>
                         <tr class="ligne">
-                            <?php foreach ($columns as $column): ?>
-                                <?php $value = $row[$column['Field']] ?? ''; ?>
-                                <td class="colonne"><?= htmlspecialchars((string) $value) ?></td>
-                            <?php endforeach; ?>
+                            <td class="colonne"><?= htmlspecialchars((string) ($row['date'] ?? '')) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse'] ?? null)) ?></td>
+                            <td class="colonne">
+                                <?= $row['ecart'] !== null && $row['ecart'] !== '' ? htmlspecialchars(formatEcartValue((float) $row['ecart'])) : '' ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
             <?php else: ?>
-                <p style="text-align: center;">Aucune session de caisse trouvée pour cette année.</p>
+                <p style="text-align: center;">Aucune donnée de session ou de bilan trouvée pour cette année.</p>
             <?php endif; ?>
         <?php else: ?>
             <p>Vous n'êtes pas administrateur, veuillez contacter le webmaster svp.</p>

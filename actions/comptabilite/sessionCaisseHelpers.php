@@ -38,6 +38,37 @@ function findSessionCaisseEcartColumn(array $columnNames): ?string
     return null;
 }
 
+function findSessionCaisseMontantReelColumn(array $columnNames): ?string
+{
+    foreach ($columnNames as $columnName) {
+        if (stripos($columnName, 'montant_reel') !== false) {
+            return $columnName;
+        }
+    }
+
+    return null;
+}
+
+function parseDateValueToDateTime($value): ?DateTimeImmutable
+{
+    if ($value === null || $value === '') {
+        return null;
+    }
+
+    if (is_numeric($value)) {
+        $timestamp = (int) $value;
+        if ($timestamp > 0) {
+            return (new DateTimeImmutable())->setTimestamp($timestamp);
+        }
+    }
+
+    try {
+        return new DateTimeImmutable((string) $value);
+    } catch (Exception $exception) {
+        return null;
+    }
+}
+
 function getSessionCaisseYears(PDO $db, string $dateColumn): array
 {
     $yearQuery = $db->query("SELECT DISTINCT YEAR($dateColumn) AS annee FROM session_caisse WHERE $dateColumn IS NOT NULL ORDER BY annee DESC");
