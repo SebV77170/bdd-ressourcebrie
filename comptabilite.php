@@ -134,7 +134,7 @@ if ($selectedYear) {
 function formatMontantValue($value): string
 {
     if ($value === null || $value === '') {
-        return '';
+        return '0,00 €';
     }
 
     return number_format(((float) $value) / 100, 2, ',', ' ') . ' €';
@@ -255,7 +255,7 @@ function formatMontantValue($value): string
                                 <?= htmlspecialchars(formatMontantValue($encaisseVirement)) ?>
                             </td>
                             <td class="colonne" rowspan="2">
-                                <?= $row['ecart'] !== null && $row['ecart'] !== '' ? htmlspecialchars(formatEcartValue((float) $row['ecart'])) : '' ?>
+                                <?= htmlspecialchars(formatEcartValue((float) ($row['ecart'] ?? 0))) ?>
                             </td>
                         </tr>
                         <tr class="ligne">
