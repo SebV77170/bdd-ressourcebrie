@@ -8,6 +8,9 @@ $columns = [];
 $dateColumn = null;
 $ecartColumn = null;
 $montantReelColumn = null;
+$montantReelCarteColumn = null;
+$montantReelChequeColumn = null;
+$montantReelVirementColumn = null;
 $errors = [];
 $results = [];
 $combinedRows = [];
@@ -21,6 +24,9 @@ try {
     $dateColumn = findSessionCaisseDateColumn($columnNames);
     $ecartColumn = findSessionCaisseEcartColumn($columnNames);
     $montantReelColumn = findSessionCaisseMontantReelColumn($columnNames);
+    $montantReelCarteColumn = in_array('montant_reel_carte', $columnNames, true) ? 'montant_reel_carte' : null;
+    $montantReelChequeColumn = in_array('montant_reel_cheque', $columnNames, true) ? 'montant_reel_cheque' : null;
+    $montantReelVirementColumn = in_array('montant_reel_virement', $columnNames, true) ? 'montant_reel_virement' : null;
 
     if (!$ecartColumn) {
         $errors[] = "La colonne 'ecart' est introuvable dans la table session_caisse.";
@@ -28,6 +34,15 @@ try {
 
     if (!$montantReelColumn) {
         $errors[] = "La colonne 'montant_reel' est introuvable dans la table session_caisse.";
+    }
+    if (!$montantReelCarteColumn) {
+        $errors[] = "La colonne 'montant_reel_carte' est introuvable dans la table session_caisse.";
+    }
+    if (!$montantReelChequeColumn) {
+        $errors[] = "La colonne 'montant_reel_cheque' est introuvable dans la table session_caisse.";
+    }
+    if (!$montantReelVirementColumn) {
+        $errors[] = "La colonne 'montant_reel_virement' est introuvable dans la table session_caisse.";
     }
 
     if ($dateColumn) {
@@ -67,8 +82,14 @@ if ($selectedYear) {
 
         $combinedRows[$dateKey] = [
             'date' => $bilan['date_label'] ?? $dateKey,
-            'montant_reel' => null,
-            'montant_encaisse' => $bilan['montant_encaisse'] ?? null,
+            'montant_reel_espece' => $bilan['montant_encaisse_espece'] ?? null,
+            'montant_encaisse_espece' => $bilan['montant_encaisse_espece'] ?? null,
+            'montant_reel_carte' => $bilan['montant_encaisse_carte'] ?? null,
+            'montant_encaisse_carte' => $bilan['montant_encaisse_carte'] ?? null,
+            'montant_reel_cheque' => $bilan['montant_encaisse_cheque'] ?? null,
+            'montant_encaisse_cheque' => $bilan['montant_encaisse_cheque'] ?? null,
+            'montant_reel_virement' => $bilan['montant_encaisse_virement'] ?? null,
+            'montant_encaisse_virement' => $bilan['montant_encaisse_virement'] ?? null,
             'ecart' => null,
             'date_key' => $dateKey,
         ];
@@ -84,14 +105,23 @@ if ($selectedYear) {
         if (!isset($combinedRows[$dateKey])) {
             $combinedRows[$dateKey] = [
                 'date' => $sessionDate->format('d/m/Y'),
-                'montant_reel' => null,
-                'montant_encaisse' => null,
+                'montant_reel_espece' => null,
+                'montant_encaisse_espece' => null,
+                'montant_reel_carte' => null,
+                'montant_encaisse_carte' => null,
+                'montant_reel_cheque' => null,
+                'montant_encaisse_cheque' => null,
+                'montant_reel_virement' => null,
+                'montant_encaisse_virement' => null,
                 'ecart' => null,
                 'date_key' => $dateKey,
             ];
         }
 
-        $combinedRows[$dateKey]['montant_reel'] = $row[$montantReelColumn] ?? null;
+        $combinedRows[$dateKey]['montant_reel_espece'] = $row[$montantReelColumn] ?? $combinedRows[$dateKey]['montant_reel_espece'] ?? null;
+        $combinedRows[$dateKey]['montant_reel_carte'] = $montantReelCarteColumn ? ($row[$montantReelCarteColumn] ?? $combinedRows[$dateKey]['montant_reel_carte'] ?? null) : $combinedRows[$dateKey]['montant_reel_carte'] ?? null;
+        $combinedRows[$dateKey]['montant_reel_cheque'] = $montantReelChequeColumn ? ($row[$montantReelChequeColumn] ?? $combinedRows[$dateKey]['montant_reel_cheque'] ?? null) : $combinedRows[$dateKey]['montant_reel_cheque'] ?? null;
+        $combinedRows[$dateKey]['montant_reel_virement'] = $montantReelVirementColumn ? ($row[$montantReelVirementColumn] ?? $combinedRows[$dateKey]['montant_reel_virement'] ?? null) : $combinedRows[$dateKey]['montant_reel_virement'] ?? null;
         $combinedRows[$dateKey]['ecart'] = $row[$ecartColumn] ?? null;
     }
 
@@ -185,18 +215,26 @@ function formatMontantValue($value): string
                 <table class="tableau">
                     <tr class="ligne">
                         <th class="cellule_tete">Date</th>
-                        <th class="cellule_tete">Montant réel</th>
-                        <th class="cellule_tete">Montant encaissé</th>
-                        <th class="cellule_tete">Écart</th>
+                        <th class="cellule_tete">Montant réel espèce</th>
+                        <th class="cellule_tete">Montant encaissé espèce</th>
+                        <th class="cellule_tete">Montant réel carte</th>
+                        <th class="cellule_tete">Montant encaissé carte</th>
+                        <th class="cellule_tete">Montant réel chèque</th>
+                        <th class="cellule_tete">Montant encaissé chèque</th>
+                        <th class="cellule_tete">Montant réel virement</th>
+                        <th class="cellule_tete">Montant encaissé virement</th>
                     </tr>
                     <?php foreach ($combinedRows as $row): ?>
                         <tr class="ligne">
                             <td class="colonne"><?= htmlspecialchars((string) ($row['date'] ?? '')) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel'] ?? null)) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse'] ?? null)) ?></td>
-                            <td class="colonne">
-                                <?= $row['ecart'] !== null && $row['ecart'] !== '' ? htmlspecialchars(formatEcartValue((float) $row['ecart'])) : '' ?>
-                            </td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_espece'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_espece'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_carte'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_carte'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_cheque'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_cheque'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_virement'] ?? null)) ?></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_virement'] ?? null)) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>

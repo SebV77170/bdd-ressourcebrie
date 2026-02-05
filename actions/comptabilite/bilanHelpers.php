@@ -5,7 +5,10 @@ function getBilanTotalsForYear(PDO $db, int $year): array
     $sql = "SELECT
                 DATE_FORMAT(STR_TO_DATE(`date`, '%d/%m/%Y'), '%Y-%m-%d') AS date_key,
                 DATE_FORMAT(STR_TO_DATE(`date`, '%d/%m/%Y'), '%d/%m/%Y') AS date_label,
-                SUM(prix_total) AS montant_encaisse
+                SUM(prix_total_espece) AS montant_encaisse_espece,
+                SUM(prix_total_carte) AS montant_encaisse_carte,
+                SUM(prix_total_cheque) AS montant_encaisse_cheque,
+                SUM(prix_total_virement) AS montant_encaisse_virement
             FROM bilan
             WHERE `date` IS NOT NULL
               AND STR_TO_DATE(`date`, '%d/%m/%Y') IS NOT NULL
