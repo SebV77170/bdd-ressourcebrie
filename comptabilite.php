@@ -214,27 +214,47 @@ function formatMontantValue($value): string
             <?php if (!empty($combinedRows)): ?>
                 <table class="tableau">
                     <tr class="ligne">
-                        <th class="cellule_tete">Date</th>
-                        <th class="cellule_tete">Montant réel espèce</th>
-                        <th class="cellule_tete">Montant encaissé espèce</th>
-                        <th class="cellule_tete">Montant réel carte</th>
-                        <th class="cellule_tete">Montant encaissé carte</th>
-                        <th class="cellule_tete">Montant réel chèque</th>
-                        <th class="cellule_tete">Montant encaissé chèque</th>
-                        <th class="cellule_tete">Montant réel virement</th>
-                        <th class="cellule_tete">Montant encaissé virement</th>
+                        <th class="cellule_tete" rowspan="2">Date</th>
+                        <th class="cellule_tete" colspan="2">Espèce</th>
+                        <th class="cellule_tete" colspan="2">Carte</th>
+                        <th class="cellule_tete" colspan="2">Chèque</th>
+                        <th class="cellule_tete" colspan="2">Virement</th>
+                        <th class="cellule_tete" rowspan="2">Écart net</th>
+                    </tr>
+                    <tr class="ligne">
+                        <th class="cellule_tete">Encaissé</th>
+                        <th class="cellule_tete">Réel</th>
+                        <th class="cellule_tete">Encaissé</th>
+                        <th class="cellule_tete">Réel</th>
+                        <th class="cellule_tete">Encaissé</th>
+                        <th class="cellule_tete">Réel</th>
+                        <th class="cellule_tete">Encaissé</th>
+                        <th class="cellule_tete">Réel</th>
                     </tr>
                     <?php foreach ($combinedRows as $row): ?>
                         <tr class="ligne">
-                            <td class="colonne"><?= htmlspecialchars((string) ($row['date'] ?? '')) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_espece'] ?? null)) ?></td>
+                            <td class="colonne" rowspan="2"><?= htmlspecialchars((string) ($row['date'] ?? '')) ?></td>
                             <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_espece'] ?? null)) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_carte'] ?? null)) ?></td>
+                            <td class="colonne"></td>
                             <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_carte'] ?? null)) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_cheque'] ?? null)) ?></td>
+                            <td class="colonne"></td>
                             <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_cheque'] ?? null)) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_virement'] ?? null)) ?></td>
+                            <td class="colonne"></td>
                             <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_virement'] ?? null)) ?></td>
+                            <td class="colonne"></td>
+                            <td class="colonne" rowspan="2">
+                                <?= $row['ecart'] !== null && $row['ecart'] !== '' ? htmlspecialchars(formatEcartValue((float) $row['ecart'])) : '' ?>
+                            </td>
+                        </tr>
+                        <tr class="ligne">
+                            <td class="colonne"></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_espece'] ?? null)) ?></td>
+                            <td class="colonne"></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_carte'] ?? null)) ?></td>
+                            <td class="colonne"></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_cheque'] ?? null)) ?></td>
+                            <td class="colonne"></td>
+                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_virement'] ?? null)) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
