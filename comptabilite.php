@@ -212,49 +212,65 @@ function formatMontantValue($value): string
             <?php endif; ?>
 
             <?php if (!empty($combinedRows)): ?>
+                <div style="text-align: center; margin: 15px 0;">
+                    <span style="color: #1e5cb3; font-weight: bold;">● Encaissé (bilan)</span>
+                    &nbsp;|&nbsp;
+                    <span style="color: #2e7d32; font-weight: bold;">● Réel (>= encaissé)</span>
+                    &nbsp;|&nbsp;
+                    <span style="color: #c62828; font-weight: bold;">● Réel (&lt; encaissé)</span>
+                </div>
                 <table class="tableau">
                     <tr class="ligne">
                         <th class="cellule_tete" rowspan="2">Date</th>
-                        <th class="cellule_tete" colspan="2">Espèce</th>
-                        <th class="cellule_tete" colspan="2">Carte</th>
-                        <th class="cellule_tete" colspan="2">Chèque</th>
-                        <th class="cellule_tete" colspan="2">Virement</th>
+                        <th class="cellule_tete" rowspan="2">Espèce</th>
+                        <th class="cellule_tete" rowspan="2">Carte</th>
+                        <th class="cellule_tete" rowspan="2">Chèque</th>
+                        <th class="cellule_tete" rowspan="2">Virement</th>
                         <th class="cellule_tete" rowspan="2">Écart net</th>
                     </tr>
-                    <tr class="ligne">
-                        <th class="cellule_tete">Encaissé</th>
-                        <th class="cellule_tete">Réel</th>
-                        <th class="cellule_tete">Encaissé</th>
-                        <th class="cellule_tete">Réel</th>
-                        <th class="cellule_tete">Encaissé</th>
-                        <th class="cellule_tete">Réel</th>
-                        <th class="cellule_tete">Encaissé</th>
-                        <th class="cellule_tete">Réel</th>
-                    </tr>
+                    <tr class="ligne"></tr>
                     <?php foreach ($combinedRows as $row): ?>
+                        <?php
+                            $encaisseEspece = $row['montant_encaisse_espece'] ?? null;
+                            $encaisseCarte = $row['montant_encaisse_carte'] ?? null;
+                            $encaisseCheque = $row['montant_encaisse_cheque'] ?? null;
+                            $encaisseVirement = $row['montant_encaisse_virement'] ?? null;
+                            $reelEspece = $row['montant_reel_espece'] ?? $encaisseEspece;
+                            $reelCarte = $row['montant_reel_carte'] ?? $encaisseCarte;
+                            $reelCheque = $row['montant_reel_cheque'] ?? $encaisseCheque;
+                            $reelVirement = $row['montant_reel_virement'] ?? $encaisseVirement;
+                        ?>
                         <tr class="ligne">
                             <td class="colonne" rowspan="2"><?= htmlspecialchars((string) ($row['date'] ?? '')) ?></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_espece'] ?? null)) ?></td>
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_carte'] ?? null)) ?></td>
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_cheque'] ?? null)) ?></td>
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_encaisse_virement'] ?? null)) ?></td>
-                            <td class="colonne"></td>
+                            <td class="colonne" style="color: #1e5cb3; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($encaisseEspece)) ?>
+                            </td>
+                            <td class="colonne" style="color: #1e5cb3; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($encaisseCarte)) ?>
+                            </td>
+                            <td class="colonne" style="color: #1e5cb3; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($encaisseCheque)) ?>
+                            </td>
+                            <td class="colonne" style="color: #1e5cb3; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($encaisseVirement)) ?>
+                            </td>
                             <td class="colonne" rowspan="2">
                                 <?= $row['ecart'] !== null && $row['ecart'] !== '' ? htmlspecialchars(formatEcartValue((float) $row['ecart'])) : '' ?>
                             </td>
                         </tr>
                         <tr class="ligne">
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_espece'] ?? null)) ?></td>
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_carte'] ?? null)) ?></td>
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_cheque'] ?? null)) ?></td>
-                            <td class="colonne"></td>
-                            <td class="colonne"><?= htmlspecialchars(formatMontantValue($row['montant_reel_virement'] ?? null)) ?></td>
+                            <td class="colonne" style="color: <?= (float) $reelEspece >= (float) $encaisseEspece ? '#2e7d32' : '#c62828' ?>; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($reelEspece)) ?>
+                            </td>
+                            <td class="colonne" style="color: <?= (float) $reelCarte >= (float) $encaisseCarte ? '#2e7d32' : '#c62828' ?>; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($reelCarte)) ?>
+                            </td>
+                            <td class="colonne" style="color: <?= (float) $reelCheque >= (float) $encaisseCheque ? '#2e7d32' : '#c62828' ?>; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($reelCheque)) ?>
+                            </td>
+                            <td class="colonne" style="color: <?= (float) $reelVirement >= (float) $encaisseVirement ? '#2e7d32' : '#c62828' ?>; font-weight: bold;">
+                                <?= htmlspecialchars(formatMontantValue($reelVirement)) ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
