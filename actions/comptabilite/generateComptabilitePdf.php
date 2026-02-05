@@ -302,17 +302,14 @@ foreach (['fond_initial', 'montant_reel', 'montant_reel_carte', 'montant_reel_ch
     }
 }
 // Meta
-foreach (['commentaire', 'cashiers', 'poste', 'issecondaire'] as $metaColumn) {
+foreach (['commentaire', 'caissiers', 'cashiers', 'poste', 'issecondaire'] as $metaColumn) {
     if (in_array($metaColumn, $columnNames, true)) {
         $displayColumns[] = $metaColumn;
     }
 }
 
 // Labels
-$columnLabels = [];
-foreach ($displayColumns as $columnName) {
-    $columnLabels[] = ucwords(str_replace('_', ' ', $columnName));
-}
+$columnLabels = getSessionCaisseColumnLabels($displayColumns);
 
 // Largeurs “de base” (avant scaling) : adaptées à tes types de colonnes
 $baseWidthMap = [

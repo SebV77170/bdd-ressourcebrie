@@ -80,3 +80,45 @@ function formatEcartValue(float $value): string
 {
     return number_format($value/100, 2, ',', ' ') . ' €';
 }
+
+function getSessionCaisseColumnLabel(string $columnName): string
+{
+    $labelMap = [
+        'id_session' => 'ID session',
+        'utilisateur_ouverture' => 'Utilisateur ouverture',
+        'responsable_ouverture' => 'Responsable ouverture',
+        'fond_initial' => 'Fond initial',
+        'utilisateur_fermeture' => 'Utilisateur fermeture',
+        'responsable_fermeture' => 'Responsable fermeture',
+        'montant_reel' => 'Montant réel',
+        'commentaire' => 'Commentaire',
+        'ecart' => 'Écart',
+        'caissiers' => 'Caissiers',
+        'cashiers' => 'Caissiers',
+        'montant_reel_carte' => 'Montant réel carte',
+        'montant_reel_cheque' => 'Montant réel chèque',
+        'montant_reel_virement' => 'Montant réel virement',
+        'issecondaire' => 'Secondaire',
+        'poste' => 'Poste',
+        'opened_at_utc' => 'Ouverture (UTC)',
+        'closed_at_utc' => 'Fermeture (UTC)',
+        'closed_at' => 'Fermeture',
+        'uuid_caisse_principale_si_secondaire' => 'UUID caisse principale (si secondaire)',
+    ];
+
+    if (array_key_exists($columnName, $labelMap)) {
+        return $labelMap[$columnName];
+    }
+
+    return ucwords(str_replace('_', ' ', $columnName));
+}
+
+function getSessionCaisseColumnLabels(array $columns): array
+{
+    $labels = [];
+    foreach ($columns as $columnName) {
+        $labels[] = getSessionCaisseColumnLabel($columnName);
+    }
+
+    return $labels;
+}

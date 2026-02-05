@@ -123,7 +123,7 @@ $recap = $ecartColumn ? buildEcartRecap($results, $ecartColumn) : [
                 <table class="tableau">
                     <tr class="ligne">
                         <?php foreach ($columns as $column): ?>
-                            <th class="cellule_tete"><?= htmlspecialchars(ucwords(str_replace('_', ' ', $column['Field']))) ?></th>
+                            <th class="cellule_tete"><?= htmlspecialchars(getSessionCaisseColumnLabel($column['Field'])) ?></th>
                         <?php endforeach; ?>
                     </tr>
                     <?php foreach ($results as $row): ?>
