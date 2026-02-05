@@ -283,7 +283,7 @@ function formatMontantValue($value): string
                                 $detailId = 'session-detail-' . $rowIndex . '-' . $sessionIndex;
                                 $hasDetails = !empty($session['data']);
                             ?>
-                            <tr class="ligne<?= $hasDetails ? ' session-toggle' : '' ?>" <?= $hasDetails ? 'data-target="' . htmlspecialchars($detailId) . '"' : '' ?> style="<?= $hasDetails ? 'cursor: pointer;' : '' ?>">
+                            <tr class="ligne<?= $hasDetails ? ' session-toggle' : '' ?>" <?= $hasDetails ? 'data-target="' . htmlspecialchars($detailId) . '"' : '' ?> style="<?= $hasDetails ? 'cursor: pointer;' : '' ?>" <?= $hasDetails ? 'title="Cliquer pour afficher les détails de la session"' : '' ?>>
                                 <td class="colonne" style="color: <?= (float) $sessionTotals['espece'] >= (float) $encaisseEspece ? '#2e7d32' : '#c62828' ?>; font-weight: bold;">
                                     <?= htmlspecialchars(formatMontantValue($session['espece'] ?? null)) ?>
                                 </td>
@@ -298,6 +298,11 @@ function formatMontantValue($value): string
                                 </td>
                                 <td class="colonne">
                                     <?= htmlspecialchars(formatEcartValue((float) ($session['ecart'] ?? 0))) ?>
+                                    <?php if ($hasDetails): ?>
+                                        <span style="display: inline-block; margin-left: 10px; font-size: 0.9em; color: #007BFF;">
+                                            ▼ Détails
+                                        </span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php if ($hasDetails): ?>
