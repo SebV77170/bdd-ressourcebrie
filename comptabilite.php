@@ -120,6 +120,7 @@ if ($selectedYear) {
             'cheque' => $montantReelChequeColumn ? ($row[$montantReelChequeColumn] ?? null) : null,
             'virement' => $montantReelVirementColumn ? ($row[$montantReelVirementColumn] ?? null) : null,
             'ecart' => $row[$ecartColumn] ?? null,
+            'data' => $row,
         ];
     }
 
@@ -131,6 +132,7 @@ if ($selectedYear) {
                 'cheque' => $combinedRow['bilan']['cheque'],
                 'virement' => $combinedRow['bilan']['virement'],
                 'ecart' => null,
+                'data' => null,
             ];
         }
     }
@@ -240,7 +242,7 @@ function formatMontantValue($value): string
                         <th class="cellule_tete" rowspan="2">Écart net</th>
                     </tr>
                     <tr class="ligne"></tr>
-                    <?php foreach ($combinedRows as $row): ?>
+                    <?php foreach ($combinedRows as $rowIndex => $row): ?>
                         <?php
                             $encaisseEspece = $row['bilan']['espece'] ?? null;
                             $encaisseCarte = $row['bilan']['carte'] ?? null;
@@ -276,8 +278,12 @@ function formatMontantValue($value): string
                             </td>
                             <td class="colonne"></td>
                         </tr>
-                        <?php foreach ($row['sessions'] as $session): ?>
-                            <tr class="ligne">
+                        <?php foreach ($row['sessions'] as $sessionIndex => $session): ?>
+                            <?php
+                                $detailId = 'session-detail-' . $rowIndex . '-' . $sessionIndex;
+                                $hasDetails = !empty($session['data']);
+                            ?>
+                            <tr class="ligne<?= $hasDetails ? ' session-toggle' : '' ?>" <?= $hasDetails ? 'data-target="' . htmlspecialchars($detailId) . '"' : '' ?> style="<?= $hasDetails ? 'cursor: pointer;' : '' ?>">
                                 <td class="colonne" style="color: <?= (float) $sessionTotals['espece'] >= (float) $encaisseEspece ? '#2e7d32' : '#c62828' ?>; font-weight: bold;">
                                     <?= htmlspecialchars(formatMontantValue($session['espece'] ?? null)) ?>
                                 </td>
@@ -294,6 +300,28 @@ function formatMontantValue($value): string
                                     <?= htmlspecialchars(formatEcartValue((float) ($session['ecart'] ?? 0))) ?>
                                 </td>
                             </tr>
+                            <?php if ($hasDetails): ?>
+                                <tr id="<?= htmlspecialchars($detailId) ?>" class="ligne session-details" style="display: none;">
+                                    <td class="colonne" colspan="6" style="text-align: left;">
+                                        <div style="padding: 10px; background-color: #f7f7f7; border: 1px solid #ddd;">
+                                            <strong>Détails de la session caisse</strong>
+                                            <table class="tableau" style="margin-top: 10px; width: 100%;">
+                                                <?php foreach ($columns as $column): ?>
+                                                    <?php $columnName = $column['Field']; ?>
+                                                    <tr class="ligne">
+                                                        <th class="cellule_tete" style="text-align: left; width: 35%;">
+                                                            <?= htmlspecialchars(getSessionCaisseColumnLabel($columnName)) ?>
+                                                        </th>
+                                                        <td class="colonne">
+                                                            <?= htmlspecialchars((string) ($session['data'][$columnName] ?? '')) ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                 </table>
@@ -305,5 +333,22 @@ function formatMontantValue($value): string
         <?php endif; ?>
 
         <?php include('includes/footer.php'); ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.session-toggle').forEach(function (row) {
+                    row.addEventListener('click', function () {
+                        const targetId = row.getAttribute('data-target');
+                        if (!targetId) {
+                            return;
+                        }
+                        const detailsRow = document.getElementById(targetId);
+                        if (!detailsRow) {
+                            return;
+                        }
+                        detailsRow.style.display = detailsRow.style.display === 'none' ? 'table-row' : 'none';
+                    });
+                });
+            });
+        </script>
     </body>
 </html>
