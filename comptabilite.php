@@ -8,6 +8,7 @@ $columns = [];
 $dateColumn = null;
 $ecartColumn = null;
 $montantReelColumn = null;
+$fondInitialColumn = null;
 $montantReelCarteColumn = null;
 $montantReelChequeColumn = null;
 $montantReelVirementColumn = null;
@@ -24,6 +25,7 @@ try {
     $dateColumn = findSessionCaisseDateColumn($columnNames);
     $ecartColumn = findSessionCaisseEcartColumn($columnNames);
     $montantReelColumn = findSessionCaisseMontantReelColumn($columnNames);
+    $fondInitialColumn = in_array('fond_initial', $columnNames, true) ? 'fond_initial' : null;
     $montantReelCarteColumn = in_array('montant_reel_carte', $columnNames, true) ? 'montant_reel_carte' : null;
     $montantReelChequeColumn = in_array('montant_reel_cheque', $columnNames, true) ? 'montant_reel_cheque' : null;
     $montantReelVirementColumn = in_array('montant_reel_virement', $columnNames, true) ? 'montant_reel_virement' : null;
@@ -114,8 +116,11 @@ if ($selectedYear) {
             ];
         }
 
+        $montantReelEspece = (float) ($row[$montantReelColumn] ?? 0);
+        $fondInitial = $fondInitialColumn ? (float) ($row[$fondInitialColumn] ?? 0) : 0;
+
         $combinedRows[$dateKey]['sessions'][] = [
-            'espece' => $row[$montantReelColumn] ?? null,
+            'espece' => $montantReelEspece - $fondInitial,
             'carte' => $montantReelCarteColumn ? ($row[$montantReelCarteColumn] ?? null) : null,
             'cheque' => $montantReelChequeColumn ? ($row[$montantReelChequeColumn] ?? null) : null,
             'virement' => $montantReelVirementColumn ? ($row[$montantReelVirementColumn] ?? null) : null,
