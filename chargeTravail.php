@@ -8,6 +8,18 @@ if ($annee < 2000 || $annee > 2100) {
     $annee = (int) date('Y');
 }
 
+$yearsStmt = $db->query("SELECT DISTINCT YEAR(start) AS annee FROM events WHERE start IS NOT NULL ORDER BY annee DESC");
+$availableYears = array_values(array_filter(
+    array_map(static fn($row) => isset($row['annee']) ? (int) $row['annee'] : null, $yearsStmt->fetchAll(PDO::FETCH_ASSOC)),
+    static fn($year) => $year !== null && $year >= 2000 && $year <= 2100
+));
+
+if ($availableYears === []) {
+    $availableYears = [$annee];
+} elseif (!in_array($annee, $availableYears, true)) {
+    $annee = $availableYears[0];
+}
+
 $chargeTravail = getChargeTravailStatsForYear($db, $annee);
 ?>
 
@@ -27,9 +39,14 @@ $chargeTravail = getChargeTravailStatsForYear($db, $annee);
 
         <?php if ($_SESSION['admin'] >= 1) { ?>
             <div class="doc">
-                <ul class="doc_ul">
-                    <a class="doc_lien" href="bilan.php"><li class="doc_li" id="bleu">Retour aux bilans</li></a>
-                </ul>
+                <form method="get" class="jeuchamp" id="filtre-annee-form" style="display:flex;gap:.75rem;align-items:center;justify-content:center;flex-wrap:wrap;">
+                    <label for="annee" class="champ">Année :</label>
+                    <select id="annee" name="annee" class="input" onchange="this.form.submit()">
+                        <?php foreach ($availableYears as $yearOption) { ?>
+                            <option value="<?= $yearOption ?>" <?= $yearOption === $annee ? 'selected' : '' ?>><?= $yearOption ?></option>
+                        <?php } ?>
+                    </select>
+                </form>
             </div>
 
             <div class="container">
