@@ -24,8 +24,11 @@ function getBilanTotalsForYear(PDO $db, int $year): array
 
 function getChargeTravailStatsForYear(PDO $db, int $year): array
 {
+    $currentYear = (int) date('Y');
     $periodStart = sprintf('%d-01-01 00:00:00', $year);
-    $periodEnd = sprintf('%d-12-31 23:59:59', $year);
+    $periodEnd = $year < $currentYear
+        ? sprintf('%d-12-31 23:59:59', $year)
+        : date('Y-m-d 23:59:59');
 
     $eventDaysSql = "SELECT
                         COUNT(DISTINCT DATE(start)) AS total_activity_days,
