@@ -58,7 +58,9 @@ $chargeTravail = getChargeTravailStatsForYear($db, $annee);
                         <p><strong>Jours de vente :</strong> <?= $chargeTravail['total_sales_days'] ?></p>
                         <p><strong>Jours de collecte :</strong> <?= $chargeTravail['total_collection_days'] ?></p>
                         <p><strong>Heures de bénévolat :</strong> <?= $chargeTravail['benevolat_hours'] ?> h</p>
-                        <p><strong>Heures des salariés :</strong> <?= $chargeTravail['employee_hours'] ?> h</p>
+                        <p><strong>Heures des salariées - total (status 1 et 2) :</strong> <?= $chargeTravail['employee_hours'] ?> h</p>
+                        <p><strong>Heures des coordinatrices (status 1) :</strong> <?= $chargeTravail['employee_hours_coordinatrice'] ?> h</p>
+                        <p><strong>Heures des agents d'entretien (status 2) :</strong> <?= $chargeTravail['employee_hours_agent_entretien'] ?> h</p>
                     </div>
                 </div>
             </div>

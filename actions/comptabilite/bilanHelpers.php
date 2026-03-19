@@ -22,7 +22,7 @@ function getBilanTotalsForYear(PDO $db, int $year): array
     return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodStart, DateTimeImmutable $periodEnd): int
+function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodStart, DateTimeImmutable $periodEnd): array
 {
     $contractsSql = "SELECT uuid_user, date_debut, date_fin, status, heures_hebdomadaires
                      FROM employes
@@ -37,7 +37,10 @@ function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodSta
     ]);
 
     $contracts = $contractsStmt->fetchAll(PDO::FETCH_ASSOC);
-    $totalHours = 0.0;
+    $hoursByStatus = [
+        1 => 0.0,
+        2 => 0.0,
+    ];
 
     foreach ($contracts as $contract) {
         $contractStart = new DateTimeImmutable(($contract['date_debut'] ?? $periodStart->format('Y-m-d')) . ' 00:00:00');
@@ -52,16 +55,25 @@ function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodSta
             continue;
         }
 
+        $status = (int) ($contract['status'] ?? 0);
+        if (!array_key_exists($status, $hoursByStatus)) {
+            continue;
+        }
+
         $weeklyHours = (float) ($contract['heures_hebdomadaires'] ?? 0);
         if ($weeklyHours <= 0) {
             continue;
         }
 
         $coveredDays = (int) $effectiveEnd->diff($effectiveStart)->format('%a') + 1;
-        $totalHours += $weeklyHours * ($coveredDays / 7);
+        $hoursByStatus[$status] += $weeklyHours * ($coveredDays / 7);
     }
 
-    return (int) round($totalHours);
+    return [
+        'total' => (int) round($hoursByStatus[1] + $hoursByStatus[2]),
+        'coordinatrice' => (int) round($hoursByStatus[1]),
+        'agent_entretien' => (int) round($hoursByStatus[2]),
+    ];
 }
 
 function getChargeTravailStatsForYear(PDO $db, int $year): array
@@ -115,6 +127,8 @@ function getChargeTravailStatsForYear(PDO $db, int $year): array
         'total_sales_days' => (int) ($eventDays['total_sales_days'] ?? 0),
         'total_collection_days' => (int) ($eventDays['total_collection_days'] ?? 0),
         'benevolat_hours' => $benevolatHours,
-        'employee_hours' => $employeeHours,
+        'employee_hours' => $employeeHours['total'],
+        'employee_hours_coordinatrice' => $employeeHours['coordinatrice'],
+        'employee_hours_agent_entretien' => $employeeHours['agent_entretien'],
     ];
 }
