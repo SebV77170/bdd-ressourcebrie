@@ -22,6 +22,32 @@ function getBilanTotalsForYear(PDO $db, int $year): array
     return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getEmployeeContractHoursForPeriod(int $year, DateTimeImmutable $periodEnd, int $employeeCount): int
+{
+    if ($employeeCount <= 0) {
+        return 0;
+    }
+
+    $periodStart = new DateTimeImmutable(sprintf('%d-01-01 00:00:00', $year));
+    $cursor = $periodStart->modify('first day of this month');
+    $totalHours = 0.0;
+
+    while ($cursor <= $periodEnd) {
+        $monthStart = $cursor;
+        $monthEnd = $cursor->modify('last day of this month 23:59:59');
+        $effectiveEnd = $monthEnd > $periodEnd ? $periodEnd : $monthEnd;
+
+        $daysInMonth = (int) $monthStart->format('t');
+        $coveredDays = (int) $effectiveEnd->format('j');
+        $monthlyHours = ($year === 2025 && (int) $monthStart->format('n') <= 5) ? (25 * 52 / 12) : 130;
+
+        $totalHours += ($monthlyHours * ($coveredDays / $daysInMonth)) * $employeeCount;
+        $cursor = $cursor->modify('first day of next month');
+    }
+
+    return (int) round($totalHours);
+}
+
 function getChargeTravailStatsForYear(PDO $db, int $year): array
 {
     $currentYear = (int) date('Y');
@@ -29,6 +55,7 @@ function getChargeTravailStatsForYear(PDO $db, int $year): array
     $periodEnd = $year < $currentYear
         ? sprintf('%d-12-31 23:59:59', $year)
         : date('Y-m-d 23:59:59');
+    $periodEndDate = new DateTimeImmutable($periodEnd);
 
     $eventDaysSql = "SELECT
                         COUNT(DISTINCT DATE(start)) AS total_activity_days,
@@ -45,22 +72,26 @@ function getChargeTravailStatsForYear(PDO $db, int $year): array
     ]);
     $eventDays = $eventDaysStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-    $hoursSql = "SELECT
-                    COALESCE(SUM(CASE WHEN employes.uuid_user IS NULL THEN TIMESTAMPDIFF(MINUTE, events.start, events.end) END), 0) DIV 60 AS benevolat_hours,
-                    COALESCE(SUM(CASE WHEN employes.uuid_user IS NOT NULL THEN TIMESTAMPDIFF(MINUTE, events.start, events.end) END), 0) DIV 60 AS employee_hours
-                 FROM events
-                 INNER JOIN inscription_creneau ON inscription_creneau.id_event = events.id
-                 INNER JOIN users ON users.uuid_user = inscription_creneau.id_user
-                 LEFT JOIN employes ON employes.uuid_user = users.uuid_user
-                 WHERE events.start >= :periodStart
-                   AND events.end <= :periodEnd";
+    $benevolatSql = "SELECT
+                        COALESCE(SUM(TIMESTAMPDIFF(MINUTE, events.start, events.end)), 0) DIV 60 AS benevolat_hours
+                     FROM events
+                     INNER JOIN inscription_creneau ON inscription_creneau.id_event = events.id
+                     INNER JOIN users ON users.uuid_user = inscription_creneau.id_user
+                     LEFT JOIN employes ON employes.uuid_user = users.uuid_user
+                     WHERE employes.uuid_user IS NULL
+                       AND events.start >= :periodStart
+                       AND events.end <= :periodEnd";
 
-    $hoursStmt = $db->prepare($hoursSql);
-    $hoursStmt->execute([
+    $benevolatStmt = $db->prepare($benevolatSql);
+    $benevolatStmt->execute([
         'periodStart' => $periodStart,
         'periodEnd' => $periodEnd,
     ]);
-    $hours = $hoursStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    $benevolatHours = (int) (($benevolatStmt->fetch(PDO::FETCH_ASSOC) ?: [])['benevolat_hours'] ?? 0);
+
+    $employeeCountStmt = $db->query('SELECT COUNT(*) AS total_employees FROM employes');
+    $employeeCount = (int) (($employeeCountStmt->fetch(PDO::FETCH_ASSOC) ?: [])['total_employees'] ?? 0);
+    $employeeHours = getEmployeeContractHoursForPeriod($year, $periodEndDate, $employeeCount);
 
     return [
         'period_start' => $periodStart,
@@ -68,7 +99,7 @@ function getChargeTravailStatsForYear(PDO $db, int $year): array
         'total_activity_days' => (int) ($eventDays['total_activity_days'] ?? 0),
         'total_sales_days' => (int) ($eventDays['total_sales_days'] ?? 0),
         'total_collection_days' => (int) ($eventDays['total_collection_days'] ?? 0),
-        'benevolat_hours' => (int) ($hours['benevolat_hours'] ?? 0),
-        'employee_hours' => (int) ($hours['employee_hours'] ?? 0),
+        'benevolat_hours' => $benevolatHours,
+        'employee_hours' => $employeeHours,
     ];
 }
