@@ -22,27 +22,53 @@ function getBilanTotalsForYear(PDO $db, int $year): array
     return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getEmployeeContractHoursForPeriod(int $year, DateTimeImmutable $periodEnd, int $employeeCount): int
+function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodStart, DateTimeImmutable $periodEnd): int
 {
-    if ($employeeCount <= 0) {
-        return 0;
-    }
+    $contractsSql = "SELECT uuid_user, date_debut, date_fin, status, heures_mensuelles
+                     FROM employes
+                     WHERE date_debut <= :periodEndDate
+                       AND date_fin >= :periodStartDate
+                     ORDER BY uuid_user, date_debut";
 
-    $periodStart = new DateTimeImmutable(sprintf('%d-01-01 00:00:00', $year));
-    $cursor = $periodStart->modify('first day of this month');
+    $contractsStmt = $db->prepare($contractsSql);
+    $contractsStmt->execute([
+        'periodStartDate' => $periodStart->format('Y-m-d'),
+        'periodEndDate' => $periodEnd->format('Y-m-d'),
+    ]);
+
+    $contracts = $contractsStmt->fetchAll(PDO::FETCH_ASSOC);
     $totalHours = 0.0;
 
-    while ($cursor <= $periodEnd) {
-        $monthStart = $cursor;
-        $monthEnd = $cursor->modify('last day of this month 23:59:59');
-        $effectiveEnd = $monthEnd > $periodEnd ? $periodEnd : $monthEnd;
+    foreach ($contracts as $contract) {
+        $contractStart = new DateTimeImmutable(($contract['date_debut'] ?? $periodStart->format('Y-m-d')) . ' 00:00:00');
+        $contractEnd = new DateTimeImmutable(($contract['date_fin'] ?? $periodEnd->format('Y-m-d')) . ' 23:59:59');
+        $effectiveStart = $contractStart > $periodStart ? $contractStart : $periodStart;
+        $effectiveEnd = $contractEnd < $periodEnd ? $contractEnd : $periodEnd;
 
-        $daysInMonth = (int) $monthStart->format('t');
-        $coveredDays = (int) $effectiveEnd->format('j');
-        $monthlyHours = ($year === 2025 && (int) $monthStart->format('n') <= 5) ? (25 * 52 / 12) : 130;
+        if ($effectiveStart > $effectiveEnd) {
+            continue;
+        }
 
-        $totalHours += ($monthlyHours * ($coveredDays / $daysInMonth)) * $employeeCount;
-        $cursor = $cursor->modify('first day of next month');
+        $monthlyHours = (float) ($contract['heures_mensuelles'] ?? 0);
+        if ($monthlyHours <= 0) {
+            continue;
+        }
+
+        $cursor = $effectiveStart->modify('first day of this month 00:00:00');
+        while ($cursor <= $effectiveEnd) {
+            $monthStart = $cursor;
+            $monthEnd = $cursor->modify('last day of this month 23:59:59');
+            $sliceStart = $monthStart < $effectiveStart ? $effectiveStart : $monthStart;
+            $sliceEnd = $monthEnd > $effectiveEnd ? $effectiveEnd : $monthEnd;
+
+            if ($sliceStart <= $sliceEnd) {
+                $daysInMonth = (int) $monthStart->format('t');
+                $coveredDays = (int) $sliceEnd->format('j') - (int) $sliceStart->format('j') + 1;
+                $totalHours += $monthlyHours * ($coveredDays / $daysInMonth);
+            }
+
+            $cursor = $cursor->modify('first day of next month 00:00:00');
+        }
     }
 
     return (int) round($totalHours);
@@ -55,6 +81,7 @@ function getChargeTravailStatsForYear(PDO $db, int $year): array
     $periodEnd = $year < $currentYear
         ? sprintf('%d-12-31 23:59:59', $year)
         : date('Y-m-d 23:59:59');
+    $periodStartDate = new DateTimeImmutable($periodStart);
     $periodEndDate = new DateTimeImmutable($periodEnd);
 
     $eventDaysSql = "SELECT
@@ -89,9 +116,7 @@ function getChargeTravailStatsForYear(PDO $db, int $year): array
     ]);
     $benevolatHours = (int) (($benevolatStmt->fetch(PDO::FETCH_ASSOC) ?: [])['benevolat_hours'] ?? 0);
 
-    $employeeCountStmt = $db->query('SELECT COUNT(*) AS total_employees FROM employes');
-    $employeeCount = (int) (($employeeCountStmt->fetch(PDO::FETCH_ASSOC) ?: [])['total_employees'] ?? 0);
-    $employeeHours = getEmployeeContractHoursForPeriod($year, $periodEndDate, $employeeCount);
+    $employeeHours = getEmployeeContractHoursForPeriod($db, $periodStartDate, $periodEndDate);
 
     return [
         'period_start' => $periodStart,
