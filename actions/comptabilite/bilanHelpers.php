@@ -27,7 +27,7 @@ function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodSta
     $contractsSql = "SELECT uuid_user, date_debut, date_fin, status, heures_hebdomadaires
                      FROM employes
                      WHERE date_debut <= :periodEndDate
-                       AND date_fin >= :periodStartDate
+                       AND (date_fin = '0000-00-00' OR date_fin >= :periodStartDate)
                      ORDER BY uuid_user, date_debut";
 
     $contractsStmt = $db->prepare($contractsSql);
@@ -41,7 +41,10 @@ function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodSta
 
     foreach ($contracts as $contract) {
         $contractStart = new DateTimeImmutable(($contract['date_debut'] ?? $periodStart->format('Y-m-d')) . ' 00:00:00');
-        $contractEnd = new DateTimeImmutable(($contract['date_fin'] ?? $periodEnd->format('Y-m-d')) . ' 23:59:59');
+        $rawContractEnd = $contract['date_fin'] ?? $periodEnd->format('Y-m-d');
+        $contractEnd = $rawContractEnd === '0000-00-00'
+            ? $periodEnd
+            : new DateTimeImmutable($rawContractEnd . ' 23:59:59');
         $effectiveStart = $contractStart > $periodStart ? $contractStart : $periodStart;
         $effectiveEnd = $contractEnd < $periodEnd ? $contractEnd : $periodEnd;
 
