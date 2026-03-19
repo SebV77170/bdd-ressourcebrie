@@ -24,7 +24,7 @@ function getBilanTotalsForYear(PDO $db, int $year): array
 
 function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodStart, DateTimeImmutable $periodEnd): int
 {
-    $contractsSql = "SELECT uuid_user, date_debut, date_fin, status, heures_mensuelles
+    $contractsSql = "SELECT uuid_user, date_debut, date_fin, status, heures_hebdomadaires
                      FROM employes
                      WHERE date_debut <= :periodEndDate
                        AND date_fin >= :periodStartDate
@@ -49,26 +49,13 @@ function getEmployeeContractHoursForPeriod(PDO $db, DateTimeImmutable $periodSta
             continue;
         }
 
-        $monthlyHours = (float) ($contract['heures_mensuelles'] ?? 0);
-        if ($monthlyHours <= 0) {
+        $weeklyHours = (float) ($contract['heures_hebdomadaires'] ?? 0);
+        if ($weeklyHours <= 0) {
             continue;
         }
 
-        $cursor = $effectiveStart->modify('first day of this month 00:00:00');
-        while ($cursor <= $effectiveEnd) {
-            $monthStart = $cursor;
-            $monthEnd = $cursor->modify('last day of this month 23:59:59');
-            $sliceStart = $monthStart < $effectiveStart ? $effectiveStart : $monthStart;
-            $sliceEnd = $monthEnd > $effectiveEnd ? $effectiveEnd : $monthEnd;
-
-            if ($sliceStart <= $sliceEnd) {
-                $daysInMonth = (int) $monthStart->format('t');
-                $coveredDays = (int) $sliceEnd->format('j') - (int) $sliceStart->format('j') + 1;
-                $totalHours += $monthlyHours * ($coveredDays / $daysInMonth);
-            }
-
-            $cursor = $cursor->modify('first day of next month 00:00:00');
-        }
+        $coveredDays = (int) $effectiveEnd->diff($effectiveStart)->format('%a') + 1;
+        $totalHours += $weeklyHours * ($coveredDays / 7);
     }
 
     return (int) round($totalHours);
