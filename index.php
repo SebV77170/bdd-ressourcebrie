@@ -1,6 +1,7 @@
 <?php
 require('actions/users/securityAction.php');
 require('actions/objets/insertObjetDsDb.php');
+echo 'alwaysdata';
 ?>
 
 
