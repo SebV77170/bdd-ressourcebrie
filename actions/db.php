@@ -1,32 +1,27 @@
 <?php
 
-// Détection automatique de l'environnement
-$host = $_SERVER['HTTP_HOST'] ?? '';
+require_once __DIR__ . '/../vendor/autoload.php';
+use Dotenv\Dotenv;
 
-if ($host === 'bdd' || $host === '127.0.0.1') {
-    // Mode développement
-    $dbname = "objets";
-    $serveur = "localhost";
-    $login = "root";
-    $pass = "";
-} else {
-    // Mode production (à adapter selon ton hébergement)
-    /* $dbname = "09007_ressourceb";
-    $serveur = "sql01.ouvaton.coop";
-    $login = "09007_ressourceb";
-    $pass = "LaRessourcerieDeBrie77170!"; */
+// Charger le .env
+$dotenv = Dotenv::createImmutable(dirname(__DIR__));
 
-    $dbname = "ressourcebrie_bdd";
-    $serveur = "mysql-ressourcebrie.alwaysdata.net";
-    $login = "418153";
-    $pass = "geMsos-wunxoc-1fucbu";
+$dotenv->load();
 
-}
+$serveur = $_ENV['DB_HOST'] ?? 'localhost';
+$dbname  = $_ENV['DB_NAME'] ?? '';
+$login   = $_ENV['DB_USER'] ?? '';
+$pass    = $_ENV['DB_PASS'] ?? '';
+$charset = $_ENV['DB_CHARSET'] ?? 'utf8';
 
 try {
-    $db = new PDO("mysql:host=$serveur;dbname=$dbname;charset=utf8", $login, $pass);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(Exception $e) {
-    die('Une erreur a été trouvée : '.$e->getMessage());
+    $dsn = "mysql:host=$serveur;dbname=$dbname;charset=$charset";
+
+    $db = new PDO($dsn, $login, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+
+} catch (Exception $e) {
+    die('Une erreur a été trouvée : ' . $e->getMessage());
 }
-?>
