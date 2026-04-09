@@ -2,20 +2,21 @@
 require('actions/db.php');
 require('actions/users/securityAction.php');
 require('actions/objets/insertObjetDsDb.php');
-//Ces variables $tridepot et $limit modifie le fichier recupDb.php pour n'afficher seulement que les 3 dernières saisies sur la page depot.php.
+
+// Ces variables $tridepot et $limit modifient le fichier recupDb.php
 $tridepot = 'timestamp DESC';
 $limit = " LIMIT 3";
-// Cette variable permet de rajouter dans la requete SQL de recupDb, de n'afficher que les dernières saisies de la personne loguée et du jour actuel
-$date_actuelle = new DateTime('now', new DateTimeZone('Europe/paris'));
-$date_actuelle = $date_actuelle->format('Y/m/d G:i');
-$where1 = 'WHERE (saisipar = "'.$_SESSION['nom'].' '.$_SESSION['prenom'].'") AND (date = "'.$date_actuelle.'")';
+
+// Date du jour
+$date_actuelle = new DateTime('now', new DateTimeZone('Europe/Paris'));
+$date_du_jour = $date_actuelle->format('Y-m-d');
+$date_affichage = $date_actuelle->format('d/m/Y H:i');
+
+// Filtre pour aujourd'hui
+$where2 = 'WHERE DATE(date) = "'.$date_du_jour.'"';
 
 require('actions/objets/recupDb.php');
-
-$where2 = 'WHERE date = "'.$date_actuelle.'"';
-
 require('actions/objets/getSommePoids.php');
-
 ?>
 
 
@@ -39,11 +40,13 @@ require('actions/objets/getSommePoids.php');
             if($_SESSION['admin'] >= 1){
             ?>
         
-         <p style="text-align: center;"> Poids Total d'objets <b>collectés</b> toute catégorie confondue aujourd'hui, le <?=$date_actuelle?> : </br>
-         <?php
-        $poids_total_obj_collecte_kg = $poids_total_obj_collecte['poids_total']/1000;
-        echo $poids_total_obj_collecte_kg.' Kg';
-        ?> </p>
+         <p style="text-align: center;">
+    Poids Total d'objets <b>collectés</b> toute catégorie confondue aujourd'hui, le <?=$date_affichage?> : <br>
+    <?php
+    $poids_total_obj_collecte_kg = $poids_total_obj_collecte['poids_total'] / 1000;
+    echo $poids_total_obj_collecte_kg.' Kg';
+    ?>
+</p>
 
         <form method="post">
                 
@@ -120,27 +123,23 @@ require('actions/objets/getSommePoids.php');
                 <th class="cellule_tete">Date d'insertion</th>
                 
             </tr>
-        
-        <?php foreach($getObjets as list($id, $nom, $type, $souscat, $poids, $date, $timestamp, $flux)){
-                    
-        
-                        echo '<tr class="ligne">
-                        
-                            <td class="colonne">'.$id.'</td>
-                            <td class="colonne">'.$flux.'</td>
-                            <td class="colonne">'.$type.'</td>
-                            <td class="colonne">'.$souscat.'</td>
-                            
-                            <td class="colonne">'.$poids.'</td>
-                            <td class="colonne">'.$date.'</td>
-                            
-                            <td class="colonne"><a href="modifObjet.php?id='.$id.'&from=depot">Modifier</a></td>
-                            
-                            <td class="colonne"><a href="actions/objets/supprObjetAction.php?id='.$id.'&from=depot">Supprimer</a></td>
-                            
-                          </tr>'  ;
-        }
-        ?>
+       
+       <?php foreach($getObjets as $objet){ ?>
+    <tr class="ligne">
+        <td class="colonne"><?= htmlspecialchars($objet['id']) ?></td>
+        <td class="colonne"><?= htmlspecialchars($objet['flux']) ?></td>
+        <td class="colonne"><?= htmlspecialchars($objet['categorie']) ?></td>
+        <td class="colonne"><?= htmlspecialchars($objet['souscat']) ?></td>
+        <td class="colonne"><?= htmlspecialchars($objet['poids']) ?></td>
+        <td class="colonne"><?= htmlspecialchars($objet['date']) ?></td>
+        <td class="colonne">
+            <a href="modifObjet.php?id=<?= urlencode($objet['id']) ?>&from=depot">Modifier</a>
+        </td>
+        <td class="colonne">
+            <a href="actions/objets/supprObjetAction.php?id=<?= urlencode($objet['id']) ?>&from=depot">Supprimer</a>
+        </td>
+    </tr>
+<?php } ?>
         </table>
         
         <!-- Script Jquery pour dérouler des sous catégories à partir des catégories-->
