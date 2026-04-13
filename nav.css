@@ -146,6 +146,13 @@
   .navforum {
     min-height: auto;
     padding-top: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 1070;
+  }
+
+  .navforum .container-fluid {
+    position: relative;
   }
 
   .navforum .navbar-collapse {
@@ -165,8 +172,8 @@
   }
 
   .custom-toggler {
-    position: fixed;
-    top: 160px;
+    position: absolute;
+    top: 8px;
     left: 8px;
     margin: 0;
     z-index: 1080;
