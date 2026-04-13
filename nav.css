@@ -1,60 +1,87 @@
 @charset "UTF-8";
+
 .navforum {
   width: 100%;
-  height: 80px;
-  /*le TOP permet d'avoir la position sticky qui vient à 0px du haut, soit collé en haut du navigateur. */
-  /*Peut-être à faire évoluer pour un affichage sur petit écran*/
-  top: 0px;
+  top: 0;
   background-color: #FBF3E4;
+  min-height: 80px;
+}
+
+.navforum .container-fluid {
+  justify-content: center;
+}
+
+.navforum .navforum_ul {
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.navforum .navforum_li {
+  list-style-type: none;
+}
+
+.navforum .menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  min-height: 40px;
+  margin: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px black;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+.navforum .menu-btn:hover {
+  color: white;
+}
+
+.custom-toggler {
+  border: 2px solid #23A3D9;
+  margin: 8px auto;
+}
+
+.custom-toggler .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2835, 163, 217, 0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.inactive-link {
+  background-color: #23A3D9;
+}
+
+.active-link {
+  background-color: #26A648;
+}
+
+.dev-link {
+  background-color: #f39c12;
+}
+
+.inactive-link:hover {
+  background-color: #26A648;
+}
+
+.active-link:hover {
+  background-color: #23A3D9;
+}
+
+.dev-link:hover {
+  background-color: #e67e22;
 }
 
 .navvente {
   margin-bottom: 10px;
   width: 100%;
   height: 40px;
-  /*le TOP permet d'avoir la position sticky qui vient à 80px du haut, soit sous navforum. */
-  /*Peut-être à faire évoluer pour un affichage sur petit écran*/
   top: 80px;
   background-color: #FBF3E4;
 }
 
-.navforum > .navforum_ul {
-  padding: 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.navforum > .navforum_ul > .navforum_li {
-  display: flex;
-  list-style-type: none;
-  width: 160px;
-  height: 40px;
-  box-shadow: 0px 0px 5px black;
-  font-weight: bold;
-  border-radius: 5px;
-  margin: 10px 10px;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.navforum .navforum_ul .navforum_li {
-  position: relative;
-}
-
-.navforum > .navforum_ul > .navforum_li > .lien_li {
-  display: block;
-  width: 100%;
-  margin: 0px;
-  padding: 0px;
-  text-align: center;
-  text-decoration: none;
-  color: white;
-}
-
 .navvente > .navvente_ul {
-  padding: 0px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,10 +92,10 @@
   list-style-type: none;
   width: 160px;
   height: 20px;
-  box-shadow: 0px 0px 5px black;
+  box-shadow: 0 0 5px black;
   font-weight: bold;
   border-radius: 5px;
-  margin: 0px 10px;
+  margin: 0 10px;
   align-items: center;
   justify-content: center;
   color: white;
@@ -81,14 +108,14 @@
 .navvente > .navvente_ul > .navvente_li > .lien_li {
   display: block;
   width: 100%;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   text-align: center;
   text-decoration: none;
   color: white;
 }
 
-/* Pour faire en sorte que l'écriture dans les boutons soit centrée et la couleur des boutons*/
+/* Classes historiques conservées pour compatibilité */
 .bleu {
   background-color: #23A3D9;
 }
@@ -103,11 +130,27 @@
   color: white;
 }
 
-/*Pour faire changer la couleur des boutons lors du survol de la souris*/
 .bleu:hover {
   background-color: #26A648;
 }
 
 .vert:hover {
   background-color: #23A3D9;
-}/*# sourceMappingURL=nav.css.map */
+}
+
+@media (max-width: 991.98px) {
+  .navforum {
+    min-height: auto;
+  }
+
+  .navforum .navbar-collapse {
+    padding-bottom: 8px;
+  }
+
+  .navforum .menu-btn {
+    width: 100%;
+    margin: 4px 0;
+  }
+}
+
+/*# sourceMappingURL=nav.css.map */
