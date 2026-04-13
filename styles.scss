@@ -22,13 +22,13 @@
     height: 150px;
 }
 
-.titre{
+.titre {
     width: 50%;
-    margin: 0px auto;
-    font-size: 35px;
+    margin: 0 auto;
+    font-size: clamp(20px, 5vw, 35px);
     text-align: center;
     font-weight: bold;
-    padding-top: 50px;
+    padding-top: clamp(15px, 4vw, 50px);
 }
 
 /* FIN Propriété de l'entête*/

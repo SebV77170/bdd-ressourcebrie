@@ -1,112 +1,130 @@
-.navforum{
+.navforum {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
     width: 100%;
-    height: 80px;
-    /*le TOP permet d'avoir la position sticky qui vient à 0px du haut, soit collé en haut du navigateur. */
-    /*Peut-être à faire évoluer pour un affichage sur petit écran*/
-    top: 0px;
     background-color: #FBF3E4;
-    
+    padding: 10px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.navvente{
-    margin-bottom: 10px;
-    width: 100%;
-    height: 40px;
-    /*le TOP permet d'avoir la position sticky qui vient à 80px du haut, soit sous navforum. */
-    /*Peut-être à faire évoluer pour un affichage sur petit écran*/
+.navvente {
+    position: sticky;
     top: 80px;
+    z-index: 1020;
+    width: 100%;
     background-color: #FBF3E4;
-    
+    padding: 5px 0;
+    margin-bottom: 10px;
 }
 
-.navforum > .navforum_ul{
-  
-    padding: 0px;
-    display: flex;
-    align-items: center;
-    justify-content: center;  
-}
-
-.navforum > .navforum_ul > .navforum_li{
-    display: flex;
-    list-style-type: none;
-    width: 160px;
-    height: 40px;
-    box-shadow: 0px 0px 5px black;
-    font-weight: bold;
-    border-radius: 5px;
-    margin: 10px 10px;
-    align-items: center;
-    justify-content: center;
-    color: white;
-}
-
-
-.navforum .navforum_ul .navforum_li{
-    position: relative;
-}
-
-.navforum > .navforum_ul > .navforum_li > .lien_li{
+/* Boutons du menu */
+.menu-btn {
     display: block;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
+    min-width: 160px;
+    padding: 10px 16px !important;
+    border-radius: 8px;
+    font-weight: bold;
     text-align: center;
     text-decoration: none;
-    color: white;
+    color: white !important;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
 }
 
-.navvente > .navvente_ul{
-  
-    padding: 0px;
-    display: flex;
-    align-items: center;
-    justify-content: center;  
+/* Couleur par défaut */
+.inactive-link {
+    background-color: #23A3D9;
 }
 
-.navvente > .navvente_ul > .navvente_li{
-    display: flex;
-    list-style-type: none;
-    width: 160px;
-    height: 20px;
-    box-shadow: 0px 0px 5px black;
-    font-weight: bold;
-    border-radius: 5px;
-    margin: 0px 10px;
-    align-items: center;
-    justify-content: center;
-    color: white;
+/* Lien actif */
+.active-link {
+    background-color: #26A648;
 }
 
+/* Liens orange du mode dev */
+.orange {
+    background-color: #f28c28 !important;
+    color: white !important;
+}
 
-.navvente .navvente_ul .navvente_li{
+.orange:hover {
+    background-color: #d97706 !important;
+}
+
+/* Hover */
+.inactive-link:hover {
+    background-color: #26A648;
+}
+
+.active-link:hover {
+    background-color: #23A3D9;
+}
+
+/* Bouton hamburger */
+.custom-toggler {
+    border: 1px solid #23A3D9;
+    background: white;
+    padding: 0.35rem 0.55rem;
+}
+
+/* Icône hamburger personnalisée */
+.custom-toggler .navbar-toggler-icon {
+    background-image: none;
     position: relative;
+    width: 24px;
+    height: 2px;
+    background-color: #23A3D9;
+    display: inline-block;
+    vertical-align: middle;
 }
 
-.navvente > .navvente_ul > .navvente_li > .lien_li{
-    display: block;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-    text-align: center;
-    text-decoration: none;
-    color: white;
-}
-
-/* Pour faire en sorte que l'écriture dans les boutons soit centrée et la couleur des boutons*/
-.bleu{
+.custom-toggler .navbar-toggler-icon::before,
+.custom-toggler .navbar-toggler-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 24px;
+    height: 2px;
     background-color: #23A3D9;
 }
-.vert{
-    background-color: #26A648;
-    color: white;
+
+.custom-toggler .navbar-toggler-icon::before {
+    top: -7px;
 }
 
-/*Pour faire changer la couleur des boutons lors du survol de la souris*/
-
-.bleu:hover{
-    background-color: #26A648;
+.custom-toggler .navbar-toggler-icon::after {
+    top: 7px;
 }
-.vert:hover{
-    background-color: #23A3D9;
+
+/* Espacement de la liste */
+.navforum .navbar-nav {
+    align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .navforum {
+        padding: 8px 0;
+    }
+
+    .menu-btn {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .navbar-nav {
+        width: 100%;
+        margin-top: 10px;
+        gap: 10px;
+    }
+
+    .nav-item {
+        width: 100%;
+    }
+
+    .navvente {
+        position: static;
+        top: auto;
+    }
 }
