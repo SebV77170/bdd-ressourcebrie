@@ -152,6 +152,11 @@
     padding-bottom: 8px;
   }
 
+  .navforum .navforum_ul,
+  .navforum .navforum_li {
+    width: 100%;
+  }
+
   .navforum .menu-btn {
     width: 100%;
     min-width: 100%;
@@ -161,7 +166,7 @@
 
   .custom-toggler {
     position: fixed;
-    top: 8px;
+    top: 160px;
     left: 8px;
     margin: 0;
     z-index: 1080;

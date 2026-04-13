@@ -5,7 +5,7 @@ $mode_dev = false; // Toggle ici
 
 <nav class="navbar navbar-expand-lg navforum px-2">
     <div class="container-fluid">
-        <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuForum" aria-controls="menuForum" aria-expanded="false" aria-label="Ouvrir le menu">
+        <button id="menuForumToggle" class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuForum" aria-controls="menuForum" aria-expanded="false" aria-label="Ouvrir le menu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -48,3 +48,50 @@ $mode_dev = false; // Toggle ici
         </div>
     </div>
 </nav>
+
+<script>
+(function () {
+    const menu = document.getElementById('menuForum');
+    const toggle = document.getElementById('menuForumToggle');
+
+    if (!menu || !toggle || typeof bootstrap === 'undefined') {
+        return;
+    }
+
+    const collapse = bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false });
+    let inactivityTimer = null;
+
+    function clearInactivityTimer() {
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = null;
+        }
+    }
+
+    function startInactivityTimer() {
+        clearInactivityTimer();
+        inactivityTimer = setTimeout(() => {
+            if (menu.classList.contains('show')) {
+                collapse.hide();
+            }
+        }, 5000);
+    }
+
+    function resetInactivityTimer() {
+        if (menu.classList.contains('show')) {
+            startInactivityTimer();
+        }
+    }
+
+    menu.addEventListener('shown.bs.collapse', startInactivityTimer);
+    menu.addEventListener('hidden.bs.collapse', clearInactivityTimer);
+
+    ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach((eventName) => {
+        menu.addEventListener(eventName, resetInactivityTimer);
+    });
+
+    toggle.addEventListener('click', () => {
+        setTimeout(resetInactivityTimer, 50);
+    });
+})();
+</script>
