@@ -98,11 +98,6 @@
   color: white;
 }
 
-.active {
-  background-color: #26A648;
-  color: white;
-}
-
 /*Pour faire changer la couleur des boutons lors du survol de la souris*/
 .bleu:hover {
   background-color: #26A648;
