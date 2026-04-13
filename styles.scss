@@ -72,17 +72,6 @@
     padding: 10px 10px;
 }
 
-.legend{
-    caption-side: bottom;
-    background-color: #26A648;
-    color: white;
-    width: 250%;
-    font-weight: bold;
-    position: relative;
-    right: 75%;
-    margin-top: 20px;
-}
-
 /* FIN Propriété des différents tableaux*/
 
 .paraphdoc{
@@ -129,21 +118,6 @@
 }
 
 /* FIN Propriété des différents formulaires*/
-
-/*Bouton pour ajout de sous-catégorie*/
-
-.petitboutonform{
-    display: inline-block;
-    width: 15px;
-    height: 15px;
-    border: 1px solid black;
-    border-radius: 3px;
-    text-align: center;
-    text-decoration: none;
-    background-color: #26A648;
-}   
-
-/*FIN Bouton pour ajout de sous-catégorie*/
 
 /*Bouton pour Retour, valider ou Annuler*/
 
@@ -311,7 +285,6 @@ a.disabled-link {
   text-decoration: none;
   cursor: not-allowed;
 }
-
 
 
 
