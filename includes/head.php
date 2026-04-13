@@ -11,5 +11,5 @@
 </head>
 -->
         <link href="vendor/twbs/bootstrap/scss/bootstrap.css" rel="stylesheet">
-        <link rel="stylesheet" href="styles.css">
-        <link rel="stylesheet" href="nav.css">
+        <link rel="stylesheet" href="styles.css?v=<?= filemtime('styles.css') ?>">
+        <link rel="stylesheet" href="nav.css?v=<?= filemtime('nav.css') ?>">
