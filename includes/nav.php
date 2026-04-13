@@ -51,47 +51,51 @@ $mode_dev = false; // Toggle ici
 
 <script>
 (function () {
-    const menu = document.getElementById('menuForum');
-    const toggle = document.getElementById('menuForumToggle');
+    function initNavAutoCollapse() {
+        const menu = document.getElementById('menuForum');
+        const toggle = document.getElementById('menuForumToggle');
 
-    if (!menu || !toggle || typeof bootstrap === 'undefined') {
-        return;
-    }
-
-    const collapse = bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false });
-    let inactivityTimer = null;
-
-    function clearInactivityTimer() {
-        if (inactivityTimer) {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = null;
+        if (!menu || !toggle || typeof bootstrap === 'undefined') {
+            return;
         }
-    }
 
-    function startInactivityTimer() {
-        clearInactivityTimer();
-        inactivityTimer = setTimeout(() => {
-            if (menu.classList.contains('show')) {
-                collapse.hide();
+        const collapse = bootstrap.Collapse.getOrCreateInstance(menu, { toggle: false });
+        let inactivityTimer = null;
+
+        function clearInactivityTimer() {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null;
             }
-        }, 5000);
-    }
-
-    function resetInactivityTimer() {
-        if (menu.classList.contains('show')) {
-            startInactivityTimer();
         }
+
+        function startInactivityTimer() {
+            clearInactivityTimer();
+            inactivityTimer = setTimeout(() => {
+                if (menu.classList.contains('show')) {
+                    collapse.hide();
+                }
+            }, 5000);
+        }
+
+        function resetInactivityTimer() {
+            if (menu.classList.contains('show')) {
+                startInactivityTimer();
+            }
+        }
+
+        menu.addEventListener('shown.bs.collapse', startInactivityTimer);
+        menu.addEventListener('hidden.bs.collapse', clearInactivityTimer);
+
+        ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach((eventName) => {
+            menu.addEventListener(eventName, resetInactivityTimer);
+        });
+
+        toggle.addEventListener('click', () => {
+            setTimeout(resetInactivityTimer, 50);
+        });
     }
 
-    menu.addEventListener('shown.bs.collapse', startInactivityTimer);
-    menu.addEventListener('hidden.bs.collapse', clearInactivityTimer);
-
-    ['click', 'touchstart', 'mousemove', 'keydown', 'scroll'].forEach((eventName) => {
-        menu.addEventListener(eventName, resetInactivityTimer);
-    });
-
-    toggle.addEventListener('click', () => {
-        setTimeout(resetInactivityTimer, 50);
-    });
+    window.addEventListener('load', initNavAutoCollapse);
 })();
 </script>
