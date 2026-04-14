@@ -9,11 +9,12 @@ $getFacture = $db->prepare('SELECT lien FROM facture WHERE uuid_ticket = ?');
 $getFacture->execute(array($_GET['uuid_ticket']));
 
 $ticket = $getTicket->fetch();
+var_dump($ticket);
 $facture = $getFacture->fetch();
-if(!empty($facture[0])):
-    $lien = $facture[0];
+if(!empty($facture['lien'])):
+    $lien = $facture['lien'];
 else:
-    $lien = $ticket[0];
+    $lien = $ticket['lien'];
 endif;
 
 ?>
