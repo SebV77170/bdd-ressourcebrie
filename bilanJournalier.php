@@ -131,29 +131,32 @@ function getMonthName($month) {
                 <th class="cellule_tete">Virement</th>
             </tr>
         
-        <?php foreach ($results as list($date, $timestamp, $nombre, $poids, $total, $espece, $cheque, $carte, $virement)): ?>
-            <?php
-                $poids = $poids / 1000;
-                $total = $total / 100;
-                $espece = $espece / 100;
-                $cheque = $cheque / 100;
-                $carte = $carte / 100;
-                $virement = $virement / 100;
-                $format_us = implode('-', array_reverse(explode('/', $date)));
-            ?>
-            <tr class="ligne">
-                <td class="colonne"><?= $date ?></td>
-                <td class="colonne"><?= $nombre ?></td>
-                <td class="colonne"><?= $poids ?> kg</td>
-                <td class="colonne"><?= $total ?> €</td>
-                <td class="colonne"><?= $espece ?> €</td>
-                <td class="colonne"><?= $cheque ?> €</td>
-                <td class="colonne"><?= $carte ?> €</td>
-                <td class="colonne"><?= $virement ?> €</td>
-                <td class="colonne"><a href="actions/objets/update_db_bilan_manuel.php?date=<?= $date ?>">Mise à jour</a></td>
-                <td class="colonne"><a href="actions/objets/compiltxt.php?date=<?= $format_us ?>">Compiler les tickets du jour</a></td>
-            </tr>
-        <?php endforeach; ?>
+        <?php foreach ($results as $row): ?>
+    <?php
+        $date = $row['date'];
+        $timestamp = $row['timestamp'];
+        $nombre = $row['nombre_vente'];
+        $poids = $row['poids'] / 1000;
+        $total = $row['prix_total'] / 100;
+        $espece = $row['prix_total_espece'] / 100;
+        $cheque = $row['prix_total_cheque'] / 100;
+        $carte = $row['prix_total_carte'] / 100;
+        $virement = $row['prix_total_virement'] / 100;
+        $format_us = implode('-', array_reverse(explode('/', $date)));
+    ?>
+    <tr class="ligne">
+        <td class="colonne"><?= $date ?></td>
+        <td class="colonne"><?= $nombre ?></td>
+        <td class="colonne"><?= $poids ?> kg</td>
+        <td class="colonne"><?= $total ?> €</td>
+        <td class="colonne"><?= $espece ?> €</td>
+        <td class="colonne"><?= $cheque ?> €</td>
+        <td class="colonne"><?= $carte ?> €</td>
+        <td class="colonne"><?= $virement ?> €</td>
+        <td class="colonne"><a href="actions/objets/update_db_bilan_manuel.php?date=<?= $date ?>">Mise à jour</a></td>
+        <td class="colonne"><a href="actions/objets/compiltxt.php?date=<?= $format_us ?>">Compiler les tickets du jour</a></td>
+    </tr>
+<?php endforeach; ?>
         </table>
         
         <?php else: ?>
