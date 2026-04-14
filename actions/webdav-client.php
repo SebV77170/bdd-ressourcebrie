@@ -6,7 +6,6 @@ function getWebdavConfig(): array
         'base_url' => rtrim($_ENV['WEBDAV_BASE_URL'] ?? '', '/') . '/',
         'username' => $_ENV['WEBDAV_USERNAME'] ?? '',
         'password' => $_ENV['WEBDAV_PASSWORD'] ?? '',
-        'ca_path'  => 'C:/wamp64/bin/php/cacert.pem', // adapte si besoin
     ];
 }
 
@@ -31,7 +30,6 @@ function webdavRequest(string $method, string $url, ?string $body = null, array 
         CURLOPT_HEADER         => true,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
-        CURLOPT_CAINFO         => $config['ca_path'],
         CURLOPT_TIMEOUT        => 30,
     ]);
 
