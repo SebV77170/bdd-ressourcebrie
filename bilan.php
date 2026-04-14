@@ -41,7 +41,6 @@ $annee = date('Y');
                 <a class="doc_lien" href="BilanObjetsVendus.php"><li class="doc_li" id="bleu">Objets Vendus</li></a>
                 <a class="doc_lien" href="chargeTravail.php?annee=<?php echo $annee ?>"><li class="doc_li" id="bleu">Charge de travail</li></a>
                 <a class="doc_lien" href="bilanDechetterie.php"><li class="doc_li" id="bleu">Bilan dechetterie</li></a>
-                <a class="doc_lien" href="telechargementDB.php"><li class="doc_li" id="bleu">Télécharger la DB 2024</li></a>
             </ul>
         </div>
         
