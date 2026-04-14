@@ -75,10 +75,7 @@ if (isset($_GET['date'])) {
                 <td>' . $ticket['nbr_objet'] . '</td>
                 <td>' . $ticket['moyen_paiement'] . '</td>
                 <td>' . $prixEuro . '€</td>
-                <td><a href="ticketdecaisseapresvente.php?uuid_ticket=' . $ticket['uuid_ticket'] . '">Voir le ticket</a></td>
-                <td class="colonne"><a ' . $disabledAttr . ' href="confirmation.php?id_ticket=' . $ticket['id_ticket'] . '">Supprimer</a></td>
-                <td class="colonne"><a ' . $disabledAttr . ' href="actions/objets/modification.php?id_ticket=' . $ticket['id_ticket'] . '">Modifier</a></td>
-            </tr>';
+                <td><a href="actions/objets/downloadTicketWebdav.php?uuid_ticket=' . urlencode($ticket['uuid_ticket']) . '" target="_blank">Voir le ticket</a></td>            </tr>';
             }
         echo '</table>';
     } else {
