@@ -225,7 +225,7 @@ $totalWeightKg = $totalWeightGrams / 1000;
 
 
             <?php
-            if($_SESSION['admin'] > 1){
+            if($_SESSION['admin'] >= 1){
             ?>
 
 
