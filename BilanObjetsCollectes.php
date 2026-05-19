@@ -82,9 +82,10 @@ function extractYear(?string $rawDate): ?int
 
 $feedbackMessage = null;
 $feedbackType = 'success';
+$canManageCollectes = isset($_SESSION['admin']) && (int) $_SESSION['admin'] > 1;
 
 if (isset($_POST['action_collecte'])) {
-    if (!isset($_SESSION['admin']) || (int) $_SESSION['admin'] <= 1) {
+    if (!$canManageCollectes) {
         $feedbackMessage = 'Action refusée : seules les personnes administratrices peuvent modifier ou supprimer une saisie.';
         $feedbackType = 'error';
     } elseif ($_POST['action_collecte'] === 'delete' && isset($_POST['id'])) {
@@ -314,7 +315,7 @@ $totalWeightKg = $totalWeightGrams / 1000;
             <div class="collectes-list">
                 <table class="tableau">
                     <tr class="ligne">
-                        <th class="cellule_tete">Date</th><th class="cellule_tete">Nom</th><th class="cellule_tete">Catégorie</th><th class="cellule_tete">Sous-cat.</th><th class="cellule_tete">Flux</th><th class="cellule_tete">Poids (g)</th><th class="cellule_tete">Actions</th>
+                        <th class="cellule_tete">Date</th><th class="cellule_tete">Nom</th><th class="cellule_tete">Catégorie</th><th class="cellule_tete">Sous-cat.</th><th class="cellule_tete">Flux</th><th class="cellule_tete">Poids (g)</th><?php if ($canManageCollectes): ?><th class="cellule_tete">Actions</th><?php endif; ?>
                     </tr>
                     <?php foreach ($filteredCollectes as $objet): ?>
                         <tr class="ligne">
@@ -324,6 +325,7 @@ $totalWeightKg = $totalWeightGrams / 1000;
                             <td class="colonne"><?php echo htmlspecialchars((string) $objet['souscat'], ENT_QUOTES); ?></td>
                             <td class="colonne"><?php echo htmlspecialchars((string) $objet['flux'], ENT_QUOTES); ?></td>
                             <td class="colonne"><?php echo htmlspecialchars((string) $objet['poids'], ENT_QUOTES); ?></td>
+                            <?php if ($canManageCollectes): ?>
                             <td class="colonne">
                                 <div class="collectes-actions">
                                     <button type="button" class="btn-small btn-edit open-edit"
@@ -340,12 +342,14 @@ $totalWeightKg = $totalWeightGrams / 1000;
                                     </form>
                                 </div>
                             </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </table>
             </div>
         </section>
 
+        <?php if ($canManageCollectes): ?>
         <div class="collectes-modal" id="editModal">
             <div class="collectes-modal-card">
                 <h3>Modifier une saisie</h3>
@@ -364,6 +368,7 @@ $totalWeightKg = $totalWeightGrams / 1000;
                 </form>
             </div>
         </div>
+        <?php endif; ?>
 
         <?php
             }else{
