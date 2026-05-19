@@ -80,7 +80,37 @@ function extractYear(?string $rawDate): ?int
     return null;
 }
 
-$statement = $db->query('SELECT id, nom, categorie, souscat, poids, date, flux FROM objets_collectes');
+$feedbackMessage = null;
+$feedbackType = 'success';
+
+if (isset($_POST['action_collecte'])) {
+    if (!isset($_SESSION['admin']) || (int) $_SESSION['admin'] <= 1) {
+        $feedbackMessage = 'Action refusée : seules les personnes administratrices peuvent modifier ou supprimer une saisie.';
+        $feedbackType = 'error';
+    } elseif ($_POST['action_collecte'] === 'delete' && isset($_POST['id'])) {
+        $deleteStmt = $db->prepare('DELETE FROM objets_collectes WHERE id = ?');
+        $deleteStmt->execute([(int) $_POST['id']]);
+        $feedbackMessage = 'Saisie supprimée avec succès.';
+    } elseif ($_POST['action_collecte'] === 'edit' && isset($_POST['id'])) {
+        $id = (int) $_POST['id'];
+        $nom = trim((string) ($_POST['nom'] ?? ''));
+        $categorie = trim((string) ($_POST['categorie'] ?? ''));
+        $souscat = trim((string) ($_POST['souscat'] ?? ''));
+        $flux = trim((string) ($_POST['flux'] ?? ''));
+        $poids = (float) ($_POST['poids'] ?? 0);
+
+        if ($nom === '' || $categorie === '' || $poids <= 0) {
+            $feedbackMessage = 'Modification impossible : nom, catégorie et poids sont obligatoires.';
+            $feedbackType = 'error';
+        } else {
+            $updateStmt = $db->prepare('UPDATE objets_collectes SET nom = ?, categorie = ?, souscat = ?, flux = ?, poids = ? WHERE id = ?');
+            $updateStmt->execute([$nom, $categorie, $souscat, $flux, $poids, $id]);
+            $feedbackMessage = 'Saisie modifiée avec succès.';
+        }
+    }
+}
+
+$statement = $db->query('SELECT id, nom, categorie, souscat, poids, date, flux FROM objets_collectes ORDER BY date DESC, id DESC');
 $objetsCollectes = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 $years = [];
@@ -96,6 +126,7 @@ $availableYears = array_keys($years);
 rsort($availableYears);
 
 $selectedYear = null;
+$selectedDay = '';
 if (isset($_GET['annee']) && $_GET['annee'] !== '') {
     $candidateYear = filter_var($_GET['annee'], FILTER_VALIDATE_INT);
     if ($candidateYear !== false && in_array($candidateYear, $availableYears, true)) {
@@ -103,12 +134,33 @@ if (isset($_GET['annee']) && $_GET['annee'] !== '') {
     }
 }
 
-$filteredCollectes = array_filter($objetsCollectes, static function (array $objet) use ($selectedYear): bool {
-    if ($selectedYear === null) {
-        return true;
+$availableDays = [];
+foreach ($objetsCollectes as $objet) {
+    $dayValue = substr((string) ($objet['date'] ?? ''), 0, 10);
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dayValue)) {
+        $availableDays[$dayValue] = true;
+    }
+}
+$availableDays = array_keys($availableDays);
+rsort($availableDays);
+
+if (isset($_GET['jour']) && $_GET['jour'] !== '') {
+    $candidateDay = trim((string) $_GET['jour']);
+    if (in_array($candidateDay, $availableDays, true)) {
+        $selectedDay = $candidateDay;
+    }
+}
+
+$filteredCollectes = array_filter($objetsCollectes, static function (array $objet) use ($selectedYear, $selectedDay): bool {
+    if ($selectedYear !== null && $objet['_year'] !== $selectedYear) {
+        return false;
     }
 
-    return $objet['_year'] === $selectedYear;
+    if ($selectedDay !== '') {
+        return substr((string) ($objet['date'] ?? ''), 0, 10) === $selectedDay;
+    }
+
+    return true;
 });
 
 $totalWeightGrams = 0;
@@ -173,14 +225,31 @@ $totalWeightKg = $totalWeightGrams / 1000;
 
 
             <?php
-            if($_SESSION['admin'] >= 1){
+            if($_SESSION['admin'] > 1){
             ?>
 
 
         <?php if(isset($message)){
             echo '<p style="text-align: center;">'.$message.'</p>';
         }
+        echo $feedbackMessage ? '<p class="feedback '.htmlspecialchars($feedbackType, ENT_QUOTES).'">'.htmlspecialchars($feedbackMessage, ENT_QUOTES).'</p>' : '';
         ?>
+
+        <style>
+            .collectes-panel { max-width: 1100px; margin: 0 auto 2rem; }
+            .collectes-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
+            .collectes-list { overflow-x:auto; }
+            .btn-small { padding:.4rem .7rem; border-radius:8px; border:none; cursor:pointer; }
+            .btn-edit { background:#1f6feb; color:white; }
+            .btn-delete { background:#d1242f; color:white; }
+            .collectes-modal { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:flex-end; justify-content:center; z-index:2000; }
+            .collectes-modal.open { display:flex; }
+            .collectes-modal-card { width:min(700px,100%); background:#fff; border-radius:16px 16px 0 0; padding:1rem; max-height:90vh; overflow:auto; }
+            @media (min-width: 768px) { .collectes-modal { align-items:center; } .collectes-modal-card { border-radius:16px; } }
+            .feedback.success { color:#0c7a2f; text-align:center; }
+            .feedback.error { color:#b42318; text-align:center; }
+        </style>
+
 
         <section style="text-align: center;">
             <p>Poids total d'objets <strong>collectés</strong> pour
@@ -196,6 +265,15 @@ $totalWeightKg = $totalWeightGrams / 1000;
                 <?php foreach ($availableYears as $yearOption): ?>
                     <option value="<?php echo htmlspecialchars((string) $yearOption, ENT_QUOTES); ?>" <?php echo $selectedYear === (int) $yearOption ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars((string) $yearOption, ENT_QUOTES); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <label class="champ" for="jour" style="margin-top: .8rem;">Filtrer par jour :</label>
+            <select id="jour" name="jour" class="input">
+                <option value="">Tous les jours</option>
+                <?php foreach ($availableDays as $dayOption): ?>
+                    <option value="<?php echo htmlspecialchars($dayOption, ENT_QUOTES); ?>" <?php echo $selectedDay === $dayOption ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($dayOption, ENT_QUOTES); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -229,6 +307,63 @@ $totalWeightKg = $totalWeightGrams / 1000;
                 <canvas id="collectesPie"></canvas>
             </div>
         <?php endif; ?>
+
+
+        <section class="collectes-panel">
+            <h2 style="text-align:center;">Liste des saisies</h2>
+            <div class="collectes-list">
+                <table class="tableau">
+                    <tr class="ligne">
+                        <th class="cellule_tete">Date</th><th class="cellule_tete">Nom</th><th class="cellule_tete">Catégorie</th><th class="cellule_tete">Sous-cat.</th><th class="cellule_tete">Flux</th><th class="cellule_tete">Poids (g)</th><th class="cellule_tete">Actions</th>
+                    </tr>
+                    <?php foreach ($filteredCollectes as $objet): ?>
+                        <tr class="ligne">
+                            <td class="colonne"><?php echo htmlspecialchars((string) $objet['date'], ENT_QUOTES); ?></td>
+                            <td class="colonne"><?php echo htmlspecialchars((string) $objet['nom'], ENT_QUOTES); ?></td>
+                            <td class="colonne"><?php echo htmlspecialchars((string) $objet['categorie'], ENT_QUOTES); ?></td>
+                            <td class="colonne"><?php echo htmlspecialchars((string) $objet['souscat'], ENT_QUOTES); ?></td>
+                            <td class="colonne"><?php echo htmlspecialchars((string) $objet['flux'], ENT_QUOTES); ?></td>
+                            <td class="colonne"><?php echo htmlspecialchars((string) $objet['poids'], ENT_QUOTES); ?></td>
+                            <td class="colonne">
+                                <div class="collectes-actions">
+                                    <button type="button" class="btn-small btn-edit open-edit"
+                                        data-id="<?php echo (int) $objet['id']; ?>"
+                                        data-nom="<?php echo htmlspecialchars((string) $objet['nom'], ENT_QUOTES); ?>"
+                                        data-categorie="<?php echo htmlspecialchars((string) $objet['categorie'], ENT_QUOTES); ?>"
+                                        data-souscat="<?php echo htmlspecialchars((string) $objet['souscat'], ENT_QUOTES); ?>"
+                                        data-flux="<?php echo htmlspecialchars((string) $objet['flux'], ENT_QUOTES); ?>"
+                                        data-poids="<?php echo htmlspecialchars((string) $objet['poids'], ENT_QUOTES); ?>">Modifier</button>
+                                    <form method="post" onsubmit="return confirm('Supprimer cette saisie ?');">
+                                        <input type="hidden" name="action_collecte" value="delete">
+                                        <input type="hidden" name="id" value="<?php echo (int) $objet['id']; ?>">
+                                        <button class="btn-small btn-delete" type="submit">Supprimer</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </section>
+
+        <div class="collectes-modal" id="editModal">
+            <div class="collectes-modal-card">
+                <h3>Modifier une saisie</h3>
+                <form method="post" class="jeuchamp">
+                    <input type="hidden" name="action_collecte" value="edit">
+                    <input type="hidden" id="edit-id" name="id">
+                    <label class="champ" for="edit-nom">Nom</label><input class="input" id="edit-nom" name="nom" required>
+                    <label class="champ" for="edit-categorie">Catégorie</label><input class="input" id="edit-categorie" name="categorie" required>
+                    <label class="champ" for="edit-souscat">Sous-catégorie</label><input class="input" id="edit-souscat" name="souscat">
+                    <label class="champ" for="edit-flux">Flux</label><input class="input" id="edit-flux" name="flux">
+                    <label class="champ" for="edit-poids">Poids (g)</label><input class="input" id="edit-poids" name="poids" type="number" step="0.01" min="0.01" required>
+                    <div style="display:flex; gap:.6rem; margin-top:1rem;">
+                        <button class="input inputsubmit" type="submit">Enregistrer</button>
+                        <button class="input" type="button" id="closeModal">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <?php
             }else{
@@ -276,5 +411,21 @@ $totalWeightKg = $totalWeightGrams / 1000;
                 }
             </script>
         <?php endif; ?>
+        <script>
+            const editModal = document.getElementById('editModal');
+            document.querySelectorAll('.open-edit').forEach((button) => {
+                button.addEventListener('click', () => {
+                    document.getElementById('edit-id').value = button.dataset.id || '';
+                    document.getElementById('edit-nom').value = button.dataset.nom || '';
+                    document.getElementById('edit-categorie').value = button.dataset.categorie || '';
+                    document.getElementById('edit-souscat').value = button.dataset.souscat || '';
+                    document.getElementById('edit-flux').value = button.dataset.flux || '';
+                    document.getElementById('edit-poids').value = button.dataset.poids || '';
+                    editModal?.classList.add('open');
+                });
+            });
+            document.getElementById('closeModal')?.addEventListener('click', () => editModal?.classList.remove('open'));
+            editModal?.addEventListener('click', (e) => { if (e.target === editModal) editModal.classList.remove('open'); });
+        </script>
     </body>
 </html>
